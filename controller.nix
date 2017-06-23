@@ -6,6 +6,8 @@
 
 { pkgs ? import <nixpkgs> {} }:
 
+with import ./deps.nix {inherit pkgs;};
+
 let
   third-party = pkgs.stdenv.mkDerivation {
     name = "contrail-third-party";
@@ -20,14 +22,9 @@ let
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
-    buildInputs = [ pkgs.pythonPackages.lxml
-                    pkgs.pkgconfig
-                    pkgs.autoconf 
-                    pkgs.automake 
-                    pkgs.libtool
-                    pkgs.unzip
-                    pkgs.wget
-                  ];
+    buildInputs = with pkgs; [
+      pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget
+    ];
 
     buildPhase = ''
       export USER=contrail
@@ -67,7 +64,7 @@ let
       sed -i 's|AgentEnv.Clone()|AgentEnv.RemoveExceptionFlag(AgentEnv.Clone())\ncflags = env["CCFLAGS"]\ncflags.append("-Wno-error=maybe-uninitialized")\nenv.Replace(CCFLAGS = cflags)|'       src/vnsw/agent/pkt/SConscript
       sed -i "s|AgentEnv.Clone()|AgentEnv.RemoveExceptionFlag(AgentEnv.Clone())|"       src/vnsw/agent/vrouter/flow_stats/SConscript
 
-       #Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
+       # Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
        # This is because we are using glibc2.25. No warning before glibc2.24
       substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript \
         --replace 'env = AgentEnv.Clone()' 'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
@@ -81,38 +78,6 @@ let
     '';
     installPhase = "cp -r ./ $out";
   };
-
-  cassandra-cpp-driver = pkgs.stdenv.mkDerivation rec {
-    name = "cassandra-cpp-driver";
-    version = "2.5";
-     src = pkgs.fetchFromGitHub {
-      owner = "datastax";
-      repo = "cpp-driver";
-      rev = "a57e5d289d1ea500ccd958de6b75a5b4e0519377";
-      sha256 = "1zpj9kkw16692dl062khji87i06aya89jncqmblfd1vn0bgbpa18";
-    };
-
-    phases = [ "unpackPhase" "buildPhase" "installPhase" "fixupPhase"];
-
-    buildInputs = [ pkgs.cmake pkgs.libuv pkgs.openssl ];
-
-    buildPhase = ''
-    mkdir build
-    pushd build
-    cmake ..
-    make 
-    popd
-    '';
-    
-    installPhase = ''
-    mkdir $out
-    mkdir $out/include
-    mkdir $out/lib
-    cp include/cassandra.h $out/include/
-    cp build/libcassandra* $out/lib/
-    '';
-  };
-  
 
   neutron-plugin = pkgs.fetchFromGitHub {
       owner = "eonpatapon";
@@ -128,14 +93,6 @@ let
       sha256 = "0gwfqqdwph5776kcy2qn1i7472b84jbml8aran6kkbwp52611rk5";
   };
 
-  libipfix = pkgs.stdenv.mkDerivation rec {
-    name = "libipfix";
-    src = pkgs.fetchurl {
-	url = " http://sourceforge.net/projects/libipfix/files/libipfix/libipfix_110209.tgz";
-	sha256 = "0h7v0sxjjdc41hl5vq2x0yhyn04bczl11bqm97825mivrvfymhn6";
-      };
-  };
-  
   sandesh = pkgs.stdenv.mkDerivation rec {
     name = "sandesh";
     version = "3.2";
@@ -176,44 +133,22 @@ let
 
     phases = [ "unpackPhase" "patchPhase" "configurePhase" "buildPhase" "installPhase" ];
     
-    buildInputs = [ pkgs.scons 
-		    pkgs.gcc
-		    pkgs.pkgconfig
-                    pkgs.autoconf 
-                    pkgs.automake 
-                    pkgs.libtool
-                    pkgs.flex_2_5_35
-                    pkgs.bison
-                    # build deps
-                    pkgs.libkrb5
-                    pkgs.openssl
-                    pkgs.libxml2
-                    pkgs.perl
-                    pkgs.boost155
-                    pkgs.log4cplus
-		    pkgs.tbb
-		    pkgs.curl
+    buildInputs = with pkgs; [
+      scons gcc pkgconfig autoconf automake libtool flex_2_5_35 bison
+      # build deps
+      libkrb5 openssl libxml2 perl boost155 log4cplus tbb curl
+      # api server
+      pythonPackages.lxml pythonPackages.pip
+      # To get xxd required by sandesh
+      vim
+      # Vrouter agent
+      libipfix
 
-    		  # third party build
-    		  
-    		  # api server
-    		  pkgs.pythonPackages.lxml
-    		  pkgs.pythonPackages.pip
-		  
-		  # To get xxd required by sandesh
-		  pkgs.vim
-
-		  # Vrouter agent
-		  libipfix
-
-		  # analytics
-		  pkgs.protobuf2_5
-		  cassandra-cpp-driver
-		  pkgs.rdkafka # > 0.9
-		  pkgs.python
-		  pkgs.zookeeper_mt
-		  pkgs.pythonPackages.sphinx
-                  ];
+      # analytics
+      protobuf2_5 cassandra-cpp-driver
+      rdkafka # > 0.9
+      python zookeeper_mt pythonPackages.sphinx
+    ];
 
     # We don't override the patchPhase to be nix-shell compliant
     preUnpack = ''mkdir workspace || exit; cd workspace'';
@@ -240,7 +175,7 @@ let
       # Disable tests
       sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/api-server/setup.py
 
-      # Shoulud be moved in build drv
+      # Should be moved in build drv
       sed -i 's|def UseSystemBoost(env):|def UseSystemBoost(env):\n    return True|' -i tools/build/rules.py
 
       sed -i 's|--proto_path=/usr/|--proto_path=${pkgs.protobuf2_5}/|' tools/build/rules.py
@@ -262,86 +197,63 @@ let
     installPhase = "mkdir $out; cp -r build $out";
   };
 
-bitarray = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "bitarray";
-  version = "0.8.1";
-  name = "${pname}-${version}";
-  src = pkgs.pythonPackages.fetchPypi {
-    inherit pname version;
-    sha256 = "065bj29dvrr9rc47xkjalgjr8jxwq60kcfbryihkra28dqsh39bx";
+  vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "vnc_api";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/build/production/api-lib";
+    propagatedBuildInputs = with pkgs.pythonPackages; [ requests ];
   };
-};
 
-vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "vnc_api";
-  version = "0";
-  name = "${pname}-${version}";
-  src = "${contrail-workspace}/build/production/api-lib";
-  propagatedBuildInputs = with pkgs.pythonPackages; [ requests ];
-};
-
-cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "cfgm_common";
-  version = "0";
-  name = "${pname}-${version}";
-  src = "${contrail-workspace}/build/production/config/common";
-  doCheck = false;
-  propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle bitarray ];
-};
-
-sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "sandesh-common";
-  version = "0";
-  name = "${pname}-${version}";
-  src = "${contrail-workspace}/build/production/sandesh/common/";
-  propagatedBuildInputs = with pkgs.pythonPackages; [  ];
-};
-
-pysandesh = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "pysandesh";
-  version = "0";
-  name = "${pname}-${version}";
-  src = "${contrail-workspace}/build/production/tools/sandesh/library/python/";
-
-  propagatedBuildInputs = with pkgs.pythonPackages; [ gevent netaddr ];
-};
-
-discovery_client = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "discovery-client";
-  version = "0";
-  name = "${pname}-${version}";
-  src = "${contrail-workspace}/build/production/discovery/client/";
-  propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
-};
-
-pycassa = pkgs.pythonPackages.buildPythonPackage rec {
-  pname = "pycassa";
-  version = "1.11.2";
-  name = "${pname}-${version}";
-
-  src = pkgs.pythonPackages.fetchPypi {
-    inherit pname version;
-    sha256 = "1nsqjzgn6v0rya60dihvbnrnq1zwaxl2qwf0sr08q9qlkr334hr6";
+  cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "cfgm_common";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/build/production/config/common";
+    doCheck = false;
+    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle bitarray ];
   };
-  # Tests are not executed since they require a cassandra up and
-  # running
-  doCheck = false;
-  propagatedBuildInputs = [ pkgs.pythonPackages.thrift ];
-};
 
-api_server =  pkgs.pythonPackages.buildPythonApplication {
+  sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "sandesh-common";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/build/production/sandesh/common/";
+    propagatedBuildInputs = with pkgs.pythonPackages; [  ];
+  };
+
+  pysandesh = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "pysandesh";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/build/production/tools/sandesh/library/python/";
+
+    propagatedBuildInputs = with pkgs.pythonPackages; [ gevent netaddr ];
+  };
+
+  discovery_client = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "discovery-client";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/build/production/discovery/client/";
+    propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
+  };
+
+  api_server =  pkgs.pythonPackages.buildPythonApplication {
     name = "api-server";
     version = "3.2";
     src = "${contrail-workspace}/build/production/config/api-server/";
 
-    propagatedBuildInputs = with pkgs.pythonPackages; [ netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces ];
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces
+    ];
   };
 
 in
   { 
+    third-party = third-party;
     controller = contrail-workspace;
-    sandesh = sandesh;
-    libipfix = libipfix;
-    cassandra-cpp-driver = cassandra-cpp-driver;
     contrailApi = api_server;
+    vncApi = vncApi;
   }
