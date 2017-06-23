@@ -56,18 +56,15 @@ let
         'for dir in subdirs:' \
         'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ]:'
       
-      # Remove -fno-exception flags. It is not set in a devstack build but I don't why it is set here...
-      # shold Try without since it should be globally fixed
-      sed -i "s|'agent_sandesh.cc'|except_env.Object('agent_sandesh.cc')|"		src/vnsw/agent/oper/SConscript
-      sed -i "s|'cfg_mirror.cc',||"							src/vnsw/agent/cfg/SConscript
-      sed -i "s|'cfg_init.cc'|'cfg_init.cc', 'cfg_mirror.cc'|"				src/vnsw/agent/cfg/SConscript
-      sed -i 's|AgentEnv.Clone()|AgentEnv.RemoveExceptionFlag(AgentEnv.Clone())\ncflags = env["CCFLAGS"]\ncflags.append("-Wno-error=maybe-uninitialized")\nenv.Replace(CCFLAGS = cflags)|'       src/vnsw/agent/pkt/SConscript
-      sed -i "s|AgentEnv.Clone()|AgentEnv.RemoveExceptionFlag(AgentEnv.Clone())|"       src/vnsw/agent/vrouter/flow_stats/SConscript
+      substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
+        'AgentEnv.Clone()' \
+        'AgentEnv.Clone(); cflags = env["CCFLAGS"]; cflags.append("-Wno-error=maybe-uninitialized"); env.Replace(CCFLAGS = cflags)'
 
-       # Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
-       # This is because we are using glibc2.25. No warning before glibc2.24
-      substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript \
-        --replace 'env = AgentEnv.Clone()' 'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
+      # Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
+      # This is because we are using glibc2.25. No warning before glibc2.24
+      substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript --replace \
+        'env = AgentEnv.Clone()' \
+	'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
 
       substituteInPlace src/dns/cmn/SConscript \
         --replace "buildinfo_dep_libs +  cmn_sources +" "buildinfo_dep_libs +"
