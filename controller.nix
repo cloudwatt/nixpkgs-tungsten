@@ -4,10 +4,6 @@
 # To build the controller
 # nix-build controller.nix -o result-controller -A controller
 
-# To create an image
-# nix-build controller.nix -o resul-image -A image
-# docker load < result-image && docker run api-server /bin/contrail-api --help
-
 { pkgs ? import <nixpkgs> {} }:
 
 let
@@ -341,23 +337,11 @@ api_server =  pkgs.pythonPackages.buildPythonApplication {
     propagatedBuildInputs = with pkgs.pythonPackages; [ netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces ];
   };
 
-perp = pkgs.stdenv.mkDerivation {
-  name = "perp";
-  src = pkgs.fetchurl {
-    url = http://b0llix.net/perp/distfiles/perp-2.07.tar.gz;
-    sha256 = "05aq8xj9fpgs468dq6iqpkfixhzqm4xzj5l4lyrdh530q4qzw8hj";
-  };
-  preConfigure = "sed 's~ /usr/~ \${out}/usr/~' -i conf.mk";
-};
-
 in
-  { image = pkgs.dockerTools.buildImage {
-      name = "api-server";
-      contents = [ api_server pkgs.bash pkgs.coreutils pkgs.nix pkgs.bash-completion ];
-    };
+  { 
     controller = contrail-workspace;
     sandesh = sandesh;
     libipfix = libipfix;
     cassandra-cpp-driver = cassandra-cpp-driver;
-    perp = perp;
+    contrailApi = api_server;
   }
