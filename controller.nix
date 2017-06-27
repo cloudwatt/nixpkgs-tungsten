@@ -8,7 +8,7 @@
 
 with import ./deps.nix {inherit pkgs;};
 
-let
+rec {
   third-party = pkgs.stdenv.mkDerivation {
     name = "contrail-third-party";
     version = "3.2";
@@ -246,11 +246,4 @@ let
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces
     ];
   };
-
-in
-  { 
-    third-party = third-party;
-    controller = contrail-workspace;
-    contrailApi = api_server;
-    vncApi = vncApi;
-  }
+}
