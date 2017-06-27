@@ -191,14 +191,14 @@ rec {
       scons -j1 --optimization=production --root=./ controller/src/config/api-server
     '';
 
-    installPhase = "mkdir $out; cp -r build $out";
+    installPhase = "mkdir $out; cp -r build/* $out";
   };
 
   vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "vnc_api";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/build/production/api-lib";
+    src = "${contrail-workspace}/production/api-lib";
     propagatedBuildInputs = with pkgs.pythonPackages; [ requests ];
   };
 
@@ -206,7 +206,7 @@ rec {
     pname = "cfgm_common";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/build/production/config/common";
+    src = "${contrail-workspace}/production/config/common";
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle bitarray ];
   };
@@ -215,7 +215,7 @@ rec {
     pname = "sandesh-common";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/build/production/sandesh/common/";
+    src = "${contrail-workspace}/production/sandesh/common/";
     propagatedBuildInputs = with pkgs.pythonPackages; [  ];
   };
 
@@ -223,7 +223,7 @@ rec {
     pname = "pysandesh";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/build/production/tools/sandesh/library/python/";
+    src = "${contrail-workspace}/production/tools/sandesh/library/python/";
 
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent netaddr ];
   };
@@ -232,14 +232,14 @@ rec {
     pname = "discovery-client";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/build/production/discovery/client/";
+    src = "${contrail-workspace}/production/discovery/client/";
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
   api_server =  pkgs.pythonPackages.buildPythonApplication {
     name = "api-server";
     version = "3.2";
-    src = "${contrail-workspace}/build/production/config/api-server/";
+    src = "${contrail-workspace}/production/config/api-server/";
 
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
