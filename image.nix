@@ -50,10 +50,10 @@ in {
   contrailApi = pkgs.dockerTools.buildImage {
     name = "contrail-api";
     contents = [
-      api_server pkgs.coreutils
-     	perpEntryPoint (genPerpRcMain "contrail-api" "${api_server}/bin/contrail-api")
-    	# debug
-    	pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
+      pkgs.coreutils
+      (genPerpRcMain "contrail-api" "${api_server}/bin/contrail-api")
+      # debug
+      pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
     ];
     config = {
       Cmd = [ "${pkgs.bash}/bin/bash"  "-c" "${perpEntryPoint}/bin/entry-point" ];
