@@ -1,6 +1,6 @@
 # To create an image
-# nix-build image.nix -o resul-image -A image
-# docker load < result-image && docker run api-server /bin/contrail-api --help
+# nix-build image.nix -o resul-image -A contrailApi
+# docker load < result-image && docker run -d api-server
 
 { pkgs ? import <nixpkgs> {} }:
 
