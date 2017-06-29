@@ -47,11 +47,11 @@ let
   '';
 
 in {
-  contrailApi = pkgs.dockerTools.buildImage {
+  dockerContrailApi = pkgs.dockerTools.buildImage {
     name = "contrail-api";
     contents = [
       pkgs.coreutils
-      (genPerpRcMain "contrail-api" "${api_server}/bin/contrail-api")
+      (genPerpRcMain "contrail-api" "${contrailApi}/bin/contrail-api")
       # debug
       pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
     ];
@@ -60,6 +60,3 @@ in {
     };
   };
 }
-  
-
-    

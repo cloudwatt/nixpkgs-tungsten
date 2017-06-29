@@ -236,7 +236,7 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
-  api_server =  pkgs.pythonPackages.buildPythonApplication {
+  contrailApi =  pkgs.pythonPackages.buildPythonApplication {
     name = "api-server";
     version = "3.2";
     src = "${contrail-workspace}/production/config/api-server/";

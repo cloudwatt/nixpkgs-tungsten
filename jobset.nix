@@ -1,3 +1,8 @@
 # This file defines derivations built by Hydra
 
-import ./image.nix {}
+let
+  images = import ./image.nix {};
+  controller = import ./controller.nix {};
+in
+  images //
+  { contrailApi = controller.contrailApi; }
