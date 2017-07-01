@@ -1,3 +1,10 @@
+Enable the hydra services in configuration.nix, and create an admin account by using the hydra account
+```
+$ su - hydra
+$ hydra-init
+$ hydra-create-user admin --role admin --password admin
+```
+
 Unfortunately, we have to manually create this jobset in hydra...
 
 The Hydra jobset configuration is:
