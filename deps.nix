@@ -65,5 +65,25 @@
     doCheck = false;
     propagatedBuildInputs = [ pkgs.pythonPackages.thrift ];
   };
+
+  skopeo = pkgs.buildGoPackage rec {
+    name = "skopeo";
+    version = "0.1.22";
+    goPackagePath = "github.com/projectatomic/skopeo";
+
+    buildInputs = [ pkgs.btrfs-progs pkgs.devicemapper pkgs.pkgconfig pkgs.glib pkgs.ostree pkgs.gpgme.dev ];
+
+    prePatch = ''
+      rm -rf integration
+    '';
+
+    src = pkgs.fetchFromGitHub {
+      owner = "projectatomic";
+      repo = "skopeo";
+      rev = "5d24b67f5eeeca348966adb412d8119837faa1c2";
+      sha256 = "0aivs37bcvx3g22a9r3q1vj2ahw323g1vaq9jzbmifm9k0pb07jy";
+    };
+  };
+
 }
 
