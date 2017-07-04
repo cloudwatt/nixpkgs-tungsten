@@ -53,7 +53,7 @@ in {
       pkgs.coreutils
       (genPerpRcMain "contrail-api" "${contrailApi}/bin/contrail-api")
       # debug
-      pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
+      # pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
     ];
     config = {
       Cmd = [ "${pkgs.bash}/bin/bash"  "-c" "${perpEntryPoint}/bin/entry-point" ];
