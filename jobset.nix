@@ -10,7 +10,7 @@ let
     mkdir $out
     ln -s ${images.dockerContrailApi.out} $out/image.tar.gz
     mkdir $out/nix-support
-    echo "file tar+gzip ${images.dockerContrailApi.out}" > $out/nix-support/hydra-build-products
+    echo "file gzip ${images.dockerContrailApi.out}" > $out/nix-support/hydra-build-products
   '';
 
   dockerPushImage = image:
