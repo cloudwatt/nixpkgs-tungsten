@@ -6,7 +6,8 @@ let
   images = import ./image.nix {};
   controller = import ./controller.nix {};
 
-  dockerImageBuildProduct = pkgs.runCommand "docker-image" {} ''
+  # We want that Hydra generate a link to be able to manually download the image
+  dockerImageBuildProduct = image: pkgs.runCommand "${image.name}" {} ''
     mkdir $out
     ln -s ${images.dockerContrailApi.out} $out/image.tar.gz
     mkdir $out/nix-support
@@ -52,7 +53,6 @@ let
       skopeo --insecure-policy inspect --tls-verify=false --cert-dir=/tmp docker://${registry}/${repository} > $out
     '';
 in
-  images //
   { contrailApi = controller.contrailApi; } //
-  { dockerImage = dockerImageBuildProduct; } //
+  (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
   { dockerPush = dockerPushImage images.dockerContrailApi; }
