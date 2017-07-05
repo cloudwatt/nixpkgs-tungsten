@@ -236,6 +236,17 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
+  contrailControl = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-control";
+    version = "3.2";
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/{bin,etc/contrail}
+      cp ${contrail-workspace}/production/control-node/contrail-control $out/bin/
+      cp ${controller}/src/control-node/contrail-control.conf $out/etc/contrail/
+    '';
+  };
+
   contrailApi =  pkgs.pythonPackages.buildPythonApplication {
     name = "api-server";
     version = "3.2";

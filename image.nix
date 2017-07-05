@@ -46,12 +46,12 @@ let
     ${perp}/usr/sbin/perpd
   '';
 
-in {
-  dockerContrailApi = pkgs.dockerTools.buildImage {
-    name = "contrail-api";
+  # Build a docker image name that runs the executable as a perp service
+  buildDockerImage = name: executable: pkgs.dockerTools.buildImage {
+    inherit name;
     contents = [
       pkgs.coreutils
-      (genPerpRcMain "contrail-api" "${contrailApi}/bin/contrail-api")
+      (genPerpRcMain name executable)
       # debug
       # pkgs.nix pkgs.bash-completion pkgs.ncurses pkgs.bashInteractive pkgs.emacs25-nox
     ];
@@ -59,4 +59,8 @@ in {
       Cmd = [ "${pkgs.bash}/bin/bash"  "-c" "${perpEntryPoint}/bin/entry-point" ];
     };
   };
+
+in {
+  dockerContrailApi = buildDockerImage "contrail-api" "${contrailApi}/bin/contrail-api";
+  dockerContrailControl = buildDockerImage "contrail-control" "${contrailControl}/bin/contrail-control";
 }
