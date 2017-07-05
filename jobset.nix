@@ -55,4 +55,5 @@ let
 in
   { contrailApi = controller.contrailApi; } //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
-  { dockerPush = dockerPushImage images.dockerContrailApi; }
+  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images)
+
