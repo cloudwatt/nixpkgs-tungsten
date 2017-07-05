@@ -1,4 +1,7 @@
-### Install and get requirements
+This is a WIP project to build Opencontrail components, create
+Docker images and define Hydra jobs.
+
+### Install Nix and Clone Required Repositores
 
 ```
 curl https://nixos.org/nix/install | sh
@@ -11,8 +14,8 @@ export NIX_PATH="nixpkgs=$PWD/nixpkgs-channels"
 git clone https://github.com/nlewo/nixpkgs-contrail.git
 ```
 
-### Build the contrail controller
+### Build the contrail api-server
 
 ```
-nix-build nixpkgs-contrail/controller.nix -A controller
+nix-build nixpkgs-contrail/controller.nix -A contrailApi
 ```
