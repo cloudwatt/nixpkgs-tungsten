@@ -300,4 +300,15 @@ rec {
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces
     ];
   };
+
+  contrailSchemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
+    name = "schema-transformer";
+    version = "3.2";
+    src = "${contrailConfig}/production/config/schema-transformer//";
+    # To be cleaned
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces jsonpickle
+    ];
+  };
 }

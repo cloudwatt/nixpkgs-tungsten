@@ -63,4 +63,5 @@ let
 in {
   dockerContrailApi = buildDockerImage "contrail-api" "${contrailApi}/bin/contrail-api";
   dockerContrailControl = buildDockerImage "contrail-control" "${contrailControl}/bin/contrail-control";
+  dockerContrailSchemaTransformer = buildDockerImage "contrail-schema-transformer" "${contrailSchemaTransformer}/bin/contrail-schema";
 }
