@@ -252,7 +252,7 @@ rec {
     buildPhase = ''
       # To make scons happy
       export USER=contrail
-      scons -j1 --optimization=production --root=./ contrail-vrouter-agent
+      scons -j2 --optimization=production --root=./ contrail-vrouter-agent
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
