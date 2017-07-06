@@ -32,6 +32,9 @@ rec {
     '';
 
     installPhase = ''
+      # Remove these useless libraries that increase the closure size
+      rm -rf boost_1_48_0 icu
+
       mkdir $out
       cp -rva * $out/
     '';
@@ -182,8 +185,6 @@ rec {
       # To make scons happy
       export USER=contrail
 
-      # To export pyconfig.h. This should be patched into the python derivation instead.
-      export CFLAGS="-I ${pkgs.python}/include/python2.7/"
       scons -j1 --optimization=production --root=./ contrail-vrouter-agent
       scons -j1 --optimization=production --root=./ contrail-control
 
