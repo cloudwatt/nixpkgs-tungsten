@@ -258,6 +258,7 @@ rec {
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
       cp ${controller}/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
+      cp -r build/lib $out/
     '';
   };
 
