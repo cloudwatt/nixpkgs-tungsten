@@ -239,7 +239,7 @@ rec {
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
-      cp ${contrail-workspace}/production/control-node/contrail-control $out/bin/
+      cp build/production/control-node/contrail-control $out/bin/
       cp ${controller}/src/control-node/contrail-control.conf $out/etc/contrail/
     '';
   };
@@ -256,7 +256,7 @@ rec {
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
-      cp ${contrail-workspace}/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
+      cp build/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
       cp ${controller}/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
     '';
   };
