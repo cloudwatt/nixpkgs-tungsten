@@ -244,8 +244,8 @@ rec {
     '';
   };
 
-  contrailAnalytics = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-analytics";
+  contrailCollector = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-collector";
     version = "3.2";
     src = contrail-workspace;
     buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools ];
