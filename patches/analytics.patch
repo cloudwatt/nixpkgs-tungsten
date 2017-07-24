@@ -1,0 +1,16 @@
+--- controller/src/analytics/SConscript.ori	2017-07-24 13:23:39.765715655 +0200
++++ controller/src/analytics/SConscript	2017-07-24 13:25:18.339293682 +0200
+@@ -167,11 +167,11 @@
+ 
+ AnalyticsEnv.GenerateBuildInfoCode(
+     target=['buildinfo.h', 'buildinfo.cc'],
+-    source = AnalyticsSandeshGenSrcs + vizd_sources + ProtobufGenSrcs +
++    source = AnalyticsSandeshGenSrcs + ProtobufGenSrcs +
+     ['OpServerProxy.cc',
+      'db_handler.cc',
+      parser_util_obj,
+-     'main.cc'],
++    ],
+     path=str(Dir('.').abspath))
+ 
+ vizd = AnalyticsEnv.Program(target = 'vizd',

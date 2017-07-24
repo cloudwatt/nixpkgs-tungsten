@@ -244,6 +244,31 @@ rec {
     '';
   };
 
+  contrailAnalytics = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-analytics";
+    version = "3.2";
+    src = contrail-workspace;
+    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools ];
+
+    # To fix a scons cycle on buildinfo
+    patches = ./patches/analytics.patch;
+    patchFlags = "-p0";
+
+    buildPhase = ''
+      # To make scons happy
+      export USER=contrail
+      # To export pyconfig.h. This should be patched into the python derivation instead.
+      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.python}/include/python2.7/"
+
+      scons -j1 --optimization=production --root=./ contrail-collector
+    '';
+    installPhase = ''
+      mkdir -p $out/{bin,etc/contrail}
+      cp build/production/analytics/vizd $out/bin/contrail-collector
+      cp ${controller}/src/analytics/contrail-collector.conf $out/etc/contrail/
+    '';
+  };
+
   contrailVrouterAgent = pkgs.stdenv.mkDerivation rec {
     name = "contrail-agent";
     version = "3.2";
