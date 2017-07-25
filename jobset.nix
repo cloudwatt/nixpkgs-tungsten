@@ -53,11 +53,8 @@ let
       skopeo --insecure-policy inspect --tls-verify=false --cert-dir=/tmp docker://${registry}/${imageRef} > $out
     '';
 in
-  { contrailApi = controller.contrailApi;
-    contrailControl = controller.contrailControl;
-    contrailVrouterAgent = controller.contrailVrouterAgent;
-    contrailCollector = controller.contrailCollector;
-    contrailAnalyticsApi = controller.contrailAnalyticsApi;
+  with controller; {
+    inherit contrailApi contrailControl contrailVrouterAgent contrailCollector contrailAnalyticsApi;
   } //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
   (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images)
