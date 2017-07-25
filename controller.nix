@@ -317,6 +317,7 @@ rec {
       scons -j1 --optimization=production --root=./ controller/src/config
 
       scons -j1 --optimization=production --root=./ contrail-analytics-api
+      scons -j1 --optimization=production --root=./ contrail-discovery
     '';
     installPhase = "mkdir $out; cp -r build/* $out";
   };
@@ -356,4 +357,16 @@ rec {
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces jsonpickle
     ];
   };
+
+  contrailDiscovery =  pkgs.pythonPackages.buildPythonApplication {
+    name = "contrail-discovery";
+    version = "3.2";
+    src = "${contrailPython}/production/discovery";
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      gevent pycassa
+      # Not in requirements.txt...
+      cfgm_common vnc_api pysandesh sandesh_common xmltodict discovery_client
+    ];
+  };
+
 }

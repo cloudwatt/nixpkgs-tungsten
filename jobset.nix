@@ -54,7 +54,7 @@ let
     '';
 in
   with controller; {
-    inherit contrailApi contrailControl contrailVrouterAgent contrailCollector contrailAnalyticsApi;
+    inherit contrailApi contrailControl contrailVrouterAgent contrailCollector contrailAnalyticsApi contrailDiscovery;
   } //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
   (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images)
