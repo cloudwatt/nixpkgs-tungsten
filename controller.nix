@@ -189,7 +189,7 @@ rec {
     pname = "vnc_api";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrailConfig}/production/api-lib";
+    src = "${contrailPython}/production/api-lib";
     propagatedBuildInputs = with pkgs.pythonPackages; [ requests ];
   };
 
@@ -197,7 +197,7 @@ rec {
     pname = "cfgm_common";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrailConfig}/production/config/common";
+    src = "${contrailPython}/production/config/common";
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle bitarray ];
   };
@@ -206,7 +206,7 @@ rec {
     pname = "sandesh-common";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrailConfig}/production/sandesh/common/";
+    src = "${contrailPython}/production/sandesh/common/";
     propagatedBuildInputs = with pkgs.pythonPackages; [  ];
   };
 
@@ -214,7 +214,7 @@ rec {
     pname = "pysandesh";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrailConfig}/production/tools/sandesh/library/python/";
+    src = "${contrailPython}/production/tools/sandesh/library/python/";
 
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent netaddr ];
   };
@@ -223,7 +223,7 @@ rec {
     pname = "discovery-client";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrailConfig}/production/discovery/client/";
+    src = "${contrailPython}/production/discovery/client/";
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
@@ -287,8 +287,8 @@ rec {
     '';
   };
 
-  contrailConfig = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-control";
+  contrailPython = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-python";
     version = "3.2";
     src = contrail-workspace;
     buildInputs = contrailBuildInputs;
@@ -306,12 +306,17 @@ rec {
       sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/schema-transformer/setup.py
       sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/vnc_openstack/setup.py
       # substituteInPlace controller/src/config/schema-transformer/run_tests.sh --replace "/bin/bash" "${pkgs.bash}/bin/bash"
+
+      # Tests are disabled because they requires to compile vizd (collector)
+      sed -i '/OpEnv.AlwaysBuild(test_cmd)/d' controller/src/opserver/SConscript
     '';
     buildPhase = ''
       # To make scons happy
       export USER=contrail
       export PYTHONPATH=$PYTHONPATH:controller/src/config/common/:build/production/config/api-server/vnc_cfg_api_server/gen/
       scons -j1 --optimization=production --root=./ controller/src/config
+
+      scons -j1 --optimization=production --root=./ contrail-analytics-api
     '';
     installPhase = "mkdir $out; cp -r build/* $out";
   };
@@ -319,17 +324,32 @@ rec {
   contrailApi =  pkgs.pythonPackages.buildPythonApplication {
     name = "api-server";
     version = "3.2";
-    src = "${contrailConfig}/production/config/api-server/";
+    src = "${contrailPython}/production/config/api-server/";
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces
     ];
   };
 
+  # Contains more than just the contrail-analytics-api!
+  contrailAnalyticsApi =  pkgs.pythonPackages.buildPythonApplication {
+    name = "contrail-analytics-api";
+    version = "3.2";
+    src = "${contrailPython}/production/opserver/";
+    prePatch = ''
+      sed -i 's/sseclient/sseclient_py/' requirements.txt
+    '';
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+     lxml geventhttpclient psutil redis bottle xmltodict sseclient pycassa requests prettytable
+     # Not in requirements.txt...
+     pysandesh cassandra-driver sandesh_common discovery_client cfgm_common stevedore kafka vnc_api
+    ];
+  };
+
   contrailSchemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
     name = "schema-transformer";
     version = "3.2";
-    src = "${contrailConfig}/production/config/schema-transformer//";
+    src = "${contrailPython}/production/config/schema-transformer//";
     # To be cleaned
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh

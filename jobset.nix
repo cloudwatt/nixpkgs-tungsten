@@ -57,6 +57,7 @@ in
     contrailControl = controller.contrailControl;
     contrailVrouterAgent = controller.contrailVrouterAgent;
     contrailCollector = controller.contrailCollector;
+    contrailAnalyticsApi = controller.contrailAnalyticsApi;
   } //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
   (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images)

@@ -61,6 +61,28 @@
     };
   };
 
+  sseclient = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "sseclient";
+    version = "1.7";
+    name = "${pname}-${version}";
+    src = pkgs.fetchFromGitHub {
+      owner = "mpetazzoni";
+      repo = "sseclient";
+      rev = "sseclient-py-1.7";
+      sha256 = "0iar4w8gryhjzqwy5k95q9gsv6xpmnwxkpz33418nw8hxlp86wfl";
+    };
+  };
+  kafka = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "kafka-python";
+    version = "1.3.3";
+    name = "${pname}-${version}";
+    buildInputs = [ pkgs.pythonPackages.tox ];
+    src = pkgs.pythonPackages.fetchPypi {
+      inherit pname version;
+      sha256 = "0i1dia3kixrrxhfwwhhnwrqrvycgzim62n64pfxqzbxz14z4lza6";
+    };
+  };
+
   pycassa = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "pycassa";
     version = "1.11.2";
