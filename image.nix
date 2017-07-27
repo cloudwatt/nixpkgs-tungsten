@@ -6,7 +6,13 @@
 
 with import ./controller.nix { inherit pkgs; };
 
-let 
+let
+  ubuntu = pkgs.dockerTools.pullImage {
+    imageName = "ubuntu";
+    imageTag = "14.04";
+    sha256 = "1gqs9xzlayaqq2wgdcp3fdg3fws50vy5a69xkxa40b0dasa9i3mk";
+  };
+
   perp = pkgs.stdenv.mkDerivation {
     name = "perp";
     src = pkgs.fetchurl {
@@ -49,6 +55,7 @@ let
   # Build a docker image name that runs the executable as a perp service
   buildDockerImage = name: executable: pkgs.dockerTools.buildImage {
     inherit name;
+    fromImage = ubuntu;
     contents = [
       pkgs.coreutils
       (genPerpRcMain name executable)
