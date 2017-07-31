@@ -369,9 +369,9 @@ rec {
     ];
   };
 
-  contrailVrouter = kernelVersion: pkgs.stdenv.mkDerivation rec {
+  contrailVrouter = pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter";
-    version = "3.2_${kernelVersion}";
+    version = "3.2";
     src = contrail-workspace;
     # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 ];
@@ -379,13 +379,11 @@ rec {
       export USER=contrail
       export hardeningDisable=pic
       # To compile the module, we need the kernel sources and the kernel config
-      scons --optimization=production --root=./ --kernel-dir=${ubuntuKernelHeaders kernelVersion}/linux-headers-${kernelVersion}-generic vrouter/vrouter.ko
+      scons --optimization=production --root=./ --kernel-dir=${ubuntuKernelHeaders}/usr/src/linux-headers-3.13.0-83-generic vrouter/vrouter.ko
     '';
     installPhase = ''
-      mkdir -p $out/lib/modules/${kernelVersion}-generic/extra/net/vrouter/
-      cp vrouter/vrouter.ko $out/lib/modules/${kernelVersion}-generic/extra/net/vrouter/
+      mkdir -p $out/lib/modules/3.13.0-83-generic/extra/net/vrouter/
+      cp vrouter/vrouter.ko $out/lib/modules/3.13.0-83-generic/extra/net/vrouter/
     '';
   };
-
-  contrailVrouterUbuntu_3_13_0-83 = contrailVrouter "3.13.0-83";
 }
