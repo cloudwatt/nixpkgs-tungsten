@@ -117,5 +117,25 @@
     };
   };
 
-}
+  # We boot a ubuntu Vm to get the kernel sources and the kernel
+  # config. We could find a more simple way to do this such as find a
+  # way to download these packages.
+  ubuntuKernelHeaders = kernelVersion: pkgs.vmTools.runInLinuxImage (pkgs.stdenv.mkDerivation rec {
+    name = "ubuntu-kernel-headers";
+    version = kernelVersion;
+    phases = [ "installPhase" ];
+    diskImage = pkgs.vmTools.diskImageFuns.ubuntu1404x86_64 {
+      extraPackages = [ "linux-headers-${kernelVersion}-generic" "linux-headers-${kernelVersion}" ];
+    };
+    installPhase = ''
+      mkdir -p $out
+      ${pkgs.rsync}/bin/rsync -rl /usr/src/* $out/
 
+      # We patch these scripts since they have been compiled for ubuntu
+      for i in recordmcount basic/fixdep mod/modpost; do
+        ${pkgs.patchelf}/bin/patchelf --set-interpreter ${pkgs.stdenv.glibc}/lib/ld-linux-x86-64.so.2 $out/linux-headers-${kernelVersion}-generic/scripts/$i
+        ${pkgs.patchelf}/bin/patchelf --set-rpath ${pkgs.stdenv.glibc}/lib $out/linux-headers-${kernelVersion}-generic/scripts/$i
+      done;
+    '';
+  });
+}
