@@ -9,9 +9,9 @@ let
   # We want that Hydra generate a link to be able to manually download the image
   dockerImageBuildProduct = image: pkgs.runCommand "${image.name}" {} ''
     mkdir $out
-    ln -s ${images.dockerContrailApi.out} $out/image.tar.gz
+    ln -s ${image.out} $out/image.tar.gz
     mkdir $out/nix-support
-    echo "file gzip ${images.dockerContrailApi.out}" > $out/nix-support/hydra-build-products
+    echo "file gzip ${image.out}" > $out/nix-support/hydra-build-products
   '';
 
   debianPackageBuildProduct = pkg:
