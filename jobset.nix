@@ -14,6 +14,35 @@ let
     echo "file gzip ${images.dockerContrailApi.out}" > $out/nix-support/hydra-build-products
   '';
 
+  debianPackageBuildProduct = pkg:
+    let
+      name = pkgs.lib.removeSuffix ".deb" pkg.name + "-deb-bp";
+    in
+      pkgs.runCommand name {} ''
+        mkdir $out
+        ln -s ${pkg.out} $out/${pkg.name}
+        mkdir $out/nix-support
+        echo "file deb ${pkg.out}" > $out/nix-support/hydra-build-products
+      '';
+
+  mkDebianPackage = drv: pkgs.stdenv.mkDerivation rec {
+    name = "${drv.name}.deb";
+    phases = [ "unpackPhase" "buildPhase" "installPhase" ];
+    buildInputs = [ pkgs.dpkg ];
+    src = controller.contrailVrouter;
+    buildPhase = ''
+      mkdir DEBIAN
+      cat > DEBIAN/control <<EOF
+      Package: ${drv.name}
+      Architecture: all
+      Version: ${drv.version}
+      Provides: contrail-vrouter
+      EOF
+      dpkg-deb --build ./ ../package.deb
+    '';
+    installPhase = "cp ../package.deb $out";
+  };
+
   dockerPushImage = image:
     let
       imageRef = "${image.imageName}:${image.imageTag}";
@@ -37,6 +66,5 @@ in
 	    contrailVrouter;
   } //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
-  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images)
-
-
+  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images) //
+  {contrailVrouterDeb = debianPackageBuildProduct (mkDebianPackage controller.contrailVrouter);}
