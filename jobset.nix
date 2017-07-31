@@ -1,4 +1,5 @@
 # This file defines derivations built by Hydra
+
 with import ./deps.nix {};
 
 let
@@ -24,24 +25,6 @@ let
         echo "file deb ${pkg.out}" > $out/nix-support/hydra-build-products
       '';
 
-  mkDebianPackage = drv: pkgs.stdenv.mkDerivation rec {
-    name = "${drv.name}.deb";
-    phases = [ "unpackPhase" "buildPhase" "installPhase" ];
-    buildInputs = [ pkgs.dpkg ];
-    src = controller.contrailVrouter;
-    buildPhase = ''
-      mkdir DEBIAN
-      cat > DEBIAN/control <<EOF
-      Package: ${drv.name}
-      Architecture: all
-      Version: ${drv.version}
-      Provides: contrail-vrouter
-      EOF
-      dpkg-deb --build ./ ../package.deb
-    '';
-    installPhase = "cp ../package.deb $out";
-  };
-
   dockerPushImage = image:
     let
       imageRef = "${image.imageName}:${image.imageTag}";
@@ -62,4 +45,4 @@ in
   contrailPkgs //
   (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) contrailPkgs.images) //
   (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) contrailPkgs.images) //
-  {contrailVrouterDeb = debianPackageBuildProduct (mkDebianPackage contrailPkgs.contrailVrouter);}
+  (pkgs.lib.mapAttrs (n: v: debianPackageBuildProduct v) contrailPkgs.debian)
