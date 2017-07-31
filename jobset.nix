@@ -3,8 +3,7 @@ with import ./deps.nix {};
 
 let
   pkgs = import <nixpkgs> {};
-  images = import ./image.nix {};
-  controller = import ./controller.nix {};
+  contrailPkgs = import ./default.nix { inherit pkgs; };
 
   # We want that Hydra generate a link to be able to manually download the image
   dockerImageBuildProduct = image: pkgs.runCommand "${image.name}" {} ''
@@ -16,7 +15,7 @@ let
 
   debianPackageBuildProduct = pkg:
     let
-      name = pkgs.lib.removeSuffix ".deb" pkg.name + "-deb-bp";
+      name = "debian-package-" + (pkgs.lib.removeSuffix ".deb" pkg.name);
     in
       pkgs.runCommand name {} ''
         mkdir $out
@@ -60,11 +59,7 @@ let
       skopeo --insecure-policy inspect --tls-verify=false --cert-dir=/tmp docker://${registry}/${imageRef} > $out
     '';
 in
-  with controller; {
-    inherit contrailApi contrailControl contrailVrouterAgent
-            contrailCollector contrailAnalyticsApi contrailDiscovery
-	    contrailVrouter;
-  } //
-  (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) images) //
-  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) images) //
-  {contrailVrouterDeb = debianPackageBuildProduct (mkDebianPackage controller.contrailVrouter);}
+  contrailPkgs //
+  (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) contrailPkgs.images) //
+  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) contrailPkgs.images) //
+  {contrailVrouterDeb = debianPackageBuildProduct (mkDebianPackage contrailPkgs.contrailVrouter);}
