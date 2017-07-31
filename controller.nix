@@ -270,7 +270,7 @@ rec {
   };
 
   contrailVrouterAgent = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-agent";
+    name = "contrail-vrouter-agent";
     version = "3.2";
     src = contrail-workspace;
     buildInputs = contrailBuildInputs;
@@ -323,7 +323,7 @@ rec {
   };
 
   contrailApi =  pkgs.pythonPackages.buildPythonApplication {
-    name = "api-server";
+    name = "contrail-api-server";
     version = "3.2";
     src = "${contrailPython}/production/config/api-server/";
     propagatedBuildInputs = with pkgs.pythonPackages; [
@@ -348,7 +348,7 @@ rec {
   };
 
   contrailSchemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
-    name = "schema-transformer";
+    name = "contrail-schema-transformer";
     version = "3.2";
     src = "${contrailPython}/production/config/schema-transformer//";
     # To be cleaned
