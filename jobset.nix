@@ -1,4 +1,9 @@
 # This file defines derivations built by Hydra
+#
+# We take expressions from the default.nix that we manipulate a little bit.
+# - we transform docker image expressions to jobs that expose that the build product
+# - we add jobs to push docker images to the registry
+# - we transform debian package expressions to jobs that expose that the build product
 
 with import ./deps.nix {};
 
@@ -41,8 +46,13 @@ let
       skopeo --insecure-policy  copy --dest-tls-verify=false --dest-cert-dir=/tmp docker-archive:image.tar docker://${registry}/${imageRef} > skipeo.log
       skopeo --insecure-policy inspect --tls-verify=false --cert-dir=/tmp docker://${registry}/${imageRef} > $out
     '';
+
+    genDockerPushJobs = drvs:
+      pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) drvs;
+    genDockerImageBuildProduct = drvs:
+      pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) drvs;
 in
   contrailPkgs //
-  (pkgs.lib.mapAttrs (n: v: dockerImageBuildProduct v) contrailPkgs.images) //
-  (pkgs.lib.mapAttrs' (n: v: pkgs.lib.nameValuePair ("docker-push-" + n) (dockerPushImage v)) contrailPkgs.images) //
-  (pkgs.lib.mapAttrs (n: v: debianPackageBuildProduct v) contrailPkgs.debian)
+  { "images" = genDockerImageBuildProduct contrailPkgs.images // (genDockerPushJobs contrailPkgs.images);
+    "debian" = pkgs.lib.mapAttrs (n: v: debianPackageBuildProduct v) contrailPkgs.debian;
+  }
