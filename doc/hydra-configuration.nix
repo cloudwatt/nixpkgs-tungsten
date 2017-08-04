@@ -5,6 +5,10 @@
 {
   imports = [ <nixpkgs/nixos/modules/virtualisation/nova-config.nix> ];
 
+  # Switch to kernel 4.4 because nested virtualisation is broken
+  # with kernel 4.9. See https://github.com/NixOS/nixpkgs/issues/27930
+  boot.kernelPackages = pkgs.linuxPackages_4_4;
+
   networking.firewall.allowedTCPPorts = [ 22 3000 5000 ];
 
   services.dockerRegistry.enable = true;
