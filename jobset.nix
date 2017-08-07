@@ -55,5 +55,5 @@ in
   contrailPkgs //
   { "images" = genDockerImageBuildProduct contrailPkgs.images // (genDockerPushJobs contrailPkgs.images);
     "debian" = pkgs.lib.mapAttrs (n: v: debianPackageBuildProduct v) contrailPkgs.debian;
-    "test" = import test/test.nix;
+    test = { contrail = import test/test.nix; };
   }
