@@ -93,7 +93,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       services.rabbitmq.enable = true;
       services.zookeeper.enable = true;
 
-      virtualisation = { memorySize = 4096; };
+      virtualisation = { memorySize = 4096; cores = 2; };
 
       # Required by the test suite
       environment.systemPackages = [ pkgs.jq ];
