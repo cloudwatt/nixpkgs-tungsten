@@ -156,8 +156,14 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
   testScript =
     ''
+    $machine->waitForUnit("cassandra.service");
+    $machine->waitForUnit("rabbitmq.service");
+    $machine->waitForUnit("zookeeper.service");
+
     $machine->waitForUnit("contrailDiscovery.service");
-    $machine->succeed("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
+    $machine->waitForUnit("contrailApi.service");
+
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
     $machine->succeed("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
     '';
 }
