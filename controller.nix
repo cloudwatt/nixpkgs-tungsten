@@ -1,8 +1,4 @@
-# NIX_PATH should point to the nixpkgs unstable branch.
-# export NIX_PATH=/path/to/unstable/branch
-
-# To build the controller
-# nix-build controller.nix -o result-controller -A controller
+# This file contains expressions to build all OpenContrail components
 
 { pkgs ? import <nixpkgs> {} }:
 
@@ -11,18 +7,17 @@ with import ./deps.nix {inherit pkgs;};
 rec {
   contrailBuildInputs = with pkgs; [
       scons gcc pkgconfig autoconf automake libtool flex_2_5_35 bison
-      # build deps
+      # Global build deps
       libkrb5 openssl libxml2 perl boost155 log4cplus tbb curl
-      # api server
+      # api-server
       pythonPackages.lxml pythonPackages.pip
-      # To get xxd required by sandesh
+      # To get xxd binary required by sandesh
       vim
-      # Vrouter agent
+      # vrouter-agent
       libipfix
-
       # analytics
       protobuf2_5 cassandra-cpp-driver
-      rdkafka # > 0.9
+      rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
 
@@ -91,7 +86,6 @@ rec {
 	
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
-
     '';
     installPhase = "cp -r ./ $out";
   };
@@ -174,9 +168,6 @@ rec {
     '';
 
     prePatch = ''
-      # Disable tests
-      sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/api-server/setup.py
-
       # Should be moved in build drv
       sed -i 's|def UseSystemBoost(env):|def UseSystemBoost(env):\n    return True|' -i tools/build/rules.py
 
@@ -233,7 +224,6 @@ rec {
     src = contrail-workspace;
     buildInputs = contrailBuildInputs;
     buildPhase = ''
-      # To make scons happy
       export USER=contrail
       scons -j1 --optimization=production --root=./ contrail-control
     '';
@@ -255,7 +245,6 @@ rec {
     patchFlags = "-p0";
 
     buildPhase = ''
-      # To make scons happy
       export USER=contrail
       # To export pyconfig.h. This should be patched into the python derivation instead.
       export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.python}/include/python2.7/"
@@ -275,7 +264,6 @@ rec {
     src = contrail-workspace;
     buildInputs = contrailBuildInputs;
     buildPhase = ''
-      # To make scons happy
       export USER=contrail
       scons -j2 --optimization=production --root=./ contrail-vrouter-agent
     '';
@@ -301,9 +289,10 @@ rec {
     prePatch = ''
       # Don't know if this test is supposed to pass
       substituteInPlace controller/src/config/common/tests/test_analytics_client.py --replace "test_analytics_request_with_data" "nop"
+
       # It seems these tests require contrail-test repository to be executed
       # See https://github.com/Juniper/contrail-test/wiki/Running-Tests
-      for i in svc-monitor/setup.py contrail_issu/setup.py schema-transformer/setup.py vnc_openstack/setup.py; do
+      for i in svc-monitor/setup.py contrail_issu/setup.py schema-transformer/setup.py vnc_openstack/setup.py api-server/setup.py; do
         sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/$i
       done
 
@@ -311,7 +300,6 @@ rec {
       sed -i '/OpEnv.AlwaysBuild(test_cmd)/d' controller/src/opserver/SConscript
     '';
     buildPhase = ''
-      # To make scons happy
       export USER=contrail
       export PYTHONPATH=$PYTHONPATH:controller/src/config/common/:build/production/config/api-server/vnc_cfg_api_server/gen/
       scons -j1 --optimization=production --root=./ controller/src/config
