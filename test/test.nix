@@ -83,7 +83,49 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           policy=fixed
         '';
       };
-      
+      control = pkgs.writeTextFile {
+        name = "contrail-control.conf";
+        text = ''
+          [DEFAULT]
+          log_file = /var/log/contrail/control.log
+          log_local = 1
+          log_level = SYS_DEBUG
+
+          [IFMAP]
+          server_url= https://127.0.0.1:8443
+          password = api-server
+          user = api-server
+
+          [DISCOVERY]
+          port = 5998
+          server = 127.0.0.1
+        '';
+      };
+      collector = pkgs.writeTextFile {
+        name = "contrail-collector.conf";
+        text = ''
+          [DEFAULT]
+          log_local = 1
+          log_level = SYS_DEBUG
+          log_file=/var/log/contrail/contrail-collector.log
+          cassandra_server_list = 127.0.0.1:9042
+
+          [COLLECTOR]
+          port=8086
+          server=0.0.0.0
+
+          [DISCOVERY]
+          port = 5998
+          server = 127.0.0.1
+
+          [REDIS]
+          port=6379
+          server=127.0.0.1
+
+          [API_SERVER]
+          api_server_list = 127.0.0.1:8082
+        '';
+      };
     in
     { 
       services.openssh.enable = true;
@@ -92,6 +134,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       services.rabbitmq.enable = true;
       services.zookeeper.enable = true;
+      services.redis.enable = true;
 
       virtualisation = { memorySize = 4096; cores = 2; };
 
@@ -130,6 +173,23 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         '';
       };
 
+      systemd.services.contrailCollector = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
+        preStart = "mkdir -p /var/log/contrail/";
+        script = "${contrailPkgs.contrailCollector}/bin/contrail-collector --conf_file ${collector}";
+      };
+
+      systemd.services.contrailControl = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" "contrailApi.service" "contrailCollector" ];
+        preStart = "mkdir -p /var/log/contrail/";
+        script = "${contrailPkgs.contrailControl}/bin/contrail-control --conf_file ${control}";
+	postStart = ''
+	  ${contrailPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
+	'';
+      };
+
       systemd.services.cassandra = {
          wantedBy = [ "multi-user.target" ];
          after = [ "network.target" ];
@@ -159,11 +219,20 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     $machine->waitForUnit("cassandra.service");
     $machine->waitForUnit("rabbitmq.service");
     $machine->waitForUnit("zookeeper.service");
+    $machine->waitForUnit("redis.service");
 
     $machine->waitForUnit("contrailDiscovery.service");
     $machine->waitForUnit("contrailApi.service");
 
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
     $machine->succeed("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
+
+    $machine->waitForUnit("contrailCollector.service");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
+    $machine->succeed("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
+
+    $machine->waitForUnit("contrailControl.service");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
+    $machine->succeed("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
     '';
 }
