@@ -374,4 +374,19 @@ rec {
       cp vrouter/vrouter.ko $out/lib/modules/3.13.0-83-generic/extra/net/vrouter/
     '';
   };
+
+  contrailConfigUtils = pkgs.stdenv.mkDerivation rec {
+   name = "contrail-config-utils";
+   version = "3.2";
+   src = contrail-workspace;
+   phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
+   buildInputs = [
+    (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+       netaddr vnc_api cfgm_common ]))
+   ];
+   installPhase = ''
+     mkdir -p $out/bin
+     cp controller/src/config/utils/*.{py,sh} $out/bin
+   '';
+  };
 }
