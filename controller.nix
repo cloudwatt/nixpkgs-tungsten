@@ -190,7 +190,7 @@ rec {
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/common";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle bitarray ];
+    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle_0_12_1 bitarray ];
   };
 
   sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
@@ -329,7 +329,7 @@ rec {
       sed -i 's/sseclient/sseclient_py/' requirements.txt
     '';
     propagatedBuildInputs = with pkgs.pythonPackages; [
-     lxml geventhttpclient psutil redis bottle xmltodict sseclient pycassa requests prettytable
+     lxml geventhttpclient psutil redis bottle_0_12_1 xmltodict sseclient pycassa requests prettytable
      # Not in requirements.txt...
      pysandesh cassandra-driver sandesh_common discovery_client cfgm_common stevedore kafka vnc_api
     ];
