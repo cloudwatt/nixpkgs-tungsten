@@ -2,12 +2,13 @@
 
 let
   controller = import ./controller.nix { inherit pkgs; };
+  deps = import ./deps.nix { inherit pkgs; };
 
   mkDebianPackage = drv: pkgs.stdenv.mkDerivation rec {
     name = "${drv.name}.deb";
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
     buildInputs = [ pkgs.dpkg ];
-    src = controller.contrailVrouter;
+    src = drv;
     buildPhase = ''
       mkdir DEBIAN
       cat > DEBIAN/control <<EOF
@@ -21,4 +22,4 @@ let
     installPhase = "cp ../package.deb $out";
   };
 in
-  { contrailVrouter = mkDebianPackage controller.contrailVrouter; }
+  { contrailVrouter = mkDebianPackage (controller.contrailVrouter deps.ubuntuKernelHeaders_3_13_0_83_generic); }

@@ -117,8 +117,8 @@ rec {
     };
   };
 
-  ubuntuKernelHeaders = pkgs.stdenv.mkDerivation rec {
-    name = "ubuntuKernelHeaders";
+  ubuntuKernelHeaders_3_13_0_83_generic = pkgs.stdenv.mkDerivation rec {
+    name = "ubuntuKernelHeaders-3.13.0-83-generic";
     phases = [ "unpackPhase" "installPhase" ];
     buildInputs = [ pkgs.dpkg ];
     unpackCmd = "dpkg-deb --extract $curSrc tmp/";
@@ -142,6 +142,8 @@ rec {
         ${pkgs.patchelf}/bin/patchelf --set-interpreter ${pkgs.stdenv.glibc}/lib/ld-linux-x86-64.so.2 $out/usr/src/linux-headers-3.13.0-83-generic/scripts/$i
         ${pkgs.patchelf}/bin/patchelf --set-rpath ${pkgs.stdenv.glibc}/lib $out//usr/src/linux-headers-3.13.0-83-generic/scripts/$i
       done
+
+      ln -sf $out/usr/src/linux-headers-3.13.0-83-generic $out/lib/modules/3.13.0-83-generic/build
     '';
   };
 
