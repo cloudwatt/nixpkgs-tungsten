@@ -363,6 +363,23 @@ rec {
     ];
   };
 
+  contrailVrouterUtils = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-vrouter-utils";
+    version = "3.2";
+    src = contrail-workspace;
+    buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.libpcap pkgs.libnl ];
+    buildPhase = ''
+      export USER=contrail
+      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.libxml2.dev}/include/libxml2/"
+      scons --optimization=production --root=./ vrouter/utils
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      cp build/production/vrouter/utils/usr/bin/* $out/bin/
+    '';
+  };
+
+
   contrailVrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-${kernelHeaders.name}";
     version = "3.2";
