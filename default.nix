@@ -18,4 +18,5 @@ in
 	    contrailVrouter;
     debian = debian;
     images = images;
+    test = { contrail = import ./test/test.nix { inherit pkgs; }; };
   }

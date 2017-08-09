@@ -24,9 +24,9 @@ nix-build -A contrailControl # Take a while...
 
 ### Run tests
 
-`nix-build test/test.nix`
+`nix-build -A test.contrail`
 
-This launches a vm, installs some Contrail services and tries to curl them
+This launches a vm, installs some Contrail services and runs some basic tests
 
 ### Build Docker Images
 
