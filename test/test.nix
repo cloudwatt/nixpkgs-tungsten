@@ -3,6 +3,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     { config, pkgs, ... }:
     let
       contrailPkgs = import ../controller.nix { inherit pkgs; };
+      contrailDeps = import ../deps.nix { inherit pkgs; };
 
       cassandraPkg = pkgs.cassandra_2_1.override {jre = pkgs.jre7;};
       cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
@@ -101,6 +102,39 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           server = 127.0.0.1
         '';
       };
+      agent = pkgs.writeTextFile {
+        name = "contrail-agent.conf";
+        text = ''
+          [DEFAULT]
+          ble_flow_collection = 1
+          log_file = /var/log/contrail/vrouter.log
+          log_level = SYS_DEBUG
+          log_local = 1
+          collectors= 127.0.0.1:8086
+
+          [CONTROL-NODE]
+          server = 127.0.0.1
+
+          [DISCOVERY]
+          port = 5998
+          server = 127.0.0.1
+
+          [VIRTUAL-HOST-INTERFACE]
+          name = vhost0
+          ip = 192.168.1.1/24
+          gateway = 192.168.1.1
+          physical_interface = eth1
+
+          [FLOWS]
+          max_vm_flows = 20
+
+          [METADATA]
+          metadata_proxy_secret = t96a4skwwl63ddk6
+
+          [TASK]
+          tbb_keepawake_timeout = 25
+      '';
+      };
       collector = pkgs.writeTextFile {
         name = "contrail-collector.conf";
         text = ''
@@ -139,7 +173,18 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       virtualisation = { memorySize = 4096; cores = 2; };
 
       # Required by the test suite
-      environment.systemPackages = [ pkgs.jq ];
+      environment.systemPackages = [ pkgs.jq contrailDeps.contrailApiCli ];
+
+      boot.extraModulePackages = [ (contrailPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
+      boot.kernelModules = [ "vrouter" ];
+
+      systemd.services.contrailVrouterAgent = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" "contrailApi.service" ];
+        preStart = "mkdir -p /var/log/contrail/";
+        script = "${contrailPkgs.contrailVrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
+	postStart = "${contrailPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
+      };
 
       systemd.services.contrailDiscovery = {
         wantedBy = [ "multi-user.target" ];
@@ -170,6 +215,22 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             sleep 2
           done
           sleep 2
+        '';
+      };
+
+      systemd.services.configureVhostInterface = {
+        serviceConfig.Type = "oneshot";
+        serviceConfig.RemainAfterExit = true;
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        path = [ pkgs.iproute contrailPkgs.contrailVrouterUtils ];
+        script = ''
+	  vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
+	  vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
+	  vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
+	  ip link set vhost0 up
+	  # ip a add $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev vhost0
+	  # ip a del $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev eth1
         '';
       };
 
@@ -225,14 +286,19 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     $machine->waitForUnit("contrailApi.service");
 
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
-    $machine->succeed("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
 
     $machine->waitForUnit("contrailCollector.service");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
-    $machine->succeed("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
 
     $machine->waitForUnit("contrailControl.service");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
-    $machine->succeed("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
+
+    $machine->succeed("lsmod | grep -q vrouter");
+    $machine->waitForUnit("contrailVrouterAgent.service");
+
+    $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
     '';
 }
