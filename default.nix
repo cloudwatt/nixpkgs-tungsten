@@ -15,7 +15,8 @@ let
 in
   with controller; {
     inherit contrailApi contrailControl contrailVrouterAgent
-            contrailCollector contrailAnalyticsApi contrailDiscovery; } //
+            contrailCollector contrailAnalyticsApi contrailDiscovery
+	    contrailQueryEngine; } //
   { debian = debian;
     images = images;
     test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };

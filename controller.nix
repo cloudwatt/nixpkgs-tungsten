@@ -86,6 +86,10 @@ rec {
 	
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
+
+      # To break scons cycle on buildinfo
+      substituteInPlace src/query_engine/SConscript \
+        --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" "source = buildinfo_dep_libs + SandeshGenSrcs +"
     '';
     installPhase = "cp -r ./ $out";
   };
@@ -450,5 +454,21 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [
       docker netaddr contrailVrouterApi eventlet vnc_api cfgm_common
     ];
+  };
+
+  contrailQueryEngine = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-query-engine";
+    version = "3.2";
+    src = contrail-workspace;
+    buildInputs = contrailBuildInputs;
+    buildPhase = ''
+      export USER=contrail
+      scons -j1 --optimization=production --root=./ contrail-query-engine
+    '';
+    installPhase = ''
+      mkdir -p $out/{bin,etc/contrail}
+      cp build/production/query_engine/qed $out/bin/
+      cp ${controller}/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
+    '';
   };
 }
