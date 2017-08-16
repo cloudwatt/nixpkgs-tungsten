@@ -414,4 +414,19 @@ rec {
      cp controller/src/config/utils/*.{py,sh} $out/bin
    '';
   };
+
+  contrailVrouterPortControl = pkgs.stdenv.mkDerivation rec {
+   name = "contrail-vrouter-port-control";
+   version = "3.2";
+   src = contrail-workspace;
+   phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
+   buildInputs = [
+    (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+       netaddr vnc_api cfgm_common ]))
+   ];
+   installPhase = ''
+     mkdir -p $out/bin
+     cp controller/src/vnsw/agent/port_ipc/vrouter-port-control $out/bin
+   '';
+  };
 }
