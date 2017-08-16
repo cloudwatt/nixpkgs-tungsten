@@ -6,10 +6,23 @@
 
 import (pkgs_path + /nixos/tests/make-test.nix) {
   machine =
-    { config, pkgs, ... }:
     let
       contrailPkgs = import ../controller.nix { inherit pkgs; };
       contrailDeps = import ../deps.nix { inherit pkgs; };
+
+      contrailCreateNetwork = pkgs.stdenv.mkDerivation rec {
+         name = "contrail-create-network";
+         src = ./contrail-create-network.py;
+         phases = [ "installPhase" "fixupPhase" ];
+         buildInputs = [
+           (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+            contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
+         ];
+         installPhase = ''
+           mkdir -p $out/bin
+           cp ${src} $out/bin/contrail-create-network.py
+         '';
+	 };
 
       cassandraPkg = pkgs.cassandra_2_1.override {jre = pkgs.jre7;};
       cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
@@ -179,7 +192,11 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
       virtualisation = { memorySize = 4096; cores = 2; };
 
       # Required by the test suite
-      environment.systemPackages = [ pkgs.jq contrailDeps.contrailApiCli ];
+      environment.systemPackages = [
+        pkgs.jq contrailDeps.contrailApiCli
+        contrailPkgs.contrailVrouterPortControl contrailPkgs.contrailVrouterUtils contrailPkgs.contrailConfigUtils
+        contrailCreateNetwork contrailPkgs.contrailVrouterNetns
+      ];
 
       boot.extraModulePackages = [ (contrailPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
       boot.kernelModules = [ "vrouter" ];
@@ -306,5 +323,12 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
     $machine->waitForUnit("contrailVrouterAgent.service");
 
     $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
+
+    $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
+    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
+    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
+
+    $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
+    $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
     '';
 }
