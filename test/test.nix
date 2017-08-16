@@ -1,6 +1,10 @@
-{ pkgs }:
+{ pkgs
+# I didn't find a better way to run test by using the test framework
+# of the bootstrapped nixpkgs. In fact, this is to avoid the user to
+# set a specific NIX_PATH env var.
+, pkgs_path ? <nixpkgs> }:
 
-import <nixpkgs/nixos/tests/make-test.nix> {
+import (pkgs_path + /nixos/tests/make-test.nix) {
   machine =
     { config, pkgs, ... }:
     let

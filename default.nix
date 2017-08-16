@@ -1,10 +1,11 @@
 { bootstrap_pkgs ? import <nixpkgs> {}
-, pkgs ? import (bootstrap_pkgs.fetchFromGitHub {
+, pkgs_path ? bootstrap_pkgs.fetchFromGitHub {
     owner = "NixOS";
     repo = "nixpkgs";
     rev = "b602082e079c391cde7ab5ac1075e2630ce90863";
     sha256 = "1zxkw60hwv7jdawsd6lch4gavhx2wkw91pyjc6lpdg7lmry7wmy4";
-  }) {}
+  }
+, pkgs ? import pkgs_path {}
 }:
 
 let
@@ -17,5 +18,5 @@ in
             contrailCollector contrailAnalyticsApi contrailDiscovery; } //
   { debian = debian;
     images = images;
-    test = { contrail = import ./test/test.nix { inherit pkgs; }; };
+    test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };
   }
