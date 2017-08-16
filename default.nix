@@ -12,11 +12,15 @@ let
   images = import ./image.nix {inherit pkgs;};
   debian = import ./debian.nix {inherit pkgs;};
   controller = import ./controller.nix {inherit pkgs;};
+  deps = import ./deps.nix {inherit pkgs;};
 in
-  with controller; {
+  with controller; with deps; {
     inherit contrailApi contrailControl contrailVrouterAgent
             contrailCollector contrailAnalyticsApi contrailDiscovery
-	    contrailQueryEngine; } //
+	    contrailQueryEngine
+	    contrailConfigUtils contrailVrouterUtils contrailApiCli
+	    contrailVrouterNetns;
+  } //
   { debian = debian;
     images = images;
     test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };
