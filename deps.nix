@@ -158,7 +158,7 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ wcwidth six ];
   };
 
-  contrailApiCli = pkgs.python27Packages.buildPythonPackage {
+  contrailApiCli = pkgs.python27Packages.buildPythonApplication {
     name = "contrail-api-cli";
     version = "0";
     src = pkgs.fetchFromGitHub {
