@@ -429,4 +429,26 @@ rec {
      cp controller/src/vnsw/agent/port_ipc/vrouter-port-control $out/bin
    '';
   };
+
+  contrailVrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "contrail-vrouter-api";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrail-workspace}/controller/src/vnsw/contrail-vrouter-api/";
+  };
+
+  contrailVrouterNetns =  pkgs.pythonPackages.buildPythonApplication {
+    name = "contrail-vrouter-netns";
+    version = "3.2";
+    src = "${contrail-workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";
+    patchPhase = ''
+      substituteInPlace requirements.txt --replace "docker-py" "docker"
+      substituteInPlace opencontrail_vrouter_netns/lxc_manager.py --replace "dhclient" "${pkgs.dhcp}/bin/dhclient"
+    '';
+    # Try to access /var/log/contrail/contrail-lbaas-haproxy-stdout.log
+    doCheck = false;
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      docker netaddr contrailVrouterApi eventlet vnc_api cfgm_common
+    ];
+  };
 }
