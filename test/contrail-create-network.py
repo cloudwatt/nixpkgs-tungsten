@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 
-from vnc_api import vnc_api
 import argparse
+from vnc_api import vnc_api
 
 
 def virtual_network_locate(vn_name):
-        fq_name = vn_name.split(':')
-        try:
-            vn_instance = client.virtual_network_read(fq_name=fq_name)
-            print "Virtual network '%s' already exists" % vn_name
-            return vn_instance
-        except vnc_api.NoIdError:
-            pass
-
-        vn_name = fq_name[2]
-        vn_instance = vnc_api.VirtualNetwork(vn_name)
-        vn_instance.add_network_ipam(vnc_api.NetworkIpam(),
-                                     vnc_api.VnSubnetsType([vnc_api.IpamSubnetType(subnet = vnc_api.SubnetType('20.1.1.0', 24))]))
-        client.virtual_network_create(vn_instance)
-        print "Virtual network '%s' created" % vn_name
+    fq_name = vn_name.split(':')
+    try:
+        vn_instance = client.virtual_network_read(fq_name=fq_name)
+        print "Virtual network '%s' already exists" % vn_name
         return vn_instance
+    except vnc_api.NoIdError:
+        pass
+
+    vn_name = fq_name[2]
+    vn_instance = vnc_api.VirtualNetwork(vn_name)
+    vn_instance.add_network_ipam(vnc_api.NetworkIpam(),
+                                 vnc_api.VnSubnetsType([vnc_api.IpamSubnetType(
+                                     subnet=vnc_api.SubnetType('20.1.1.0', 24)
+                                 )]))
+    client.virtual_network_create(vn_instance)
+    print "Virtual network '%s' created" % vn_name
+    return vn_instance
 
 
 parser = argparse.ArgumentParser(description='Create a virtual network')
