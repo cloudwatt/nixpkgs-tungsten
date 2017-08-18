@@ -26,11 +26,11 @@ rec {
     version = "3.2";
 
     src = pkgs.fetchFromGitHub {
-        owner = "Juniper";
-        repo = "contrail-third-party";
-        rev = "16333c4e2ecbea2ef5bc38cecf45bfdc78500053";
-        sha256 = "1bkrjc8w2c8a4hjz43xr0nsiwmxws2zmg2vvl3qfp32bw4ipvrhv";
-    };
+      owner = "Juniper";
+      repo = "contrail-third-party";
+      rev = "16333c4e2ecbea2ef5bc38cecf45bfdc78500053";
+      sha256 = "1bkrjc8w2c8a4hjz43xr0nsiwmxws2zmg2vvl3qfp32bw4ipvrhv";
+  };
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
@@ -61,7 +61,7 @@ rec {
       repo = "contrail-controller";
       rev = "df56948839068e5d6312556699a1d54fc591895f";
       sha256 = "102qaibxaz106sr67w66wxidxnipvkky3ar670hzazgyfmrjg8vh";
-	};
+    };
     patchPhase = ''
       sed -i "s|config_opts = |config_opts = ' --with-openssl=${pkgs.openssl.dev} ' + |" lib/bind/SConscript
 
@@ -70,7 +70,7 @@ rec {
       substituteInPlace lib/SConscript --replace \
         'for dir in subdirs:' \
         'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ]:'
-      
+
       substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
         'AgentEnv.Clone()' \
         'AgentEnv.Clone(); cflags = env["CCFLAGS"]; cflags.append("-Wno-error=maybe-uninitialized"); env.Replace(CCFLAGS = cflags)'
@@ -79,11 +79,11 @@ rec {
       # This is because we are using glibc2.25. No warning before glibc2.24
       substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript --replace \
         'env = AgentEnv.Clone()' \
-	'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
+      'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
 
       substituteInPlace src/dns/cmn/SConscript \
         --replace "buildinfo_dep_libs +  cmn_sources +" "buildinfo_dep_libs +"
-	
+
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
 
@@ -100,7 +100,7 @@ rec {
       rev = "fa6b3e80af4537633b3423474c9daa83fabee5e8";
       sha256 = "1j0hg944zsb8hablj1i0lq7w4wdah2lrymhwxsyydxz29zc25876";
   };
-  
+
   vrouter = pkgs.fetchFromGitHub {
       owner = "Juniper";
       repo = "contrail-vrouter";
@@ -111,7 +111,7 @@ rec {
   sandesh = pkgs.stdenv.mkDerivation rec {
     name = "sandesh";
     version = "3.2";
-  
+
     src = pkgs.fetchFromGitHub {
       owner = "Juniper";
       repo = "contrail-sandesh";
@@ -121,39 +121,39 @@ rec {
     patches = [
       (pkgs.fetchurl {
         name = "sandesh.patch";
-	url = "https://github.com/Juniper/contrail-sandesh/commit/8b6c1388e9574ab971952734c71d0a5f6ecb8280.patch";
-	sha256 = "01gsik13al3zj31ai2r1fg37drv2q0lqnmfvqi736llkma1hc7ik";
+        url = "https://github.com/Juniper/contrail-sandesh/commit/8b6c1388e9574ab971952734c71d0a5f6ecb8280.patch";
+        sha256 = "01gsik13al3zj31ai2r1fg37drv2q0lqnmfvqi736llkma1hc7ik";
       })
       # Some introspects links are missing
       # See https://bugs.launchpad.net/juniperopenstack/+bug/1691949
       (pkgs.fetchurl {
-	url = "https://github.com/Juniper/contrail-sandesh/commit/4074d8af7592a564ba1c55c23021cc95f105c6c1.patch";
-	sha256 = "1jz4z4y72fqgwpwrmw29pismvackwy187k2yc2xdis8dwrkhpzni";
+        url = "https://github.com/Juniper/contrail-sandesh/commit/4074d8af7592a564ba1c55c23021cc95f105c6c1.patch";
+        sha256 = "1jz4z4y72fqgwpwrmw29pismvackwy187k2yc2xdis8dwrkhpzni";
       })
     ];
     installPhase = "mkdir $out; cp -r * $out";
   };
 
   generateds = pkgs.fetchFromGitHub {
-      owner = "Juniper";
-      repo = "contrail-generateds";
-      rev = "4dc0fdf96ab0302b94381f97dc059a1dc0b2d69b";
-      sha256 = "0v5ifvzsjzaw23y8sbzwhr6wwcsz836p2lziq4zcv7hwvr4ic5gw";
+    owner = "Juniper";
+    repo = "contrail-generateds";
+    rev = "4dc0fdf96ab0302b94381f97dc059a1dc0b2d69b";
+    sha256 = "0v5ifvzsjzaw23y8sbzwhr6wwcsz836p2lziq4zcv7hwvr4ic5gw";
   };
 
   build = pkgs.fetchFromGitHub {
-      owner = "Juniper";
-      repo = "contrail-build";
-      rev = "84860a733f777e040446890bd6bedf44f7116fcb";
-      sha256 = "01ik66w5viljsyqs2dj17vfbgkxhq0k4m91lb2dvkhhq65mwcaxw";
-  };      
+    owner = "Juniper";
+    repo = "contrail-build";
+    rev = "84860a733f777e040446890bd6bedf44f7116fcb";
+    sha256 = "01ik66w5viljsyqs2dj17vfbgkxhq0k4m91lb2dvkhhq65mwcaxw";
+  };
 
   contrail-workspace =  pkgs.stdenv.mkDerivation rec {
     name = "contrail-workspace";
     version = "3.2";
 
     phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" ];
-    
+
     buildInputs = contrailBuildInputs;
 
     # We don't override the patchPhase to be nix-shell compliant
@@ -172,7 +172,7 @@ rec {
       [[ ${third-party.name} != third_party ]] && mv ${third-party.name} third_party
       find third_party -name configure -exec chmod 755 {} \;
       [[ ${vrouter.name} != vrouter ]] && mv ${vrouter.name} vrouter
-      
+
       mkdir openstack
       mv ${neutron-plugin.name} openstack/neutron_plugin
     '';
