@@ -11,23 +11,22 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
       contrailDeps = import ../deps.nix { inherit pkgs; };
 
       contrailCreateNetwork = pkgs.stdenv.mkDerivation rec {
-         name = "contrail-create-network";
-         src = ./contrail-create-network.py;
-         phases = [ "installPhase" "fixupPhase" ];
-         buildInputs = [
-           (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-            contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
-         ];
-         installPhase = ''
-           mkdir -p $out/bin
-           cp ${src} $out/bin/contrail-create-network.py
-         '';
-	 };
+        name = "contrail-create-network";
+        src = ./contrail-create-network.py;
+        phases = [ "installPhase" "fixupPhase" ];
+        buildInputs = [
+          (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+          contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
+        ];
+        installPhase = ''
+          mkdir -p $out/bin
+          cp ${src} $out/bin/contrail-create-network.py
+        '';
+   };
 
       cassandraPkg = pkgs.cassandra_2_1.override {jre = pkgs.jre7;};
       cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
         mkdir -p $out
-        
         cat ${pkgs.cassandra_2_1}/conf/cassandra.yaml > $out/cassandra.yaml
         cat >> $out/cassandra.yaml << EOF
         data_file_directories:
@@ -72,8 +71,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
       };
       discovery = pkgs.writeTextFile {
         name = "contrail-discovery.conf";
-        text =
-          ''
+        text = ''
           [DEFAULTS]
           zk_server_ip=localhost
           zk_server_port=2181
@@ -152,7 +150,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
 
           [TASK]
           tbb_keepawake_timeout = 25
-      '';
+        '';
       };
       collector = pkgs.writeTextFile {
         name = "contrail-collector.conf";
@@ -180,7 +178,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
         '';
       };
     in
-    { 
+    {
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
       users.extraUsers.root.password = "root";
@@ -206,14 +204,14 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
         after = [ "network.target" "contrailApi.service" ];
         preStart = "mkdir -p /var/log/contrail/";
         script = "${contrailPkgs.contrailVrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
-	postStart = "${contrailPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
+        postStart = "${contrailPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
       };
 
       systemd.services.contrailDiscovery = {
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
-          # Keyspaces are created by the contrail-api...
-          "contrailApi.service" ];
+                # Keyspaces are created by the contrail-api...
+                "contrailApi.service" ];
         preStart = "mkdir -p /var/log/contrail/";
         script = "${contrailPkgs.contrailDiscovery}/bin/contrail-discovery --conf_file ${discovery}";
         path = [ pkgs.netcat ];
@@ -248,12 +246,12 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
         after = [ "network.target" ];
         path = [ pkgs.iproute contrailPkgs.contrailVrouterUtils ];
         script = ''
-	  vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
-	  vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
-	  vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
-	  ip link set vhost0 up
-	  # ip a add $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev vhost0
-	  # ip a del $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev eth1
+          vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
+          vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
+          vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
+          ip link set vhost0 up
+          # ip a add $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev vhost0
+          # ip a del $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev eth1
         '';
       };
 
@@ -269,32 +267,32 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
         after = [ "network.target" "contrailApi.service" "contrailCollector" ];
         preStart = "mkdir -p /var/log/contrail/";
         script = "${contrailPkgs.contrailControl}/bin/contrail-control --conf_file ${control}";
-	postStart = ''
-	  ${contrailPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
-	'';
+        postStart = ''
+          ${contrailPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
+        '';
       };
 
       systemd.services.cassandra = {
-         wantedBy = [ "multi-user.target" ];
-         after = [ "network.target" ];
-         environment = {
-           CASSANDRA_CONFIG = cassandraConfigDir;
-         };
-         script = ''
-           mkdir -p /tmp/cassandra-data/
-           chmod a+w /tmp/cassandra-data
-           export CASSANDRA_CONF=${cassandraConfigDir}
-           export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199" 
-           export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false" 
-           export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false" 
-           ${cassandraPkg}/bin/cassandra -f
-         '';
-         postStart = ''
-           sleep 2
-           while ! ${cassandraPkg}/bin/nodetool status >/dev/null 2>&1; do
-             sleep 2
-           done
-         '';
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        environment = {
+          CASSANDRA_CONFIG = cassandraConfigDir;
+        };
+        script = ''
+          mkdir -p /tmp/cassandra-data/
+          chmod a+w /tmp/cassandra-data
+          export CASSANDRA_CONF=${cassandraConfigDir}
+          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
+          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+          ${cassandraPkg}/bin/cassandra -f
+        '';
+        postStart = ''
+          sleep 2
+          while ! ${cassandraPkg}/bin/nodetool status >/dev/null 2>&1; do
+            sleep 2
+          done
+        '';
       };
     };
 
@@ -330,5 +328,5 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
 
     $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
     $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
-    '';
+  '';
 }
