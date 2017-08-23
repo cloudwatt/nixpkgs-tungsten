@@ -37,11 +37,40 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
             - /tmp/cassandra-data/saved_caches
         EOF
 
-        cat >> $out/log4j-server.properties << EOF
-        log4j.rootLogger=INFO,stdout
-        log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-        log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-        log4j.appender.stdout.layout.ConversionPattern=%5p [%t] %d{HH:mm:ss,SSS} %m%n
+        cat >> $out/logback.xml << EOF
+        <configuration scan="true">
+          <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/var/log/cassandra/system.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+              <fileNamePattern>/var/log/cassandra/system.log.%i.zip</fileNamePattern>
+              <minIndex>1</minIndex>
+              <maxIndex>20</maxIndex>
+            </rollingPolicy>
+
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+              <maxFileSize>20MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+              <pattern>%-5level [%thread] %date{ISO8601} %F:%L - %msg%n</pattern>
+              <!-- old-style log format
+              <pattern>%5level [%thread] %date{ISO8601} %F (line %L) %msg%n</pattern>
+              -->
+            </encoder>
+          </appender>
+
+          <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+              <pattern>%-5level %date{HH:mm:ss,SSS} %msg%n</pattern>
+            </encoder>
+          </appender>
+
+          <root level="INFO">
+            <appender-ref ref="FILE" />
+            <appender-ref ref="STDOUT" />
+          </root>
+
+          <logger name="com.thinkaurelius.thrift" level="ERROR"/>
+        </configuration>
         EOF
       '';
       api = pkgs.writeTextFile {
