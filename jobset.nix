@@ -37,7 +37,7 @@ let
       jobName = with pkgs.lib; "push-" + (removeSuffix ".tar" (removeSuffix ".gz" image.name));
     in
       pkgs.runCommand jobName {
-      buildInputs = [ pkgs.jq skopeo ];
+      buildInputs = with pkgs; [ jq skopeo ];
       } ''
       echo "Ungunzip image (since skopeo doesn't support tgz image)..."
       gzip -d ${image.out} -c > image.tar
