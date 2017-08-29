@@ -40,7 +40,7 @@ rec {
 
     buildPhase = ''
       export USER=contrail
-      python fetch_packages.py
+      python fetch_packages.py --cache-dir $TMPDIR/cache
     '';
 
     installPhase = ''
