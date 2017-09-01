@@ -42,7 +42,7 @@ rec {
     src = thirdPartySrc;
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
-    impureEnvVars = [ "http_proxy" "https_proxy" ];
+    impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
     # We have to fix the output hash to be allowed to set impure env vars.
     # This is really shitty since the hash depends on the autotool version used by thrift.
     outputHashMode = "recursive";
