@@ -21,34 +21,61 @@ rec {
       python zookeeper_mt pythonPackages.sphinx
     ];
 
-  third-party = pkgs.stdenv.mkDerivation {
-    name = "contrail-third-party";
-    version = "3.2";
 
-    src = pkgs.fetchFromGitHub {
+  thirdPartySrc = pkgs.fetchFromGitHub {
       owner = "Juniper";
       repo = "contrail-third-party";
       rev = "16333c4e2ecbea2ef5bc38cecf45bfdc78500053";
       sha256 = "1bkrjc8w2c8a4hjz43xr0nsiwmxws2zmg2vvl3qfp32bw4ipvrhv";
+    };
+
+  # Hack: we create this derivation to split the downloading from
+  # the autotool reconfiguration of thrift made by fetch_packages.
+  # Since we want to use http_proxy, we need to have a deterministic
+  # output path. However fetch_packages reconfigures thirft and the
+  # produced paths are really sensible to autotool versions (that come
+  # from nixpkgs).
+  thirdPartyCache = pkgs.stdenv.mkDerivation {
+    name = "contrail-third-party-cache";
+    version = "3.2";
+
+    src = thirdPartySrc;
+    phases = [ "unpackPhase" "buildPhase" "installPhase" ];
+
+    impureEnvVars = [ "http_proxy" "https_proxy" ];
+    # We have to fix the output hash to be allowed to set impure env vars.
+    # This is really shitty since the hash depends on the autotool version used by thrift.
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2";
+
+    buildInputs = with pkgs; [
+      pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget
+    ];
+
+    buildPhase = "mkdir cache; python fetch_packages.py --cache-dir $PWD/cache";
+    installPhase = "mkdir $out; cp -ra cache/* $out/";
   };
 
+  third-party = pkgs.stdenv.mkDerivation {
+    name = "contrail-third-party";
+    version = "3.2";
+
+    src = thirdPartySrc;
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
     buildInputs = with pkgs; [
       pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget
     ];
 
-    buildPhase = ''
-      export USER=contrail
-      python fetch_packages.py --cache-dir $TMPDIR/cache
-    '';
+    buildPhase = "python fetch_packages.py --cache-dir ${thirdPartyCache}";
 
     installPhase = ''
       # Remove these useless libraries that increase the closure size
       rm -rf boost_1_48_0 icu
 
       mkdir $out
-      cp -rva * $out/
+      cp -ra * $out/
     '';
   };
 
