@@ -8,10 +8,11 @@ rec {
   contrailBuildInputs = with pkgs; [
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
-      libkrb5 openssl libxml2 perl boost155 tbb curl
+      libkrb5 openssl libxml2 perl tbb curl
       # This overriding should be avoided by patching log4cplus to
       # support older compilers.
       (log4cplus.override{stdenv = pkgs.overrideCC stdenv gcc5;})
+      (boost155.override{stdenv = pkgs.overrideCC stdenv gcc5;})
 
       # api-server
       pythonPackages.lxml pythonPackages.pip
