@@ -227,6 +227,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
 
       boot.extraModulePackages = [ (contrailPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
       boot.kernelModules = [ "vrouter" ];
+      boot.kernelPackages = pkgs.linuxPackages;
 
       systemd.services.contrailVrouterAgent = {
         wantedBy = [ "multi-user.target" ];
