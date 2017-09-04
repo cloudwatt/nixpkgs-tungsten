@@ -10,7 +10,7 @@ let
   ubuntu = pkgs.dockerTools.pullImage {
     imageName = "ubuntu";
     imageTag = "14.04";
-    sha256 = "1gqs9xzlayaqq2wgdcp3fdg3fws50vy5a69xkxa40b0dasa9i3mk";
+    sha256 = "0qpsj3wpgppjhkx44i0745v70w05ma0hgr0hsxzz1wbsbpx8yq9a";
   };
 
   perp = pkgs.stdenv.mkDerivation {
