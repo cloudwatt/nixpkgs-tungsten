@@ -6,9 +6,13 @@ with import ./deps.nix {inherit pkgs;};
 
 rec {
   contrailBuildInputs = with pkgs; [
-      scons gcc pkgconfig autoconf automake libtool flex_2_5_35 bison
+      scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
-      libkrb5 openssl libxml2 perl boost155 log4cplus tbb curl
+      libkrb5 openssl libxml2 perl boost155 tbb curl
+      # This overriding should be avoided by patching log4cplus to
+      # support older compilers.
+      (log4cplus.override{stdenv = pkgs.overrideCC stdenv gcc5;})
+
       # api-server
       pythonPackages.lxml pythonPackages.pip
       # To get xxd binary required by sandesh
