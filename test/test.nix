@@ -220,7 +220,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
 
       # Required by the test suite
       environment.systemPackages = [
-        pkgs.jq contrailDeps.contrailApiCli
+        pkgs.jq # contrailDeps.contrailApiCli
         contrailPkgs.contrailVrouterPortControl contrailPkgs.contrailVrouterUtils contrailPkgs.contrailConfigUtils
         contrailCreateNetwork contrailPkgs.contrailVrouterNetns
       ];
