@@ -12,16 +12,19 @@ let
   images = import ./image.nix {inherit pkgs;};
   debian = import ./debian.nix {inherit pkgs;};
   controller = import ./controller.nix {inherit pkgs;};
+  webui = import ./webui.nix {inherit pkgs;};
   deps = import ./deps.nix {inherit pkgs;};
 in
-  with controller; with deps; {
+  with controller; with webui; with deps; {
     inherit contrailApi contrailControl contrailVrouterAgent
             contrailCollector contrailAnalyticsApi contrailDiscovery
-	    contrailQueryEngine
-	    contrailConfigUtils contrailVrouterUtils # contrailApiCli
-	    contrailVrouterNetns;
+            contrailQueryEngine
+            contrailConfigUtils contrailVrouterUtils # contrailApiCli
+            contrailVrouterNetns
+            webCore;
   } //
-  { debian = debian;
+  { 
+    debian = debian;
     images = images;
     test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };
   }
