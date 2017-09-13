@@ -18,7 +18,7 @@ in
     inherit contrailApi contrailControl contrailVrouterAgent
             contrailCollector contrailAnalyticsApi contrailDiscovery
 	    contrailQueryEngine
-	    contrailConfigUtils contrailVrouterUtils contrailApiCli
+	    contrailConfigUtils contrailVrouterUtils # contrailApiCli
 	    contrailVrouterNetns;
   } //
   { debian = debian;
