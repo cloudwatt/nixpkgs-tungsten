@@ -27,33 +27,54 @@ rec {
     sha256 = "13f69sxvs0gljkhayjbavq2s3anmv3x68884nlx6n9359rlnvwgj";
   };
 
-  webuiThirdParty = stdenv.mkDerivation {
-    name = "contrail-webui-third-party";
+  webuiThirdPartyCommon = {
     version = "3.2";
-
     src = webuiThirdPartySrc;
     phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" ];
-
-    buildInputs = [
-      python pythonPackages.lxml unzip wget nodejs-4_x
-    ];
-
+    buildInputs = [ python pythonPackages.lxml unzip wget nodejs-4_x ];
     # https://www.reddit.com/r/NixOS/comments/6eit9b/request_for_assistance_in_creating_a_derivation/
     HOME=".";
-
-    patchPhase = ''
+    postPatch = ''
       substituteInPlace fetch_packages.py --replace \
         "_PACKAGE_CACHE='/tmp/cache/' + os.environ['USER'] + '/webui_third_party" \
         "_PACKAGE_CACHE='$(pwd)/cache/"
     '';
-
-    buildPhase = "python fetch_packages.py -f packages.xml";
-
-    installPhase = ''
-      mkdir $out
-      cp -ra * $out/
-    '';
   };
+
+
+  webuiThirdPartyCache = stdenv.mkDerivation (webuiThirdPartyCommon // {
+    name = "contrail-webui-third-party-cache";
+    impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
+    # We have to fix the output hash to be allowed to set impure env vars.
+    # This is really shitty since the hash depends on the autotool version used by thrift.
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = "0e72c5176fcaf30d18118f5a81a0a75b6eb41eb01629f288db52efa71903d62e";
+
+    postPatch = webuiThirdPartyCommon.postPatch + ''
+      substituteInPlace fetch_packages.py --replace \
+        "os.remove(ccfile)" \
+        "pass"
+    '';
+    buildPhase = "python fetch_packages.py -f packages.xml";
+    installPhase = ''
+      mkdir -p $out/{cache,node_modules}
+      rm -rf cache/node_modules/webworker-threads/build/
+      cp -ra cache/* $out/cache/
+      cp -ra node_modules/*.tar.gz $out/node_modules/
+    '';
+  });
+
+  webuiThirdParty = stdenv.mkDerivation (webuiThirdPartyCommon // {
+    name = "contrail-webui-third-party";
+    buildPhase = ''
+      cp -r ${webuiThirdPartyCache}/cache ./
+      cp -r ${webuiThirdPartyCache}/node_modules ./
+      chmod -R u+w cache node_modules
+      python fetch_packages.py -f packages.xml
+    '';
+    installPhase = "mkdir $out; cp -ra * $out/";
+  });
 
   webBuild = stdenv.mkDerivation {
     name = "contrail-web-build";
