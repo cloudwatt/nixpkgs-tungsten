@@ -49,17 +49,17 @@ rec {
     # This is really shitty since the hash depends on the autotool version used by thrift.
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "0e72c5176fcaf30d18118f5a81a0a75b6eb41eb01629f288db52efa71903d62e";
+    outputHash = "0inns0rp2b6yw780gxchp04q8cf1n1w7r8v095xvibdjc7njfx91";
 
+    # We only run the downloading phase
     postPatch = webuiThirdPartyCommon.postPatch + ''
       substituteInPlace fetch_packages.py --replace \
-        "os.remove(ccfile)" \
-        "pass"
+        "DownloadPackage(url, ccfile, pkg.md5)" \
+        "DownloadPackage(url, ccfile, pkg.md5); return"
     '';
     buildPhase = "python fetch_packages.py -f packages.xml";
     installPhase = ''
       mkdir -p $out/{cache,node_modules}
-      rm -rf cache/node_modules/webworker-threads/build/
       cp -ra cache/* $out/cache/
       cp -ra node_modules/*.tar.gz $out/node_modules/
     '';
