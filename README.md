@@ -28,14 +28,6 @@ nix-build -A contrailControl # Take a while...
 
 This launches a vm, installs some Contrail services and runs some basic tests
 
-### Build Docker Images
-
-```
-nix-build -A images.dockerContrailApi
-docker load < result
-```
-
-`nix-env -f default.nix -qaP -A images` to get the list of all images
 
 ### Build Debian Packages
 
