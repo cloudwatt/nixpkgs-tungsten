@@ -41,25 +41,31 @@ rec {
     '';
   };
 
+  nodeHeaders = pkgs.fetchzip {
+    url = https://nodejs.org/download/release/v4.8.4/node-v4.8.4-headers.tar.gz;
+    sha256="1w8bj7y9fgpbz3177l57584rlf0ark12igjq1zrn9bjlppkhqv6h";
+  };
 
   webuiThirdPartyCache = stdenv.mkDerivation (webuiThirdPartyCommon // {
     name = "contrail-webui-third-party-cache";
     impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
-    # We have to fix the output hash to be allowed to set impure env vars.
-    # This is really shitty since the hash depends on the autotool version used by thrift.
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "0inns0rp2b6yw780gxchp04q8cf1n1w7r8v095xvibdjc7njfx91";
-
-    # We only run the downloading phase
+    outputHash = "1cgk3idlggdaiky2q8fc4a9lif6nxv8apgfpnl2l87bbas4101am";
     postPatch = webuiThirdPartyCommon.postPatch + ''
       substituteInPlace fetch_packages.py --replace \
-        "DownloadPackage(url, ccfile, pkg.md5)" \
-        "DownloadPackage(url, ccfile, pkg.md5); return"
+        "os.remove(ccfile)" \
+        "pass"
     '';
     buildPhase = "python fetch_packages.py -f packages.xml";
     installPhase = ''
       mkdir -p $out/{cache,node_modules}
+
+      # We remove some generated files and keep the npm cache
+      rm -rf node_modules/webworker-threads/
+      rm -rf cache/node_modules/webworker-threads/
+      cp -ra .npm $out/.npm/
+
       cp -ra cache/* $out/cache/
       cp -ra node_modules/*.tar.gz $out/node_modules/
     '';
@@ -70,10 +76,16 @@ rec {
     buildPhase = ''
       cp -r ${webuiThirdPartyCache}/cache ./
       cp -r ${webuiThirdPartyCache}/node_modules ./
-      chmod -R u+w cache node_modules
+      cp -r ${webuiThirdPartyCache}/.npm ./
+      chmod -R u+w cache node_modules .npm
       python fetch_packages.py -f packages.xml
     '';
-    installPhase = "mkdir $out; cp -ra * $out/";
+    postPatch = webuiThirdPartyCommon.postPatch + ''
+      substituteInPlace fetch_packages.py --replace \
+        "cmd = ['npm', 'install', ccfile, '--prefix', _PACKAGE_CACHE]" \
+        "cmd = ['npm', 'install', '--verbose', '--nodedir=${nodeHeaders}', ccfile, '--prefix', _PACKAGE_CACHE]"
+    '';
+    installPhase = "mkdir $out; cp -ra node_modules $out/";
   });
 
   webBuild = stdenv.mkDerivation {
