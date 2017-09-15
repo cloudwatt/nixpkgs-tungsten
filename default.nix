@@ -19,7 +19,7 @@ in
             contrailCollector contrailAnalyticsApi contrailDiscovery
             contrailQueryEngine
             contrailConfigUtils contrailVrouterUtils # contrailApiCli
-            contrailVrouterNetns
+            contrailVrouterNetns contrailVrouterPortControl
             webCore;
   } //
   { 
