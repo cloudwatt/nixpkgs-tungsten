@@ -5,31 +5,11 @@ with import ./controller.nix {inherit pkgs;};
 with pkgs;
 
 rec {
-
-  webuiThirdPartySrc = fetchFromGitHub {
-    owner = "Juniper";
-    repo = "contrail-webui-third-party";
-    rev = "e8c29f64a03f611bafd719fd0d3c38aaaf5824a3";
-    sha256 = "19xf43nwdrs57k5ssqzbnra3h912px8ywcmb734wvy7v339xvgrb";
-  };
-
-  webControllerSrc = fetchFromGitHub {
-    owner = "Juniper";
-    repo = "contrail-web-controller";
-    rev = "97a6f72aa66cfc32a94c4dba49f08dd40d627f6f";
-    sha256 = "17s892xb6b0spnkgld2ywb32bvhrrhb1dyqg2fg45izwq7ib6wks";
-  };
-
-  webCoreSrc = fetchFromGitHub {
-    owner = "Juniper";
-    repo = "contrail-web-core";
-    rev = "652086f83c02f36f872b1f70e96a4665566abd8e";
-    sha256 = "13f69sxvs0gljkhayjbavq2s3anmv3x68884nlx6n9359rlnvwgj";
-  };
+  sources = import ./sources.nix { inherit pkgs; };
 
   webuiThirdPartyCommon = {
     version = "3.2";
-    src = webuiThirdPartySrc;
+    src = sources.webuiThirdParty;
     phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" ];
     buildInputs = [ python pythonPackages.lxml unzip wget nodejs-4_x ];
     # https://www.reddit.com/r/NixOS/comments/6eit9b/request_for_assistance_in_creating_a_derivation/
@@ -92,7 +72,7 @@ rec {
     name = "contrail-web-build";
     version = "3.2";
 
-    srcs = [ webuiThirdParty webCoreSrc webControllerSrc controller generateds ];
+    srcs = [ webuiThirdParty sources.webCore sources.webController controller sources.generateds ];
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
@@ -104,10 +84,10 @@ rec {
 
     postUnpack = "
       mkdir tools
-      mv ${generateds.name} tools/generateds
+      mv ${sources.generateds.name} tools/generateds
       [[ ${controller.name} != controller ]] && mv ${controller.name} controller
-      mv ${webCoreSrc.name} contrail-web-core
-      mv ${webControllerSrc.name} contrail-web-controller
+      mv ${sources.webCore.name} contrail-web-core
+      mv ${sources.webController.name} contrail-web-controller
       rsync -a ${webuiThirdParty.name}/node_modules contrail-web-core
       rsync -a ${webuiThirdParty.name}/node_modules contrail-web-controller
     ";

@@ -5,6 +5,8 @@
 with import ./deps.nix {inherit pkgs;};
 
 rec {
+  sources = import ./sources.nix { inherit pkgs; };
+
   contrailBuildInputs = with pkgs; [
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
@@ -26,14 +28,6 @@ rec {
       python zookeeper_mt pythonPackages.sphinx
     ];
 
-
-  thirdPartySrc = pkgs.fetchFromGitHub {
-      owner = "Juniper";
-      repo = "contrail-third-party";
-      rev = "16333c4e2ecbea2ef5bc38cecf45bfdc78500053";
-      sha256 = "1bkrjc8w2c8a4hjz43xr0nsiwmxws2zmg2vvl3qfp32bw4ipvrhv";
-    };
-
   # Hack: we create this derivation to split the downloading from
   # the autotool reconfiguration of thrift made by fetch_packages.
   # Since we want to use http_proxy, we need to have a deterministic
@@ -44,7 +38,7 @@ rec {
     name = "contrail-third-party-cache";
     version = "3.2";
 
-    src = thirdPartySrc;
+    src = sources.thirdPartySrc;
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
     impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
@@ -66,7 +60,7 @@ rec {
     name = "contrail-third-party";
     version = "3.2";
 
-    src = thirdPartySrc;
+    src = sources.thirdPartySrc;
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
     buildInputs = with pkgs; [
@@ -88,12 +82,7 @@ rec {
     name = "controller";
     version = "R3.2";
     phases = [ "unpackPhase" "patchPhase" "installPhase" ];
-    src = pkgs.fetchFromGitHub {
-      owner = "eonpatapon";
-      repo = "contrail-controller";
-      rev = "df56948839068e5d6312556699a1d54fc591895f";
-      sha256 = "102qaibxaz106sr67w66wxidxnipvkky3ar670hzazgyfmrjg8vh";
-    };
+    src = sources.controller;
     patchPhase = ''
       sed -i "s|config_opts = |config_opts = ' --with-openssl=${pkgs.openssl.dev} ' + |" lib/bind/SConscript
 
@@ -126,30 +115,11 @@ rec {
     installPhase = "cp -r ./ $out";
   };
 
-  neutron-plugin = pkgs.fetchFromGitHub {
-      owner = "eonpatapon";
-      repo = "contrail-neutron-plugin";
-      rev = "fa6b3e80af4537633b3423474c9daa83fabee5e8";
-      sha256 = "1j0hg944zsb8hablj1i0lq7w4wdah2lrymhwxsyydxz29zc25876";
-  };
-
-  vrouter = pkgs.fetchFromGitHub {
-      owner = "Juniper";
-      repo = "contrail-vrouter";
-      rev = "58c8f58574c569ec8057171f6509d6984bb08520";
-      sha256 = "0gwfqqdwph5776kcy2qn1i7472b84jbml8aran6kkbwp52611rk5";
-  };
-
   sandesh = pkgs.stdenv.mkDerivation rec {
     name = "sandesh";
     version = "3.2";
 
-    src = pkgs.fetchFromGitHub {
-      owner = "Juniper";
-      repo = "contrail-sandesh";
-      rev = "3083be8b8d3dc673aa6e6d29d258aca064af96ce";
-      sha256 = "16v8n6cg42qsxx5qg5p12sq52m9hpgb19zlami2g67f3h1a526dj";
-    };
+    src = sources.sandesh;
     patches = [
       (pkgs.fetchurl {
         name = "sandesh.patch";
@@ -166,20 +136,6 @@ rec {
     installPhase = "mkdir $out; cp -r * $out";
   };
 
-  generateds = pkgs.fetchFromGitHub {
-    owner = "Juniper";
-    repo = "contrail-generateds";
-    rev = "4dc0fdf96ab0302b94381f97dc059a1dc0b2d69b";
-    sha256 = "0v5ifvzsjzaw23y8sbzwhr6wwcsz836p2lziq4zcv7hwvr4ic5gw";
-  };
-
-  build = pkgs.fetchFromGitHub {
-    owner = "Juniper";
-    repo = "contrail-build";
-    rev = "84860a733f777e040446890bd6bedf44f7116fcb";
-    sha256 = "01ik66w5viljsyqs2dj17vfbgkxhq0k4m91lb2dvkhhq65mwcaxw";
-  };
-
   contrail-workspace =  pkgs.stdenv.mkDerivation rec {
     name = "contrail-workspace";
     version = "3.2";
@@ -190,23 +146,23 @@ rec {
 
     # We don't override the patchPhase to be nix-shell compliant
     preUnpack = ''mkdir workspace || exit; cd workspace'';
-    srcs = [ build third-party generateds sandesh vrouter neutron-plugin controller ];
+    srcs = with sources; [ build third-party generateds sandesh vrouter neutron-plugin controller ];
     sourceRoot = ''./'';
     postUnpack = ''
-      cp ${build.out}/SConstruct .
+      cp ${sources.build.out}/SConstruct .
 
       mkdir tools
-      mv ${build.name} tools/build
-      mv ${generateds.name} tools/generateds
+      mv ${sources.build.name} tools/build
+      mv ${sources.generateds.name} tools/generateds
       mv ${sandesh.name} tools/sandesh
 
       [[ ${controller.name} != controller ]] && mv ${controller.name} controller
       [[ ${third-party.name} != third_party ]] && mv ${third-party.name} third_party
       find third_party -name configure -exec chmod 755 {} \;
-      [[ ${vrouter.name} != vrouter ]] && mv ${vrouter.name} vrouter
+      [[ ${sources.vrouter.name} != vrouter ]] && mv ${sources.vrouter.name} vrouter
 
       mkdir openstack
-      mv ${neutron-plugin.name} openstack/neutron_plugin
+      mv ${sources.neutron-plugin.name} openstack/neutron_plugin
     '';
 
     prePatch = ''
