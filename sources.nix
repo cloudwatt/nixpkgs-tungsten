@@ -14,7 +14,7 @@
     sha256 = "102qaibxaz106sr67w66wxidxnipvkky3ar670hzazgyfmrjg8vh";
   };
 
-  neutron-plugin = pkgs.fetchFromGitHub {
+  neutronPlugin = pkgs.fetchFromGitHub {
       owner = "eonpatapon";
       repo = "contrail-neutron-plugin";
       rev = "fa6b3e80af4537633b3423474c9daa83fabee5e8";

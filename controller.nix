@@ -146,7 +146,7 @@ rec {
 
     # We don't override the patchPhase to be nix-shell compliant
     preUnpack = ''mkdir workspace || exit; cd workspace'';
-    srcs = with sources; [ build third-party generateds sandesh vrouter neutron-plugin controller ];
+    srcs = with sources; [ build third-party generateds sandesh vrouter neutronPlugin controller ];
     sourceRoot = ''./'';
     postUnpack = ''
       cp ${sources.build.out}/SConstruct .
@@ -162,7 +162,7 @@ rec {
       [[ ${sources.vrouter.name} != vrouter ]] && mv ${sources.vrouter.name} vrouter
 
       mkdir openstack
-      mv ${sources.neutron-plugin.name} openstack/neutron_plugin
+      mv ${sources.neutronPlugin.name} openstack/neutron_plugin
     '';
 
     prePatch = ''
