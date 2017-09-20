@@ -236,7 +236,7 @@ rec {
     name = "contrail-collector";
     version = "3.2";
     src = contrail-workspace;
-    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools ];
+    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev ];
 
     # To fix a scons cycle on buildinfo
     patches = ./patches/analytics.patch;
