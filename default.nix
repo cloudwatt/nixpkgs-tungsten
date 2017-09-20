@@ -2,8 +2,8 @@
 , pkgs_path ? bootstrap_pkgs.fetchFromGitHub {
     owner = "nlewo";
     repo = "nixpkgs";
-    rev = "5575fd469d89a0bdc990ea5a75e32a565fd0a389";
-    sha256 = "14vlm7rkj2wym7g90sacw5r0950awixkd0nk7qdy2iyp16y5sr4i";
+    rev = "0c41433868ad61aac43da184c113f305a3784957";
+    sha256 = "0jrlk9wwbskzw2bxvncna1fi4qm596r83smcfh1dashb8gm3ddp8";
   }
 , pkgs ? import pkgs_path {}
 }:
