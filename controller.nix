@@ -414,7 +414,7 @@ rec {
    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
    buildInputs = [
     (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-       netaddr vnc_api cfgm_common ]))
+       netaddr requests ]))
    ];
    installPhase = ''
      mkdir -p $out/bin
