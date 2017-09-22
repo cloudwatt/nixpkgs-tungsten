@@ -16,6 +16,8 @@ let
 in
   with controller; with webui; with deps; {
     inherit contrailApi contrailControl contrailVrouterAgent
+            # This is not a derivation.
+            contrailVrouter
             contrailCollector contrailAnalyticsApi contrailDiscovery
             contrailQueryEngine
             contrailConfigUtils contrailVrouterUtils # contrailApiCli
