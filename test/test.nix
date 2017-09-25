@@ -4,8 +4,10 @@
 # set a specific NIX_PATH env var.
 , pkgs_path ? <nixpkgs> }:
 
-import (pkgs_path + /nixos/tests/make-test.nix) {
-  machine =
+with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+
+let
+  machine = {pkgs, config, ...}:
     let
       controllerPkgs = import ../controller.nix { inherit pkgs; };
       webuiPkgs = import ../webui.nix { inherit pkgs; };
@@ -23,7 +25,7 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
           mkdir -p $out/bin
           cp ${src} $out/bin/contrail-create-network.py
         '';
-   };
+      };
 
       cassandraPkg = pkgs.cassandra_2_1.override {jre = pkgs.jre7;};
       cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
@@ -147,39 +149,6 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
           [DISCOVERY]
           port = 5998
           server = 127.0.0.1
-        '';
-      };
-      agent = pkgs.writeTextFile {
-        name = "contrail-agent.conf";
-        text = ''
-          [DEFAULT]
-          ble_flow_collection = 1
-          log_file = /var/log/contrail/vrouter.log
-          log_level = SYS_DEBUG
-          log_local = 1
-          collectors= 127.0.0.1:8086
-
-          [CONTROL-NODE]
-          server = 127.0.0.1
-
-          [DISCOVERY]
-          port = 5998
-          server = 127.0.0.1
-
-          [VIRTUAL-HOST-INTERFACE]
-          name = vhost0
-          ip = 192.168.1.1/24
-          gateway = 192.168.1.1
-          physical_interface = eth1
-
-          [FLOWS]
-          max_vm_flows = 20
-
-          [METADATA]
-          metadata_proxy_secret = t96a4skwwl63ddk6
-
-          [TASK]
-          tbb_keepawake_timeout = 25
         '';
       };
       query-engine = pkgs.writeTextFile {
@@ -368,157 +337,132 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
           module.exports = config;
         '';
       };
-    in
-    rec {
-      services.openssh.enable = true;
-      services.openssh.permitRootLogin = "yes";
-      users.extraUsers.root.password = "root";
+    in {
+      imports = [ ./compute-node.nix ];
+      config = rec {
+        services.openssh.enable = true;
+        services.openssh.permitRootLogin = "yes";
+        users.extraUsers.root.password = "root";
 
-      services.rabbitmq.enable = true;
-      services.zookeeper.enable = true;
-      services.redis.enable = true;
+        services.rabbitmq.enable = true;
+        services.zookeeper.enable = true;
+        services.redis.enable = true;
 
-      virtualisation = { memorySize = 4096; cores = 2; };
+        virtualisation = { memorySize = 4096; cores = 2; };
 
-      # Required by the test suite
-      environment.systemPackages = [
-        pkgs.jq # contrailDeps.contrailApiCli
-        controllerPkgs.contrailVrouterPortControl controllerPkgs.contrailVrouterUtils controllerPkgs.contrailConfigUtils
-        contrailCreateNetwork controllerPkgs.contrailVrouterNetns
-      ];
+        # Required by the test suite
+        environment.systemPackages = [
+          pkgs.jq # contrailDeps.contrailApiCli
+          controllerPkgs.contrailVrouterPortControl controllerPkgs.contrailVrouterUtils controllerPkgs.contrailConfigUtils
+          contrailCreateNetwork controllerPkgs.contrailVrouterNetns
+        ];
 
-      boot.extraModulePackages = [ (controllerPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
-      boot.kernelModules = [ "vrouter" ];
-      boot.kernelPackages = pkgs.linuxPackages;
+        contrail.vrouterAgent.enable = true;
 
-      systemd.services.contrailVrouterAgent = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "contrailApi.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailVrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
-        postStart = "${controllerPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
-      };
-
-      systemd.services.contrailDiscovery = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
-                # Keyspaces are created by the contrail-api...
-                "contrailApi.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailDiscovery}/bin/contrail-discovery --conf_file ${discovery}";
-        path = [ pkgs.netcat ];
-        postStart = ''
-          sleep 2
-          while ! nc -vz localhost 5998; do
+        systemd.services.contrailDiscovery = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
+                  # Keyspaces are created by the contrail-api...
+                  "contrailApi.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${controllerPkgs.contrailDiscovery}/bin/contrail-discovery --conf_file ${discovery}";
+          path = [ pkgs.netcat ];
+          postStart = ''
             sleep 2
-          done
-          sleep 2
-        '';
-      };
-
-      systemd.services.contrailApi = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailApi}/bin/contrail-api --conf_file ${api}";
-        path = [ pkgs.netcat ];
-        postStart = ''
-          sleep 2
-          while ! nc -vz localhost 8082; do
+            while ! nc -vz localhost 5998; do
+              sleep 2
+            done
             sleep 2
-          done
-          sleep 2
-        '';
-      };
-
-      systemd.services.configureVhostInterface = {
-        serviceConfig.Type = "oneshot";
-        serviceConfig.RemainAfterExit = true;
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
-        path = [ pkgs.iproute controllerPkgs.contrailVrouterUtils ];
-        script = ''
-          vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
-          vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
-          vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
-          ip link set vhost0 up
-          # ip a add $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev vhost0
-          # ip a del $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev eth1
-        '';
-      };
-
-      systemd.services.contrailQueryEngine = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailQueryEngine}/bin/qed --conf_file ${query-engine}";
-      };
-
-      systemd.services.contrailCollector = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "contrailQueryEngine.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailCollector}/bin/contrail-collector --conf_file ${collector}";
-      };
-
-      systemd.services.contrailAnalyticsApi = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "contrailCollector.service" ];
-        preStart = "mkdir -p /var/log/contrail/ && ${pkgs.redis}/bin/redis-cli config set protected-mode no";
-        script = "${controllerPkgs.contrailAnalyticsApi}/bin/contrail-analytics-api --conf_file ${analytics}";
-      };
-
-      systemd.services.contrailControl = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "contrailApi.service" "contrailCollector.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${controllerPkgs.contrailControl}/bin/contrail-control --conf_file ${control}";
-        postStart = ''
-          ${controllerPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
-        '';
-      };
-
-      systemd.services.cassandra = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
-        environment = {
-          CASSANDRA_CONFIG = cassandraConfigDir;
+          '';
         };
-        script = ''
-          mkdir -p /tmp/cassandra-data/
-          chmod a+w /tmp/cassandra-data
-          export CASSANDRA_CONF=${cassandraConfigDir}
-          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
-          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
-          export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
-          ${cassandraPkg}/bin/cassandra -f
-        '';
-        postStart = ''
-          sleep 2
-          while ! ${cassandraPkg}/bin/nodetool status >/dev/null 2>&1; do
+
+        systemd.services.contrailApi = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${controllerPkgs.contrailApi}/bin/contrail-api --conf_file ${api}";
+          path = [ pkgs.netcat ];
+          postStart = ''
             sleep 2
-          done
-        '';
-      };
+            while ! nc -vz localhost 8082; do
+              sleep 2
+            done
+            sleep 2
+          '';
+        };
 
-      systemd.services.contrailJobServer = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "contrailDiscovery.service" ];
-        serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
-        preStart = ''
-          cp ${web-server} /tmp/contrail-web-core-config.js
-        '';
-        script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/jobServerStart.js";
-      };
+        systemd.services.contrailQueryEngine = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${controllerPkgs.contrailQueryEngine}/bin/qed --conf_file ${query-engine}";
+        };
 
-      systemd.services.contrailWebServer = {
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" "contrailJobServer.service" "contrailAnalyticsApi.service" ];
-        serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
-        script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/webServerStart.js";
-      };
-    };
+        systemd.services.contrailCollector = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "contrailQueryEngine.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${controllerPkgs.contrailCollector}/bin/contrail-collector --conf_file ${collector}";
+        };
 
+        systemd.services.contrailAnalyticsApi = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "contrailCollector.service" ];
+          preStart = "mkdir -p /var/log/contrail/ && ${pkgs.redis}/bin/redis-cli config set protected-mode no";
+          script = "${controllerPkgs.contrailAnalyticsApi}/bin/contrail-analytics-api --conf_file ${analytics}";
+        };
+
+        systemd.services.contrailControl = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "contrailApi.service" "contrailCollector.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${controllerPkgs.contrailControl}/bin/contrail-control --conf_file ${control}";
+          postStart = ''
+            ${controllerPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
+          '';
+        };
+
+        systemd.services.cassandra = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" ];
+          environment = {
+            CASSANDRA_CONFIG = cassandraConfigDir;
+          };
+          script = ''
+            mkdir -p /tmp/cassandra-data/
+            chmod a+w /tmp/cassandra-data
+            export CASSANDRA_CONF=${cassandraConfigDir}
+            export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
+            export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+            export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+            ${cassandraPkg}/bin/cassandra -f
+          '';
+          postStart = ''
+            sleep 2
+            while ! ${cassandraPkg}/bin/nodetool status >/dev/null 2>&1; do
+              sleep 2
+            done
+          '';
+        };
+
+        systemd.services.contrailJobServer = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "contrailDiscovery.service" ];
+          serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
+          preStart = ''
+            cp ${web-server} /tmp/contrail-web-core-config.js
+          '';
+          script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/jobServerStart.js";
+        };
+
+        systemd.services.contrailWebServer = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "contrailJobServer.service" "contrailAnalyticsApi.service" ];
+          serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
+          script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/webServerStart.js";
+        };
+     };
+  };
   testScript =
     ''
     $machine->waitForUnit("cassandra.service");
@@ -558,4 +502,5 @@ import (pkgs_path + /nixos/tests/make-test.nix) {
     $machine->waitForUnit("contrailWebServer.service");
     $machine->waitForUnit("contrailJobServer.service");
   '';
-}
+in
+  makeTest { nodes = { inherit machine; }; testScript = testScript; }
