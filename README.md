@@ -34,3 +34,20 @@ This launches a vm, installs some Contrail services and runs some basic tests
 ```
 nix-build -A debian.contrailVrouter
 ```
+
+### Build a compute node VM
+
+```nix-build -A vms.computeNode``` builds a script to run a compute
+node with QEMU.
+
+Once built, the VM can be run
+
+```QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms```
+
+and reached with `ssh -p 2222 root@localhost`.
+
+A default configuration file is generated. By default, the agent
+tryies to contact the controller, discovery and collector by using
+the IP `172.16.42.42` which could be overriden at build time in
+`tools/build-vms.nix`.
+

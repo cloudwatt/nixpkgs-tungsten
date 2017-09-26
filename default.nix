@@ -13,6 +13,7 @@ let
   controller = import ./controller.nix {inherit pkgs;};
   webui = import ./webui.nix {inherit pkgs;};
   deps = import ./deps.nix {inherit pkgs;};
+  vms = import ./tools/build-vms.nix {inherit pkgs_path;};
 in
   with controller; with webui; with deps; {
     inherit contrailApi contrailControl contrailVrouterAgent
@@ -27,4 +28,5 @@ in
   { 
     debian = debian;
     test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };
+    inherit vms;
   }

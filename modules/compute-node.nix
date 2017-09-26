@@ -14,14 +14,14 @@ let
       log_file = /var/log/contrail/vrouter.log
       log_level = SYS_DEBUG
       log_local = 1
-      collectors= 127.0.0.1:8086
+      collectors= ${cfg.collectorHost}:8086
       
       [CONTROL-NODE]
-      server = 127.0.0.1
+      server = ${cfg.controlHost}
       
       [DISCOVERY]
       port = 5998
-      server = 127.0.0.1
+      server = ${cfg.discoveryHost}
       
       [VIRTUAL-HOST-INTERFACE]
       name = vhost0
@@ -47,6 +47,28 @@ in {
         type = types.bool;
         default = false;
       };
+      provisionning = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          If enable, the contrail-vrouter unit wait for the
+          contrailApi and register itself as active vrouter.
+          Note this currently only works if the Vrouter is collocated
+          with the Contrail API.
+        '';
+      };
+      collectorHost = mkOption {
+        type = types.str;
+        default = "127.0.0.1";
+      };
+      discoveryHost = mkOption {
+        type = types.str;
+        default = "127.0.0.1";
+      };
+      controlHost = mkOption {
+        type = types.str;
+        default = "127.0.0.1";
+      };
     };
   };
 
@@ -54,13 +76,20 @@ in {
     boot.extraModulePackages = [ (controllerPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
     boot.kernelModules = [ "vrouter" ];
     boot.kernelPackages = pkgs.linuxPackages;
+
+    environment.systemPackages = [
+      controllerPkgs.contrailVrouterPortControl controllerPkgs.contrailVrouterUtils
+      controllerPkgs.contrailVrouterNetns
+    ];
     
     systemd.services.contrailVrouterAgent = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "contrailApi.service" ];
+      after = [
+        "network.target"
+        (mkIf cfg.provisionning "contrailApi.service") ];
       preStart = "mkdir -p /var/log/contrail/";
       script = "${controllerPkgs.contrailVrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
-      postStart = "${controllerPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
+      postStart = mkIf cfg.provisionning "${controllerPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
     };
 
     systemd.services.configureVhostInterface = {
@@ -74,8 +103,6 @@ in {
         vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
         vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
         ip link set vhost0 up
-        # ip a add $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev vhost0
-        # ip a del $(ip a l dev eth1 | grep "inet " | awk '{print $2}') dev eth1
       '';
     };
   };

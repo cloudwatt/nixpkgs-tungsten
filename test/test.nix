@@ -353,8 +353,8 @@ let
         # Required by the test suite
         environment.systemPackages = [
           pkgs.jq # contrailDeps.contrailApiCli
-          controllerPkgs.contrailVrouterPortControl controllerPkgs.contrailVrouterUtils controllerPkgs.contrailConfigUtils
-          contrailCreateNetwork controllerPkgs.contrailVrouterNetns
+          controllerPkgs.contrailConfigUtils
+          contrailCreateNetwork
         ];
 
         contrail.vrouterAgent.enable = true;
