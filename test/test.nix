@@ -338,7 +338,7 @@ let
         '';
       };
     in {
-      imports = [ ./compute-node.nix ];
+      imports = [ ../modules/compute-node.nix ];
       config = rec {
         services.openssh.enable = true;
         services.openssh.permitRootLogin = "yes";
