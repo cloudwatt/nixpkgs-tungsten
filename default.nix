@@ -9,7 +9,6 @@
 }:
 
 let
-  debian = import ./debian.nix {inherit pkgs;};
   controller = import ./controller.nix {inherit pkgs;};
   webui = import ./webui.nix {inherit pkgs;};
   deps = import ./deps.nix {inherit pkgs;};
@@ -26,7 +25,6 @@ in
             webCore;
   } //
   { 
-    debian = debian;
-    test = { contrail = import ./test/test.nix { inherit pkgs pkgs_path; }; };
+    test = { contrail = import ./test/test.nix { inherit pkgs; pkgs_path = pkgs_path; }; };
     inherit vms;
   }

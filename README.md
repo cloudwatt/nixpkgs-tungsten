@@ -29,12 +29,6 @@ nix-build -A contrailControl # Take a while...
 This launches a vm, installs some Contrail services and runs some basic tests
 
 
-### Build Debian Packages
-
-```
-nix-build -A debian.contrailVrouter
-```
-
 ### Build a compute node VM
 
 ```nix-build -A vms.computeNode``` builds a script to run a compute
