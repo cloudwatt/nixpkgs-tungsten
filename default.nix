@@ -25,6 +25,9 @@ in
             webCore;
   } //
   { 
-    test = { contrail = import ./test/test.nix { inherit pkgs; pkgs_path = pkgs_path; }; };
+  test = {
+    contrail = import ./test/test.nix { inherit pkgs; pkgs_path = pkgs_path; };
+    webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = pkgs_path; };
+  };
     inherit vms;
   }
