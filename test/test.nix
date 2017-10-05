@@ -361,9 +361,6 @@ let
 
     $machine->waitForUnit("contrailAnalyticsApi.service");
     $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
-      
-    $machine->waitForUnit("contrailWebServer.service");
-    $machine->waitForUnit("contrailJobServer.service");
   '';
 in
   makeTest { nodes = { inherit machine; }; testScript = testScript; }
