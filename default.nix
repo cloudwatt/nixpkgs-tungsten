@@ -9,14 +9,14 @@ let
   deps = import ./deps.nix {inherit pkgs;};
   vms = import ./tools/build-vms.nix {pkgs_path = nixpkgs;};
 in {
-  contrail32 = with controller; with webui; with deps; {
-    inherit contrailApi contrailControl contrailVrouterAgent
+  contrail32 = with controller; with webui; {
+    inherit api control vrouterAgent
             # This is not a derivation.
-            contrailVrouter
-            contrailCollector contrailAnalyticsApi contrailDiscovery
-            contrailQueryEngine
-            contrailConfigUtils contrailVrouterUtils # contrailApiCli
-            contrailVrouterNetns contrailVrouterPortControl
+            vrouter
+            collector analyticsApi discovery
+            queryEngine
+            configUtils vrouterUtils # ApiCli
+            vrouterNetns vrouterPortControl
             webCore;
     };
   test = {

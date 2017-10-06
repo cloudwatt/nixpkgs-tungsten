@@ -216,7 +216,7 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
-  contrailControl = pkgs.stdenv.mkDerivation rec {
+  control = pkgs.stdenv.mkDerivation rec {
     name = "contrail-control";
     version = "3.2";
     src = contrail-workspace;
@@ -232,7 +232,7 @@ rec {
     '';
   };
 
-  contrailCollector = pkgs.stdenv.mkDerivation rec {
+  collector = pkgs.stdenv.mkDerivation rec {
     name = "contrail-collector";
     version = "3.2";
     src = contrail-workspace;
@@ -256,7 +256,7 @@ rec {
     '';
   };
 
-  contrailVrouterAgent = pkgs.stdenv.mkDerivation rec {
+  vrouterAgent = pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-agent";
     version = "3.2";
     src = contrail-workspace;
@@ -308,7 +308,7 @@ rec {
     installPhase = "mkdir $out; cp -r build/* $out";
   };
 
-  contrailApi =  pkgs.pythonPackages.buildPythonApplication {
+  api =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-api-server";
     version = "3.2";
     src = "${contrailPython}/production/config/api-server/";
@@ -319,7 +319,7 @@ rec {
   };
 
   # Contains more than just the contrail-analytics-api!
-  contrailAnalyticsApi =  pkgs.pythonPackages.buildPythonApplication {
+  analyticsApi =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-analytics-api";
     version = "3.2";
     src = "${contrailPython}/production/opserver/";
@@ -333,7 +333,7 @@ rec {
     ];
   };
 
-  contrailSchemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
+  schemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-schema-transformer";
     version = "3.2";
     src = "${contrailPython}/production/config/schema-transformer//";
@@ -344,7 +344,7 @@ rec {
     ];
   };
 
-  contrailDiscovery =  pkgs.pythonPackages.buildPythonApplication {
+  discovery =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-discovery";
     version = "3.2";
     src = "${contrailPython}/production/discovery";
@@ -355,7 +355,7 @@ rec {
     ];
   };
 
-  contrailVrouterUtils = pkgs.stdenv.mkDerivation rec {
+  vrouterUtils = pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-utils";
     version = "3.2";
     src = contrail-workspace;
@@ -372,7 +372,7 @@ rec {
   };
 
 
-  contrailVrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
+  vrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-${kernelHeaders.name}";
     version = "3.2";
     src = contrail-workspace;
@@ -392,7 +392,7 @@ rec {
     '';
   };
 
-  contrailConfigUtils = pkgs.stdenv.mkDerivation rec {
+  configUtils = pkgs.stdenv.mkDerivation rec {
    name = "contrail-config-utils";
    version = "3.2";
    src = contrail-workspace;
@@ -407,7 +407,7 @@ rec {
    '';
   };
 
-  contrailVrouterPortControl = pkgs.stdenv.mkDerivation rec {
+  vrouterPortControl = pkgs.stdenv.mkDerivation rec {
    name = "contrail-vrouter-port-control";
    version = "3.2";
    src = contrail-workspace;
@@ -422,14 +422,14 @@ rec {
    '';
   };
 
-  contrailVrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
+  vrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "contrail-vrouter-api";
     version = "0";
     name = "${pname}-${version}";
     src = "${contrail-workspace}/controller/src/vnsw/contrail-vrouter-api/";
   };
 
-  contrailVrouterNetns =  pkgs.pythonPackages.buildPythonApplication {
+  vrouterNetns =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-vrouter-netns";
     version = "3.2";
     src = "${contrail-workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";
@@ -444,7 +444,7 @@ rec {
     ];
   };
 
-  contrailQueryEngine = pkgs.stdenv.mkDerivation rec {
+  queryEngine = pkgs.stdenv.mkDerivation rec {
     name = "contrail-query-engine";
     version = "3.2";
     src = contrail-workspace;
