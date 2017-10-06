@@ -5,11 +5,16 @@
 # - we add jobs to push docker images to the registry
 # - we transform debian package expressions to jobs that expose that the build product
 
+{ bootstrap_pkgs ? <nixpkgs>
+, fetched ? import ./nixpkgs-fetch.nix { nixpkgs = bootstrap_pkgs; }
+, nixpkgs ? fetched.pkgs
+}:
+
 with import ./deps.nix {};
 
 let
-  pkgs = import <nixpkgs> {};
-  contrailPkgs = import ./default.nix { inherit pkgs; };
+  pkgs = import nixpkgs {};
+  contrailPkgs = import ./default.nix { inherit nixpkgs; };
 
   debianPackageBuildProduct = pkg:
     let

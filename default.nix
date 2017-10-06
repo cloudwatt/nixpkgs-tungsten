@@ -1,18 +1,13 @@
-{ bootstrap_pkgs ? import <nixpkgs> {}
-, pkgs_path ? bootstrap_pkgs.fetchFromGitHub {
-    owner = "nlewo";
-    repo = "nixpkgs";
-    rev = "0c41433868ad61aac43da184c113f305a3784957";
-    sha256 = "0jrlk9wwbskzw2bxvncna1fi4qm596r83smcfh1dashb8gm3ddp8";
-  }
-, pkgs ? import pkgs_path {}
+{ fetched ? import ./nixpkgs-fetch.nix {}
+, nixpkgs ? fetched.pkgs
 }:
 
 let
+  pkgs = import nixpkgs {};
   controller = import ./controller.nix {inherit pkgs;};
   webui = import ./webui.nix {inherit pkgs;};
   deps = import ./deps.nix {inherit pkgs;};
-  vms = import ./tools/build-vms.nix {inherit pkgs_path;};
+  vms = import ./tools/build-vms.nix {pkgs_path = nixpkgs;};
 in
   with controller; with webui; with deps; {
     inherit contrailApi contrailControl contrailVrouterAgent
