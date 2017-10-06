@@ -1,5 +1,5 @@
 This describes how to bootstrap the [Hydra
-CI](https://nixos.org/hydra/) which builds `nixpkgs-contrail`
+CI](https://nixos.org/hydra/) to build `nixpkgs-contrail`
 expressions. It also runs some tests and exposes a [binary
 cache](https://nixos.org/nix/manual/#idm140737318588960).
 
@@ -30,6 +30,8 @@ this `nixpkgs-contrail` repository.
 ```
 URL=YOUR-HYDRA USERNAME=admin PASSWORD=admin bash doc/create-project.sh
 ```
+
+At this point, Hydra starts to build expressions.
 
 
 ### Hydra Channel Configuration
