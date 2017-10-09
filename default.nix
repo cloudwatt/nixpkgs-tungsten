@@ -6,7 +6,6 @@ let
   pkgs = import nixpkgs {};
   controller = import ./controller.nix {inherit pkgs;};
   webui = import ./webui.nix {inherit pkgs;};
-  deps = import ./deps.nix {inherit pkgs;};
   vms = import ./tools/build-vms.nix {pkgs_path = nixpkgs;};
 in {
   contrail32 = with controller; with webui; {
