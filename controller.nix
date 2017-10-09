@@ -228,7 +228,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/control-node/contrail-control $out/bin/
-      cp ${controller}/src/control-node/contrail-control.conf $out/etc/contrail/
+      cp ${contrail-workspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
     '';
   };
 
@@ -252,7 +252,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/analytics/vizd $out/bin/contrail-collector
-      cp ${controller}/src/analytics/contrail-collector.conf $out/etc/contrail/
+      cp ${contrail-workspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
     '';
   };
 
@@ -268,7 +268,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
-      cp ${controller}/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
+      cp ${contrail-workspace}/controller/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
       cp -r build/lib $out/
     '';
   };
@@ -456,7 +456,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/query_engine/qed $out/bin/
-      cp ${controller}/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
+      cp ${contrail-workspace}/controller/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
     '';
   };
 }
