@@ -4,14 +4,11 @@
 
 let
   pkgs = import nixpkgs {};
-  controller = import ./controller.nix {inherit pkgs;};
-  webui = import ./webui.nix {inherit pkgs;};
+  allPackages = pkgs.lib.fix (import ./all-packages.nix {inherit pkgs;});
   vms = import ./tools/build-vms.nix {pkgs_path = nixpkgs;};
 in {
-  contrail32 = with controller; with webui; {
+  contrail32 = with allPackages.contrail32; with webui; {
     inherit api control vrouterAgent
-            # This is not a derivation.
-            vrouter
             collector analyticsApi discovery
             queryEngine
             configUtils vrouterUtils # ApiCli

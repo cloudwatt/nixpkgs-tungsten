@@ -1,12 +1,8 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs, sources }:
 
-with import ./deps.nix {inherit pkgs;};
-with import ./controller.nix {inherit pkgs;};
 with pkgs;
 
 rec {
-  sources = import ./sources.nix { inherit pkgs; };
-
   webuiThirdPartyCommon = {
     version = "3.2";
     src = sources.webuiThirdParty;
@@ -72,7 +68,7 @@ rec {
     name = "contrail-web-build";
     version = "3.2";
 
-    srcs = [ webuiThirdParty sources.webCore sources.webController controller sources.generateds ];
+    srcs = [ webuiThirdParty sources.webCore sources.webController sources.controller sources.generateds ];
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
@@ -85,7 +81,7 @@ rec {
     postUnpack = "
       mkdir tools
       mv ${sources.generateds.name} tools/generateds
-      [[ ${controller.name} != controller ]] && mv ${controller.name} controller
+      [[ ${sources.controller} != controller ]] && mv ${sources.controller} controller
       mv ${sources.webCore.name} contrail-web-core
       mv ${sources.webController.name} contrail-web-controller
       rsync -a ${webuiThirdParty.name}/node_modules contrail-web-core
