@@ -7,8 +7,4 @@ let
   pkgs = import nixpkgs {};
   contrailPkgs = import ./default.nix { inherit nixpkgs; };
 in
-  contrailPkgs // {
-  test = {
-    contrail = import test/test.nix { inherit pkgs; pkgs_path = nixpkgs; };
-    };
-  }
+  contrailPkgs

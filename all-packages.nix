@@ -1,4 +1,7 @@
-{pkgs}:
+{ pkgs
+  # This is used by tests
+, nixpkgs
+}:
 
 self: {
   deps = import ./deps.nix { inherit pkgs; };
@@ -24,10 +27,14 @@ self: {
       rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
-
     "contrail-workspace" = with self.contrail32; import ./workspace.nix { inherit pkgs sources contrailBuildInputs; };
     sources = import ./sources.nix { inherit pkgs; };
     webui = with self.contrail32; import ./webui.nix {inherit pkgs sources;};
-    } //
+
+    test = {
+      contrail = import ./test/test.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
+      };
+    }
+    //
     (with self; with self.contrail32; import ./controller.nix { inherit pkgs contrail-workspace deps contrailBuildInputs; });
 }

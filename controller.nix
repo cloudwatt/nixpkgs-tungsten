@@ -269,7 +269,7 @@ rec {
     # Try to access /var/log/contrail/contrail-lbaas-haproxy-stdout.log
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
-      docker netaddr contrailVrouterApi eventlet vnc_api cfgm_common
+      docker netaddr vrouterApi eventlet vnc_api cfgm_common
     ];
   };
 

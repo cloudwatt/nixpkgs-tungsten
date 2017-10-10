@@ -1,10 +1,9 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, contrailPkgs, ... }:
 
 with lib;
 
 let
   # We should try a nixpkgs overlay to avoid this explicit import
-  controllerPkgs = import ../controller.nix { inherit pkgs; };
   cfg = config.contrail.vrouterAgent;
   agent = pkgs.writeTextFile {
     name = "contrail-agent.conf";
@@ -73,13 +72,13 @@ in {
   };
 
   config = mkIf cfg.enable {
-    boot.extraModulePackages = [ (controllerPkgs.contrailVrouter pkgs.linuxPackages.kernel.dev) ];
+    boot.extraModulePackages = [ (contrailPkgs.vrouter pkgs.linuxPackages.kernel.dev) ];
     boot.kernelModules = [ "vrouter" ];
     boot.kernelPackages = pkgs.linuxPackages;
 
     environment.systemPackages = [
-      controllerPkgs.contrailVrouterPortControl controllerPkgs.contrailVrouterUtils
-      controllerPkgs.contrailVrouterNetns
+      contrailPkgs.vrouterPortControl contrailPkgs.vrouterUtils
+      contrailPkgs.vrouterNetns
     ];
     
     systemd.services.contrailVrouterAgent = {
@@ -88,8 +87,8 @@ in {
         "network.target"
         (mkIf cfg.provisionning "contrailApi.service") ];
       preStart = "mkdir -p /var/log/contrail/";
-      script = "${controllerPkgs.contrailVrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
-      postStart = mkIf cfg.provisionning "${controllerPkgs.contrailConfigUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
+      script = "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
+      postStart = mkIf cfg.provisionning "${contrailPkgs.configUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
     };
 
     systemd.services.configureVhostInterface = {
@@ -97,7 +96,7 @@ in {
       serviceConfig.RemainAfterExit = true;
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
-      path = [ pkgs.iproute controllerPkgs.contrailVrouterUtils ];
+      path = [ pkgs.iproute contrailPkgs.vrouterUtils ];
       script = ''
         vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
         vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost

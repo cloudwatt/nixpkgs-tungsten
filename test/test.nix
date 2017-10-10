@@ -2,23 +2,22 @@
 # I didn't find a better way to run test by using the test framework
 # of the bootstrapped nixpkgs. In fact, this is to avoid the user to
 # set a specific NIX_PATH env var.
-, pkgs_path ? <nixpkgs> }:
+, pkgs_path ? <nixpkgs>
+, contrailPkgs
+}:
 
 with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
   machine = {pkgs, config, ...}:
     let
-      controllerPkgs = import ../controller.nix { inherit pkgs; };
-      contrailDeps = import ../deps.nix { inherit pkgs; };
-
       contrailCreateNetwork = pkgs.stdenv.mkDerivation rec {
         name = "contrail-create-network";
         src = ./contrail-create-network.py;
         phases = [ "installPhase" "fixupPhase" ];
         buildInputs = [
           (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-          controllerPkgs.vnc_api controllerPkgs.cfgm_common ]))
+          contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
         ];
         installPhase = ''
           mkdir -p $out/bin
@@ -220,6 +219,8 @@ let
     in {
       imports = [ ../modules/compute-node.nix ];
       config = rec {
+        _module.args = { inherit contrailPkgs; };
+
         services.openssh.enable = true;
         services.openssh.permitRootLogin = "yes";
         users.extraUsers.root.password = "root";
@@ -233,7 +234,7 @@ let
         # Required by the test suite
         environment.systemPackages = [
           pkgs.jq # contrailDeps.contrailApiCli
-          controllerPkgs.contrailConfigUtils
+          contrailPkgs.configUtils
           contrailCreateNetwork
         ];
 
@@ -245,7 +246,7 @@ let
                   # Keyspaces are created by the contrail-api...
                   "contrailApi.service" ];
           preStart = "mkdir -p /var/log/contrail/";
-          script = "${controllerPkgs.contrailDiscovery}/bin/contrail-discovery --conf_file ${discovery}";
+          script = "${contrailPkgs.discovery}/bin/contrail-discovery --conf_file ${discovery}";
           path = [ pkgs.netcat ];
           postStart = ''
             sleep 2
@@ -260,7 +261,7 @@ let
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
           preStart = "mkdir -p /var/log/contrail/";
-          script = "${controllerPkgs.contrailApi}/bin/contrail-api --conf_file ${api}";
+          script = "${contrailPkgs.api}/bin/contrail-api --conf_file ${api}";
           path = [ pkgs.netcat ];
           postStart = ''
             sleep 2
@@ -275,30 +276,30 @@ let
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
           preStart = "mkdir -p /var/log/contrail/";
-          script = "${controllerPkgs.contrailQueryEngine}/bin/qed --conf_file ${query-engine}";
+          script = "${contrailPkgs.queryEngine}/bin/qed --conf_file ${query-engine}";
         };
 
         systemd.services.contrailCollector = {
           wantedBy = [ "multi-user.target" ];
           after = [ "contrailQueryEngine.service" ];
           preStart = "mkdir -p /var/log/contrail/";
-          script = "${controllerPkgs.contrailCollector}/bin/contrail-collector --conf_file ${collector}";
+          script = "${contrailPkgs.collector}/bin/contrail-collector --conf_file ${collector}";
         };
 
         systemd.services.contrailAnalyticsApi = {
           wantedBy = [ "multi-user.target" ];
           after = [ "contrailCollector.service" ];
           preStart = "mkdir -p /var/log/contrail/ && ${pkgs.redis}/bin/redis-cli config set protected-mode no";
-          script = "${controllerPkgs.contrailAnalyticsApi}/bin/contrail-analytics-api --conf_file ${analytics}";
+          script = "${contrailPkgs.analyticsApi}/bin/contrail-analytics-api --conf_file ${analytics}";
         };
 
         systemd.services.contrailControl = {
           wantedBy = [ "multi-user.target" ];
           after = [ "contrailApi.service" "contrailCollector.service" ];
           preStart = "mkdir -p /var/log/contrail/";
-          script = "${controllerPkgs.contrailControl}/bin/contrail-control --conf_file ${control}";
+          script = "${contrailPkgs.control}/bin/contrail-control --conf_file ${control}";
           postStart = ''
-            ${controllerPkgs.contrailConfigUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
+            ${contrailPkgs.configUtils}/bin/provision_control.py --api_server_ip 127.0.0.1 --api_server_port 8082   --oper add --host_name machine --host_ip 127.0.0.1 --router_asn 64512
           '';
         };
 
