@@ -1,9 +1,8 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, contrailPkgs, ... }:
 
 with lib;
 
 let
-  webuiPkgs = import ../webui.nix { inherit pkgs; };
   cfg = config.contrail.webui;
   web-server = pkgs.writeTextFile {
     name = "contrail-web-server.js";
@@ -79,7 +78,7 @@ let
       config.vcenter.dvsswitch = 'vswitch';           //dvsswitch name
       config.vcenter.strictSSL = false;               //Validate the certificate or ignore
       config.vcenter.ca = "";                         //specify the certificate key file
-      config.vcenter.wsdl = '${webuiPkgs.webCore}/webroot/js/vim.wsdl';
+      config.vcenter.wsdl = '${contrailPkgs.webui.webCore}/webroot/js/vim.wsdl';
       config.discoveryService = {};
       config.discoveryService.server_port = '5998';
       config.discoveryService.enable = true;
@@ -106,11 +105,11 @@ let
       config.redis_server_ip = '127.0.0.1';
       config.redis_dump_file = '/var/lib/redis/dump-webui.rdb';
       config.redis_password = "";
-      config.logo_file = '${webuiPkgs.webCore}/webroot/img/opencontrail-logo.png';
-      config.favicon_file = '${webuiPkgs.webCore}/webroot/img/opencontrail-favicon.ico';
+      config.logo_file = '${contrailPkgs.webui.webCore}/webroot/img/opencontrail-logo.png';
+      config.favicon_file = '${contrailPkgs.webui.webCore}/webroot/img/opencontrail-favicon.ico';
       config.featurePkg = {};
       config.featurePkg.webController = {};
-      config.featurePkg.webController.path = '${webuiPkgs.webController}';
+      config.featurePkg.webController.path = '${contrailPkgs.webui.webController}';
       config.featurePkg.webController.enable = true;
       config.qe = {};
       config.qe.enable_stat_queries = false;
@@ -120,7 +119,7 @@ let
       config.network = {};
       config.network.L2_enable = false;
       config.getDomainsFromApiServer = true;
-      config.jsonSchemaPath = "${webuiPkgs.webCore}/src/serverroot/configJsonSchemas";
+      config.jsonSchemaPath = "${contrailPkgs.webui.webCore}/src/serverroot/configJsonSchemas";
       module.exports = config;
     '';
   };
@@ -138,18 +137,18 @@ in {
     systemd.services.contrailJobServer = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "contrailDiscovery.service" ];
-      serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
+      serviceConfig.WorkingDirectory = "${contrailPkgs.webui.webCore}";
       preStart = ''
         cp ${web-server} /tmp/contrail-web-core-config.js
       '';
-      script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/jobServerStart.js";
+      script = "${pkgs.nodejs-4_x}/bin/node ${contrailPkgs.webui.webCore}/jobServerStart.js";
     };
 
     systemd.services.contrailWebServer = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "contrailJobServer.service" "contrailAnalyticsApi.service" ];
-      serviceConfig.WorkingDirectory = "${webuiPkgs.webCore}";
-      script = "${pkgs.nodejs-4_x}/bin/node ${webuiPkgs.webCore}/webServerStart.js";
+      serviceConfig.WorkingDirectory = "${contrailPkgs.webui.webCore}";
+      script = "${pkgs.nodejs-4_x}/bin/node ${contrailPkgs.webui.webCore}/webServerStart.js";
     };
   };
 }

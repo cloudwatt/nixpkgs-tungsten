@@ -1,4 +1,4 @@
-{ pkgs_path }:
+{ contrailPkgs, pkgs_path }:
 
 with import (pkgs_path + "/nixos/lib/testing.nix") { system = builtins.currentSystem; };
 
@@ -6,6 +6,8 @@ let
   computeNode = { pkgs, lib, config, ... }: {
     imports = [ ../modules/compute-node.nix ];
     config = {
+      _module.args = { inherit contrailPkgs; };
+
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
       users.extraUsers.root.password = "root";

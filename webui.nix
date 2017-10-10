@@ -81,7 +81,7 @@ rec {
     postUnpack = "
       mkdir tools
       mv ${sources.generateds.name} tools/generateds
-      [[ ${sources.controller} != controller ]] && mv ${sources.controller} controller
+      [[ ${sources.controller} != controller ]] && cp -r ${sources.controller} controller
       mv ${sources.webCore.name} contrail-web-core
       mv ${sources.webController.name} contrail-web-controller
       rsync -a ${webuiThirdParty.name}/node_modules contrail-web-core
