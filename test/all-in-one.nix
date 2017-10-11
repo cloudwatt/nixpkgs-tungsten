@@ -364,4 +364,4 @@ let
     $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
   '';
 in
-  makeTest { nodes = { inherit machine; }; testScript = testScript; }
+  makeTest { name = "all-in-one"; nodes = { inherit machine; }; testScript = testScript; }

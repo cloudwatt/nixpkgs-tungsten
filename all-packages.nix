@@ -31,12 +31,11 @@ self: {
     sources = import ./sources.nix { inherit pkgs; };
 
     test = {
-      allInOne = import ./test/test.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
+      allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
       webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
     };
 
     vms = import ./tools/build-vms.nix {contrailPkgs = self.contrail32; pkgs_path = nixpkgs;};
-
     }
     //
     (with self; with self.contrail32; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })

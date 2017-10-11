@@ -5,6 +5,5 @@
 
 let
   pkgs = import nixpkgs {};
-  contrailPkgs = import ./default.nix { inherit nixpkgs; };
 in
-  contrailPkgs
+  import ./default.nix { inherit nixpkgs; }
