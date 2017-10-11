@@ -27,7 +27,7 @@ self: {
       rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
-    "contrail-workspace" = with self.contrail32; import ./workspace.nix { inherit pkgs sources contrailBuildInputs; };
+    workspace = with self.contrail32; import ./workspace.nix { inherit pkgs sources contrailBuildInputs; };
     sources = import ./sources.nix { inherit pkgs; };
 
     test = {
@@ -39,7 +39,7 @@ self: {
 
     }
     //
-    (with self; with self.contrail32; import ./controller.nix { inherit pkgs contrail-workspace deps contrailBuildInputs; })
+    (with self; with self.contrail32; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
     //
     (with  self.contrail32; import ./webui.nix {inherit pkgs sources;});
 }

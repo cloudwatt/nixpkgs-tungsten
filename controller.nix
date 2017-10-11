@@ -1,4 +1,4 @@
-{ pkgs, contrail-workspace, deps, contrailBuildInputs }:
+{ pkgs, workspace, deps, contrailBuildInputs }:
 
 with deps;
 
@@ -48,7 +48,7 @@ rec {
   control = pkgs.stdenv.mkDerivation rec {
     name = "contrail-control";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = contrailBuildInputs;
     buildPhase = ''
       export USER=contrail
@@ -57,14 +57,14 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/control-node/contrail-control $out/bin/
-      cp ${contrail-workspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
+      cp ${workspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
     '';
   };
 
   collector = pkgs.stdenv.mkDerivation rec {
     name = "contrail-collector";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev ];
 
     # To fix a scons cycle on buildinfo
@@ -81,14 +81,14 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/analytics/vizd $out/bin/contrail-collector
-      cp ${contrail-workspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
+      cp ${workspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
     '';
   };
 
   vrouterAgent = pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-agent";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = contrailBuildInputs;
     buildPhase = ''
       export USER=contrail
@@ -97,7 +97,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
-      cp ${contrail-workspace}/controller/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
+      cp ${workspace}/controller/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
       cp -r build/lib $out/
     '';
   };
@@ -105,7 +105,7 @@ rec {
   contrailPython = pkgs.stdenv.mkDerivation rec {
     name = "contrail-python";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = with pkgs.pythonPackages; contrailBuildInputs ++
       # Used by python unit tests
       [ bitarray pbr funcsigs mock bottle ];
@@ -187,7 +187,7 @@ rec {
   vrouterUtils = pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-utils";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.libpcap pkgs.libnl ];
     buildPhase = ''
       export USER=contrail
@@ -204,7 +204,7 @@ rec {
   vrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-${kernelHeaders.name}";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 ];
     buildPhase = ''
@@ -224,7 +224,7 @@ rec {
   configUtils = pkgs.stdenv.mkDerivation rec {
    name = "contrail-config-utils";
    version = "3.2";
-   src = contrail-workspace;
+   src = workspace;
    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
    buildInputs = [
     (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
@@ -239,7 +239,7 @@ rec {
   vrouterPortControl = pkgs.stdenv.mkDerivation rec {
    name = "contrail-vrouter-port-control";
    version = "3.2";
-   src = contrail-workspace;
+   src = workspace;
    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
    buildInputs = [
     (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
@@ -255,13 +255,13 @@ rec {
     pname = "contrail-vrouter-api";
     version = "0";
     name = "${pname}-${version}";
-    src = "${contrail-workspace}/controller/src/vnsw/contrail-vrouter-api/";
+    src = "${workspace}/controller/src/vnsw/contrail-vrouter-api/";
   };
 
   vrouterNetns =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-vrouter-netns";
     version = "3.2";
-    src = "${contrail-workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";
+    src = "${workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";
     patchPhase = ''
       substituteInPlace requirements.txt --replace "docker-py" "docker"
       substituteInPlace opencontrail_vrouter_netns/lxc_manager.py --replace "dhclient" "${pkgs.dhcp}/bin/dhclient"
@@ -276,7 +276,7 @@ rec {
   queryEngine = pkgs.stdenv.mkDerivation rec {
     name = "contrail-query-engine";
     version = "3.2";
-    src = contrail-workspace;
+    src = workspace;
     buildInputs = contrailBuildInputs;
     buildPhase = ''
       export USER=contrail
@@ -285,7 +285,7 @@ rec {
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
       cp build/production/query_engine/qed $out/bin/
-      cp ${contrail-workspace}/controller/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
+      cp ${workspace}/controller/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
     '';
   };
 }
