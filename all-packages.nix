@@ -29,10 +29,9 @@ self: {
     ];
     "contrail-workspace" = with self.contrail32; import ./workspace.nix { inherit pkgs sources contrailBuildInputs; };
     sources = import ./sources.nix { inherit pkgs; };
-    webui = with self.contrail32; import ./webui.nix {inherit pkgs sources;};
 
     test = {
-      contrail = import ./test/test.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
+      allInOne = import ./test/test.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
       webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
     };
 
@@ -40,5 +39,7 @@ self: {
 
     }
     //
-    (with self; with self.contrail32; import ./controller.nix { inherit pkgs contrail-workspace deps contrailBuildInputs; });
+    (with self; with self.contrail32; import ./controller.nix { inherit pkgs contrail-workspace deps contrailBuildInputs; })
+    //
+    (with  self.contrail32; import ./webui.nix {inherit pkgs sources;});
 }
