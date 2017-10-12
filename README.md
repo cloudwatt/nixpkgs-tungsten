@@ -1,5 +1,5 @@
 Nix expressions to build OpenContrail components, run some basic
-tests, build Opencontrail preconfigured VMs and deploy a build CI by
+tests, build OpenContrail preconfigured VMs and deploy a build CI by
 using [Hydra](https://nixos.org/hydra/).
 
 
@@ -14,7 +14,7 @@ $ . ~/.nix-profile/etc/profile.d/nix.sh
 ### Build OpenContrail Components
 
 ```
-$ nix-build -A contrail32
+$ nix-build -A contrail32 # Take a while...
 ```
 
 Or to build specific components
@@ -66,4 +66,18 @@ A default configuration file is generated. By default, the agent
 tryies to contact the controller, discovery and collector by using
 the IP `172.16.42.42` which could be overriden at build time in
 `tools/build-vms.nix`.
+
+
+### Install and run precompiled `contrail-api-server`
+
+```
+$ nix-channel --add http://84.39.63.212/jobset/opencontrail/trunk/channel/latest contrail
+$ nix-channel --update
+$ nix-env -iA contrail.contrail32-api
+$ contrail-api -h
+```
+
+We first subscribe to a Nix channel in order to be able to install
+precompiled components in the current user environment.
+
 
