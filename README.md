@@ -2,6 +2,7 @@ Nix expressions to build OpenContrail components, run some basic
 tests, build Opencontrail preconfigured VMs and deploy a build CI by
 using [Hydra](https://nixos.org/hydra/).
 
+
 ### Install [Nix](https://nixos.org/nix/)
 
 ```
@@ -9,32 +10,35 @@ $ curl https://nixos.org/nix/install | sh
 $ . ~/.nix-profile/etc/profile.d/nix.sh
 ```
 
+
 ### Build OpenContrail Components
 
 ```
-$ nix-build
+$ nix-build -A contrail32
 ```
 
 Or to build specific components
 ```
-$ nix-build -A contrailApi
-$ nix-build -A contrailControl # Take a while...
+$ nix-build -A contrail32.api
+$ nix-build -A contrail32.control # Take a while...
 ```
 
-`$ nix-env -f default.nix -qaP` to get the list of all components
+`$ nix-env -f default.nix -qaP -A contrail32` to get the list of all attributes
+
 
 ### Run tests
 
 ```
-$ nix-build -A test.contrail
+$ nix-build -A contrail32.test.allInOne
 ```
 
 This launches a vm, installs some Contrail services and runs some basic tests
 
+
 #### Build an all-in-one VM
 
 ```
-$ nix-build -A test.contrail.driver && QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms
+$ nix-build -A contrail32.test.allInOne && QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms
 
 ```
 
@@ -42,7 +46,7 @@ $ nix-build -A test.contrail.driver && QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./r
 ### Build a compute node VM
 
 ```
-$ nix-build -A vms.computeNode
+$ nix-build -A contrail32.vms.computeNode
 ```
 builds a script to run a compute node with QEMU.
 

@@ -4,6 +4,8 @@
 # Usage: TOKEN=GITHUB_TOKEN bash sources.sh
 # Note the token is used since there is rate limitation on the API.
 
+# The format of this file is
+# Attribute Owner Repos Branch
 cat >/tmp/tmp.lst <<EOF
 build Juniper contrail-build R3.2
 controller Juniper contrail-controller R3.2
