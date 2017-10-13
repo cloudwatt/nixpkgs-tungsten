@@ -49,10 +49,10 @@ rec {
     name = "contrail-control";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = contrailBuildInputs;
     buildPhase = ''
-      export USER=contrail
-      scons -j1 --optimization=production --root=./ contrail-control
+      scons -j1 --optimization=production contrail-control
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
@@ -65,6 +65,7 @@ rec {
     name = "contrail-collector";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev ];
 
     # To fix a scons cycle on buildinfo
@@ -72,11 +73,10 @@ rec {
     patchFlags = "-p0";
 
     buildPhase = ''
-      export USER=contrail
       # To export pyconfig.h. This should be patched into the python derivation instead.
       export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.python}/include/python2.7/"
 
-      scons -j1 --optimization=production --root=./ contrail-collector
+      scons -j1 --optimization=production contrail-collector
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
@@ -89,10 +89,10 @@ rec {
     name = "contrail-vrouter-agent";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = contrailBuildInputs;
     buildPhase = ''
-      export USER=contrail
-      scons -j2 --optimization=production --root=./ contrail-vrouter-agent
+      scons -j2 --optimization=production contrail-vrouter-agent
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
@@ -106,6 +106,7 @@ rec {
     name = "contrail-python";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = with pkgs.pythonPackages; contrailBuildInputs ++
       # Used by python unit tests
       [ bitarray pbr funcsigs mock bottle ];
@@ -127,12 +128,11 @@ rec {
       sed -i '/OpEnv.AlwaysBuild(test_cmd)/d' controller/src/opserver/SConscript
     '';
     buildPhase = ''
-      export USER=contrail
       export PYTHONPATH=$PYTHONPATH:controller/src/config/common/:build/production/config/api-server/vnc_cfg_api_server/gen/
-      scons -j1 --optimization=production --root=./ controller/src/config
+      scons -j1 --optimization=production controller/src/config
 
-      scons -j1 --optimization=production --root=./ contrail-analytics-api
-      scons -j1 --optimization=production --root=./ contrail-discovery
+      scons -j1 --optimization=production contrail-analytics-api
+      scons -j1 --optimization=production contrail-discovery
     '';
     installPhase = "mkdir $out; cp -r build/* $out";
   };
@@ -188,11 +188,11 @@ rec {
     name = "contrail-vrouter-utils";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.libpcap pkgs.libnl ];
     buildPhase = ''
-      export USER=contrail
       export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.libxml2.dev}/include/libxml2/"
-      scons --optimization=production --root=./ vrouter/utils
+      scons --optimization=production vrouter/utils
     '';
     installPhase = ''
       mkdir -p $out/bin
@@ -205,14 +205,14 @@ rec {
     name = "contrail-vrouter-${kernelHeaders.name}";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 ];
     buildPhase = ''
-      export USER=contrail
       export hardeningDisable=pic
       # To compile the module, we need the kernel sources and the kernel config
       kernelSrc=$(echo ${kernelHeaders}/lib/modules/*/build/)
-      scons --optimization=production --root=./ --kernel-dir=$kernelSrc vrouter/vrouter.ko
+      scons --optimization=production --kernel-dir=$kernelSrc vrouter/vrouter.ko
     '';
     installPhase = ''
       kernelVersion=$(ls ${kernelHeaders}/lib/modules/)
@@ -277,10 +277,10 @@ rec {
     name = "contrail-query-engine";
     version = "3.2";
     src = workspace;
+    USER="contrail";
     buildInputs = contrailBuildInputs;
     buildPhase = ''
-      export USER=contrail
-      scons -j1 --optimization=production --root=./ contrail-query-engine
+      scons -j1 --optimization=production contrail-query-engine
     '';
     installPhase = ''
       mkdir -p $out/{bin,etc/contrail}
