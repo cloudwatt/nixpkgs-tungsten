@@ -11,31 +11,63 @@ $ . ~/.nix-profile/etc/profile.d/nix.sh
 ```
 
 
+### Subscribe to the OpenContrail Nix channel
+
+This [Hydra CI](http://84.39.63.212/) builds OpenContrail expressions
+and creates a channel (a kind of packages repository) that can be used
+to get precompiled OpenContrail sotfwares.
+
+
+```
+$ nix-channel --add http://84.39.63.212/jobset/opencontrail/trunk/channel/latest contrail
+$ nix-channel --update
+```
+
+We can easily install the `contrail-api` for instance:
+```
+$ nix-env -iA contrail.contrail32-api
+$ contrail-api -h
+```
+
+Note: if we don't subscribe to the channel, all OpenContrail Nix
+      expressions will be locally built.
+
+
 ### Build OpenContrail Components
 
+To build all OpenContrail components
 ```
-$ nix-build -A contrail32 # Take a while...
+$ nix-build -A contrail32
 ```
 
-Or to build specific components
+Or to build specific ones
 ```
 $ nix-build -A contrail32.api
-$ nix-build -A contrail32.control # Take a while...
+$ nix-build -A contrail32.control
 ```
 
 `$ nix-env -f default.nix -qaP -A contrail32` to get the list of all attributes
 
 
-### Run tests
+### Run basic tests
 
 ```
 $ nix-build -A contrail32.test.allInOne
 ```
 
-This launches a vm, installs some Contrail services and runs some basic tests
+The `allInOne` test creates a virtual machine and deploys several
+OpenContrail components. It then checks services provisioning
+(discovery, bgp peering,...), associates ports to `net namespaces` and
+validates ping is working.
 
 
-#### Build an all-in-one VM
+To run all tests
+```
+$ nix-build -A contrail32.test
+```
+
+
+#### Build and run an all-in-one VM
 
 ```
 $ nix-build -A contrail32.test.allInOne && QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms
@@ -68,16 +100,19 @@ the IP `172.16.42.42` which could be overriden at build time in
 `tools/build-vms.nix`.
 
 
-### Install and run precompiled `contrail-api-server`
+### Using `nix-shell` to locally compile `contrail-control`
 
 ```
-$ nix-channel --add http://84.39.63.212/jobset/opencontrail/trunk/channel/latest contrail
-$ nix-channel --update
-$ nix-env -iA contrail.contrail32-api
-$ contrail-api -h
+$ nix-shell -A contrail32.control # Can download lot of things
 ```
 
-We first subscribe to a Nix channel in order to be able to install
-precompiled components in the current user environment.
+`nix-shell` has download all build requires of `contrail-control` and
+prepare a build environment. We can then get the contrail workspace,
+and run `scons` to start the `contrail-control` compilation
 
-
+```
+$ unpackPhase && cd $sourceRoot
+unpacking source archive /nix/store/9jswqjmq6q4ijrmac5qbw2z5b63cl1x0-contrail-workspace
+source root is contrail-workspace
+$ scons contrail-control
+```				 
