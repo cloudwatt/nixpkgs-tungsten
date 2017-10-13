@@ -192,7 +192,7 @@ rec {
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.libpcap pkgs.libnl ];
     buildPhase = ''
       export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.libxml2.dev}/include/libxml2/"
-      scons --optimization=production vrouter/utils
+      scons --optimization=production --root=./ vrouter/utils
     '';
     installPhase = ''
       mkdir -p $out/bin
