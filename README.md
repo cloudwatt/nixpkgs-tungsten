@@ -70,7 +70,8 @@ $ nix-build -A contrail32.test
 #### Build and run an all-in-one VM
 
 ```
-$ nix-build -A contrail32.test.allInOne && QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms
+$ nix-build -A contrail32.test.allInOne.driver
+$ ./result/bin/nixos-run-vms
 
 ```
 
