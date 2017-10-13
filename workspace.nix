@@ -143,6 +143,11 @@ in pkgs.stdenv.mkDerivation rec {
     sed -i 's|def UseSystemBoost(env):|def UseSystemBoost(env):\n    return True|' -i tools/build/rules.py
 
     sed -i 's|--proto_path=/usr/|--proto_path=${pkgs.protobuf2_5}/|' tools/build/rules.py
+
+    # GenerateDS crashes woth python 2.7.14 while it works with python 2.7.13
+    # See https://bugs.launchpad.net/opencontrail/+bug/1721039
+    sed -i 's/        parser.parse(infile)/        parser.parse(StringIO.StringIO(infile.getvalue()))/' tools/generateds/generateDS.py
+      
   '';
   installPhase = "mkdir $out; cp -r ./ $out";
 }
