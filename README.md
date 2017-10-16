@@ -25,12 +25,18 @@ $ nix-channel --update
 
 We can easily install the `contrail-api` for instance:
 ```
-$ nix-env -iA contrail.contrail32-api
+$ nix-env -i contrail-api-server
 $ contrail-api -h
 ```
 
-Note: if we don't subscribe to the channel, all OpenContrail Nix
-      expressions will be locally built.
+To list available packages on the channel
+```
+nix-env -qa '.*contrail.*'
+```
+
+Note: for the rest of this README, it is not mandatory to subscribe to
+      this channel. It is only used to download prebuilt expressions
+      instead of locally compile them.
 
 
 ### Build OpenContrail Components
