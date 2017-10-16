@@ -27,7 +27,7 @@ rec {
     impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "1nzadbaxb7i0xg5rb1hcbyyi29a6ii55vkba02vagdpjvgz8j5v6";
+    outputHash = "1p99101r7afra5ypppd2ggn5msyrddpa3b0k6ls53pl2fyyc8s2d";
     postPatch = webuiThirdPartyCommon.postPatch + ''
       substituteInPlace fetch_packages.py --replace \
         "os.remove(ccfile)" \
@@ -37,11 +37,12 @@ rec {
     installPhase = ''
       mkdir -p $out/{cache,node_modules}
 
-      # We remove some generated files and keep the npm cache
+      # We remove some generated files because they are not deterministic
       rm -rf node_modules/webworker-threads/
       rm -rf cache/node_modules/webworker-threads/
-      cp -ra .npm $out/.npm/
+      find .npm -name "*.cache.json" -exec rm -f '{}' \;
 
+      cp -ra .npm $out/.npm/
       cp -ra cache/* $out/cache/
       cp -ra node_modules/*.tar.gz $out/node_modules/
     '';
