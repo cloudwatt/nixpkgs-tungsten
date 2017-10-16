@@ -27,7 +27,7 @@ rec {
     impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "1nzadbaxb7i0xg5rb1hcbyyi29a6ii55vkba02vagdpjvgz8j5v6";
+    outputHash = "1k5pmzx0gvpr015xy0463df9j38kzdmv74cpzx148m3is3zdd9w7";
     postPatch = webuiThirdPartyCommon.postPatch + ''
       substituteInPlace fetch_packages.py --replace \
         "os.remove(ccfile)" \
