@@ -6,7 +6,9 @@
 self: {
   deps = import ./deps.nix { inherit pkgs; };
 
-  contrail32 = {
+  sources = import ./sources.nix { inherit pkgs; };
+
+  contrail = {
     contrailBuildInputs = with pkgs; [
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
@@ -27,18 +29,17 @@ self: {
       rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
-    workspace = with self.contrail32; import ./workspace.nix { inherit pkgs sources contrailBuildInputs; };
-    sources = import ./sources.nix { inherit pkgs; };
+    workspace = with self.contrail; import ./workspace.nix { inherit pkgs contrailBuildInputs; sources = self.sources; };
 
     test = {
-      allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
-      webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail32; };
+      allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail; };
+      webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail; };
     };
 
-    vms = import ./tools/build-vms.nix {contrailPkgs = self.contrail32; pkgs_path = nixpkgs;};
+    vms = import ./tools/build-vms.nix {contrailPkgs = self.contrail; pkgs_path = nixpkgs;};
     }
     //
-    (with self; with self.contrail32; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
+    (with self; with self.contrail; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
     //
-    (with  self.contrail32; import ./webui.nix {inherit pkgs sources;});
+    (with  self.contrail; import ./webui.nix {inherit pkgs; sources = self.sources;});
 }
