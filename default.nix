@@ -8,6 +8,7 @@ let
 
   contrail32Pkgs =
     let f = self: super: {
+      contrailVersion = self.contrail32;
       sources = import ./sources-R3.2.nix { inherit pkgs; };
       thirdPartyCache = super.thirdPartyCache.overrideAttrs(oldAttrs:
         { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
