@@ -1,4 +1,4 @@
-{pkgs, sources, isContrailMaster}:
+{pkgs, sources, isContrailMaster, isContrail32}:
 
 pkgs.stdenv.mkDerivation {
   name = "controller";
@@ -27,13 +27,24 @@ pkgs.stdenv.mkDerivation {
     substituteInPlace src/dns/cmn/SConscript \
       --replace "buildinfo_dep_libs +  cmn_sources +" "buildinfo_dep_libs +"
 
-    substituteInPlace src/control-node/SConscript \
-      --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
-
     # To break scons cycle on buildinfo
     substituteInPlace src/query_engine/SConscript \
       --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" "source = buildinfo_dep_libs + SandeshGenSrcs +"
-  '';
+    '' +
+    pkgs.lib.optionalString isContrail32 ''
+      substituteInPlace src/control-node/SConscript \
+        --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
+    '' +
+    pkgs.lib.optionalString isContrailMaster ''
+      substituteInPlace src/control-node/SConscript \
+        --replace "['main.cc', 'options.cc']" "[]"
+
+      substituteInPlace src/analytics/SConscript \
+        --replace "source = AnalyticsSandeshGenSrcs + vizd_sources + ProtobufGenSrcs +" \
+                  "source = AnalyticsSandeshGenSrcs + ProtobufGenSrcs +"
+      substituteInPlace src/analytics/SConscript \
+        --replace "'main.cc']" "]"
+    '';
   installPhase = "cp -r ./ $out";
 }
 

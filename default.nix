@@ -28,6 +28,6 @@ in {
             vms;
     };
   contrailMaster = with contrailMasterPkgs; {
-    inherit api;
+    inherit api control collector;
     };
   }
