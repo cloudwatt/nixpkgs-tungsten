@@ -3,12 +3,17 @@
 , nixpkgs
 }:
 
-self: {
-  deps = import ./deps.nix { inherit pkgs; };
+self:
+rec {
+    callPackage = pkgs.lib.callPackageWith self;
 
-  sources = import ./sources.nix { inherit pkgs; };
+    # This is to allow callPackage to fill pkgs
+    inherit pkgs;
 
-  contrail = {
+    deps = import ./deps.nix { inherit pkgs; };
+
+    sources = import ./sources.nix { inherit pkgs; };
+
     contrailBuildInputs = with pkgs; [
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
@@ -29,17 +34,21 @@ self: {
       rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
-    workspace = with self.contrail; import ./workspace.nix { inherit pkgs contrailBuildInputs; sources = self.sources; };
+
+    thirdPartyCache = callPackage ./pkgs/third-party-cache.nix { };
+    thirdParty = callPackage ./pkgs/third-party.nix { };
+    sandesh = callPackage ./pkgs/sandesh.nix { };
+    controller = callPackage ./pkgs/controller.nix { };
+    workspace = callPackage ./pkgs/workspace.nix { };
 
     test = {
-      allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail; };
-      webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self.contrail; };
+      allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
+      webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
     };
 
-    vms = import ./tools/build-vms.nix {contrailPkgs = self.contrail; pkgs_path = nixpkgs;};
+    vms = import ./tools/build-vms.nix {contrailPkgs = self; pkgs_path = nixpkgs;};
     }
+    //  
+    (with self; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
     //
-    (with self; with self.contrail; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
-    //
-    (with  self.contrail; import ./webui.nix {inherit pkgs; sources = self.sources;});
-}
+    (with self; import ./webui.nix {inherit pkgs sources;})

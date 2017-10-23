@@ -4,9 +4,10 @@
 
 let
   pkgs = import nixpkgs {};
-  allPackages = pkgs.lib.fix (import ./all-packages.nix {inherit pkgs nixpkgs;});
+  allPackages = import ./all-packages.nix {inherit pkgs nixpkgs;};
+  contrail32Pkgs =  pkgs.lib.fix allPackages;
 in {
-  contrail32 = with allPackages.contrail; {
+  contrail32 = with contrail32Pkgs; {
     inherit api control vrouterAgent
             collector analyticsApi discovery
             queryEngine
