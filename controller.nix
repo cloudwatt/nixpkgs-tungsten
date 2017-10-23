@@ -97,7 +97,11 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
-    buildInputs = contrailBuildInputs;
+    # Only required on master
+    dontUseCmakeConfigure = true;
+
+    buildInputs = contrailBuildInputs ++
+      (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
     buildPhase = ''
       scons -j2 --optimization=production contrail-vrouter-agent
     '';
