@@ -18,7 +18,7 @@ pkgs.stdenv.mkDerivation {
   # This is really shitty since the hash depends on the autotool version used by thrift.
   outputHashMode = "recursive";
   outputHashAlgo = "sha256";
-  outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2";
+  outputHash = "0a5x86azcxk8gnxw10qhd02a75sxzi8dlh149br7n9nny96fz2f9";
 
   buildInputs = with pkgs; [
     pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget

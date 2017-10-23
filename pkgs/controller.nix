@@ -1,4 +1,4 @@
-{pkgs, sources}:
+{pkgs, sources, isContrailMaster}:
 
 pkgs.stdenv.mkDerivation {
   name = "controller";
@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation {
     #	distro. To avoid this, we fix them.
     substituteInPlace lib/SConscript --replace \
       'for dir in subdirs:' \
-      'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ]:'
+      'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ${pkgs.lib.optionalString isContrailMaster '', "SimpleAmqpClient" ''}]:'
 
     substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
       'AgentEnv.Clone()' \

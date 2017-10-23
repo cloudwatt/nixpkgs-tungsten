@@ -1,6 +1,7 @@
-{ pkgs, workspace, deps, contrailBuildInputs }:
+{ pkgs, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster }:
 
 with deps;
+with pkgs.lib;
 
 rec {
   vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
@@ -17,7 +18,8 @@ rec {
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/common";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle_0_12_1 bitarray ];
+    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle_0_12_1 bitarray ] ++
+      (optional isContrailMaster [ sqlalchemy ]);
   };
 
   sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
@@ -50,7 +52,12 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
-    buildInputs = contrailBuildInputs;
+    # Only required on master
+    dontUseCmakeConfigure = true;
+
+    buildInputs = contrailBuildInputs ++
+     (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
+
     buildPhase = ''
       scons -j1 --optimization=production contrail-control
     '';
@@ -66,10 +73,10 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
-    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev ];
+    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev libgrok pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev ];
 
     # To fix a scons cycle on buildinfo
-    patches = ./patches/analytics.patch;
+    patches = pkgs.lib.optional isContrail32 [ ./patches/analytics.patch ];
     patchFlags = "-p0";
 
     buildPhase = ''
@@ -107,9 +114,13 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
+    # Only required on master
+    dontUseCmakeConfigure = true;
+
     buildInputs = with pkgs.pythonPackages; contrailBuildInputs ++
       # Used by python unit tests
-      [ bitarray pbr funcsigs mock bottle ];
+      [ bitarray pbr funcsigs mock bottle ] ++
+      (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
     propagatedBuildInputs = with pkgs.pythonPackages; [
       psutil geventhttpclient
     ];
@@ -120,7 +131,7 @@ rec {
 
       # It seems these tests require contrail-test repository to be executed
       # See https://github.com/Juniper/contrail-test/wiki/Running-Tests
-      for i in svc-monitor/setup.py contrail_issu/setup.py schema-transformer/setup.py vnc_openstack/setup.py api-server/setup.py; do
+      for i in svc-monitor/setup.py contrail_issu/setup.py schema-transformer/setup.py vnc_openstack/setup.py api-server/setup.py ${optionalString isContrailMaster "device-manager/setup.py"}; do
         sed -i 's|def run(self):|def run(self):\n        return|' controller/src/config/$i
       done
 
@@ -132,9 +143,11 @@ rec {
       scons -j1 --optimization=production controller/src/config
 
       scons -j1 --optimization=production contrail-analytics-api
-      scons -j1 --optimization=production contrail-discovery
+      ${optionalString isContrail32 "scons -j1 --optimization=production contrail-discovery"}
     '';
-    installPhase = "mkdir $out; cp -r build/* $out";
+    installPhase = ''
+    ${optionalString isContrailMaster "rm build/third_party/thrift/lib/cpp/.libs/concurrency_test"}
+    mkdir $out; cp -r build/* $out'';
   };
 
   api =  pkgs.pythonPackages.buildPythonApplication {
@@ -143,8 +156,8 @@ rec {
     src = "${contrailPython}/production/config/api-server/";
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces
-    ];
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces
+    ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
   # Contains more than just the contrail-analytics-api!

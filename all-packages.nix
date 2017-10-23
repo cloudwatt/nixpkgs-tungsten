@@ -10,6 +10,10 @@ rec {
     # This is to allow callPackage to fill pkgs
     inherit pkgs;
 
+    contrailVersion = "master";
+    isContrailMaster = contrailVersion == "master";
+    isContrail32 = contrailVersion == "R3.2";
+
     deps = import ./deps.nix { inherit pkgs; };
 
     sources = import ./sources.nix { inherit pkgs; };
@@ -49,6 +53,6 @@ rec {
     vms = import ./tools/build-vms.nix {contrailPkgs = self; pkgs_path = nixpkgs;};
     }
     //  
-    (with self; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs; })
+    (with self; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
     //
     (with self; import ./webui.nix {inherit pkgs sources;})

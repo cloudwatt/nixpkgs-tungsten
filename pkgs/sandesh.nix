@@ -1,11 +1,11 @@
-{pkgs, sources }:
+{pkgs, sources, isContrail32 }:
 
 pkgs.stdenv.mkDerivation {
   name = "sandesh";
   version = "3.2";
 
   src = sources.sandesh;
-  patches = [
+  patches = pkgs.lib.optional isContrail32 [
     (pkgs.fetchurl {
       name = "sandesh.patch";
       url = "https://github.com/Juniper/contrail-sandesh/commit/8b6c1388e9574ab971952734c71d0a5f6ecb8280.patch";
