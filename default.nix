@@ -28,6 +28,8 @@ in {
             vms;
     };
   contrailMaster = with contrailMasterPkgs; {
-    inherit api control collector vrouterAgent analyticsApi;
+    inherit api control collector vrouterAgent analyticsApi
+            configUtils vrouterUtils
+            vrouterNetns vrouterPortControl;
     };
   }
