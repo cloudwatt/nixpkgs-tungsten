@@ -52,7 +52,7 @@ in
   collector = callPackage ./pkgs/collector.nix { };
 
   test = {
-    allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
+    allInOne = with self; import ./test/all-in-one.nix { inherit pkgs isContrailMaster isContrail32; pkgs_path = nixpkgs; contrailPkgs = self; };
     webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 

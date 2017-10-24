@@ -30,6 +30,7 @@ in {
   contrailMaster = with contrailMasterPkgs; {
     inherit api control collector vrouterAgent analyticsApi
             configUtils vrouterUtils
-            vrouterNetns vrouterPortControl;
+            vrouterNetns vrouterPortControl
+            test;
     };
   }

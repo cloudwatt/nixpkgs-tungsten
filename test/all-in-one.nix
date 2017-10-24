@@ -4,9 +4,12 @@
 # set a specific NIX_PATH env var.
 , pkgs_path ? <nixpkgs>
 , contrailPkgs
+, isContrail32
+, isContrailMaster
 }:
 
 with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with pkgs.lib;
 
 let
   machine = {pkgs, config, ...}:
@@ -82,24 +85,6 @@ let
           policy=fixed
         '';
       };
-      control = pkgs.writeTextFile {
-        name = "contrail-control.conf";
-        text = ''
-          [DEFAULT]
-          log_file = /var/log/contrail/control.log
-          log_local = 1
-          log_level = SYS_DEBUG
-
-          [IFMAP]
-          server_url= https://127.0.0.1:8443
-          password = api-server
-          user = api-server
-
-          [DISCOVERY]
-          port = 5998
-          server = 127.0.0.1
-        '';
-      };
       query-engine = pkgs.writeTextFile {
         name = "contrail-query-engine.conf";
         text = ''
@@ -142,35 +127,17 @@ let
           redis_query_port = 6379
         '';
       };
-      collector = pkgs.writeTextFile {
-        name = "contrail-collector.conf";
-        text = ''
-          [DEFAULT]
-          log_local = 1
-          log_level = SYS_DEBUG
-          log_file = /var/log/contrail/contrail-collector.log
-          cassandra_server_list = 127.0.0.1:9042
+      control32 = import ./configuration/R3.2/control.nix { inherit pkgs; };
+      controlMaster = import ./configuration/master/control.nix { inherit pkgs; };
+      control = if isContrail32 then control32 else controlMaster;
 
-          [COLLECTOR]
-          port=8086
-          server=0.0.0.0
-
-          [DISCOVERY]
-          port = 5998
-          server = 127.0.0.1
-
-          [REDIS]
-          port=6379
-          server=127.0.0.1
-
-          [API_SERVER]
-          api_server_list = 127.0.0.1:8082
-        '';
-      };
+      collector32 = import ./configuration/R3.2/control.nix { inherit pkgs; };
+      collectorMaster = import ./configuration/master/control.nix { inherit pkgs; };
+      collector = if isContrail32 then collector32 else collectorMaster;
     in {
       imports = [ ../modules/compute-node.nix ../modules/cassandra.nix ../modules/contrail-discovery.nix ];
       config = rec {
-        _module.args = { inherit contrailPkgs; };
+        _module.args = { inherit contrailPkgs isContrail32 isContrailMaster; };
 
         services.openssh.enable = true;
         services.openssh.permitRootLogin = "yes";
@@ -192,7 +159,7 @@ let
 
         contrail.vrouterAgent.enable = true;
         contrail.discovery = {
-          enable = true;
+          enable = isContrail32;
           configFile = discovery;
         };
 
@@ -244,41 +211,65 @@ let
 
      };
   };
-  testScript =
-    ''
-    $machine->waitForUnit("cassandra.service");
-    $machine->waitForUnit("rabbitmq.service");
-    $machine->waitForUnit("zookeeper.service");
-    $machine->waitForUnit("redis.service");
+  testScript = let 
+    contrail32 = 
+      ''
+      $machine->waitForUnit("cassandra.service");
+      $machine->waitForUnit("rabbitmq.service");
+      $machine->waitForUnit("zookeeper.service");
+      $machine->waitForUnit("redis.service");
 
-    $machine->waitForUnit("contrailDiscovery.service");
-    $machine->waitForUnit("contrailApi.service");
+      $machine->waitForUnit("contrailDiscovery.service");
+      $machine->waitForUnit("contrailApi.service");
 
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
 
-    $machine->waitForUnit("contrailCollector.service");
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
+      $machine->waitForUnit("contrailCollector.service");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
 
-    $machine->waitForUnit("contrailControl.service");
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
-    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
+      $machine->waitForUnit("contrailControl.service");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
+      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
 
-    $machine->succeed("lsmod | grep -q vrouter");
-    $machine->waitForUnit("contrailVrouterAgent.service");
+      $machine->succeed("lsmod | grep -q vrouter");
+      $machine->waitForUnit("contrailVrouterAgent.service");
 
-    $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
+      $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
 
-    $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
-    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
-    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
+      $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
+      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
+      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
 
-    $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
-    $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
+      $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
+      $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
 
-    $machine->waitForUnit("contrailAnalyticsApi.service");
-    $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
-  '';
+      $machine->waitForUnit("contrailAnalyticsApi.service");
+      $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
+      '';
+    contrailMaster =
+     ''
+      $machine->waitForUnit("cassandra.service");
+      $machine->waitForUnit("rabbitmq.service");
+      $machine->waitForUnit("zookeeper.service");
+      $machine->waitForUnit("redis.service");
+
+      $machine->waitForUnit("contrailApi.service");
+      $machine->waitForUnit("contrailCollector.service");
+      $machine->waitForUnit("contrailControl.service");
+      $machine->succeed("lsmod | grep -q vrouter");
+      $machine->waitForUnit("contrailVrouterAgent.service");
+
+      $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
+
+      $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
+      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
+      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
+
+      $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
+      $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
+      '';
+    in if isContrail32 then contrail32 else contrailMaster;
 in
   makeTest { name = "all-in-one"; nodes = { inherit machine; }; testScript = testScript; }

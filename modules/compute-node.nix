@@ -1,4 +1,4 @@
-{ config, lib, pkgs, contrailPkgs, ... }:
+{ config, lib, pkgs, contrailPkgs, isContrail32, isContrailMaster,... }:
 
 with lib;
 
@@ -16,8 +16,9 @@ let
       collectors= ${cfg.collectorHost}:8086
       
       [CONTROL-NODE]
-      server = ${cfg.controlHost}
-      
+      ${optionalString isContrail32 ("server = " + cfg.controlHost)}
+      ${optionalString isContrailMaster ("servers = " + cfg.controlHost)}
+
       [DISCOVERY]
       port = 5998
       server = ${cfg.discoveryHost}
