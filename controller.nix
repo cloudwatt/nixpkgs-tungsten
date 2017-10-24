@@ -175,8 +175,8 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [
      lxml geventhttpclient psutil redis bottle_0_12_1 xmltodict sseclient pycassa requests prettytable
      # Not in requirements.txt...
-     pysandesh cassandra-driver sandesh_common discovery_client cfgm_common stevedore kafka vnc_api
-    ];
+     pysandesh cassandra-driver sandesh_common cfgm_common stevedore kafka vnc_api
+    ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
   schemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
