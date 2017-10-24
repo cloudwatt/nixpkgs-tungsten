@@ -145,9 +145,9 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
+    NIX_CFLAGS_COMPILE="-I ${pkgs.libxml2.dev}/include/libxml2/";
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.libpcap pkgs.libnl ];
     buildPhase = ''
-      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.libxml2.dev}/include/libxml2/"
       scons --optimization=production --root=./ vrouter/utils
     '';
     installPhase = ''
