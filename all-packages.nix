@@ -16,7 +16,7 @@ in
   isContrailMaster = self.contrailVersion == self.contrailMaster;
   isContrail32 = self.contrailVersion == self.contrail32;
 
-  deps = import ./deps.nix { inherit pkgs; };
+  deps = import ./pkgs/deps.nix { inherit pkgs; };
 
   sources = import ./sources.nix { inherit pkgs; };
 
@@ -55,6 +55,6 @@ in
   vms = import ./tools/build-vms.nix {contrailPkgs = self; pkgs_path = nixpkgs;};
 }
 //  
-(with self; import ./controller.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
+(with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
 //
-(with self; import ./webui.nix {inherit pkgs sources;})
+(with self; import ./pkgs/webui.nix {inherit pkgs sources;})
