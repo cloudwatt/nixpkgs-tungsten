@@ -7,7 +7,6 @@ using [Hydra](https://nixos.org/hydra/).
 
 ```
 $ curl https://nixos.org/nix/install | sh
-$ . ~/.nix-profile/etc/profile.d/nix.sh
 ```
 
 
@@ -36,7 +35,7 @@ nix-env -qa '.*contrail.*'
 
 Note: for the rest of this README, it is not mandatory to subscribe to
       this channel. It is only used to download prebuilt expressions
-      instead of locally compile them.
+      instead of locally build them.
 
 
 ### Build OpenContrail Components
@@ -44,9 +43,14 @@ Note: for the rest of this README, it is not mandatory to subscribe to
 To build all OpenContrail components
 ```
 $ nix-build -A contrail32
+$ nix-build -A contrailMaster
 ```
 
-Or to build specific ones
+Since they have been already built by the CI, they are only
+downloaded. You can force the rebuild by adding the `--check`
+argument.
+
+To build specific ones
 ```
 $ nix-build -A contrail32.api
 $ nix-build -A contrail32.control
