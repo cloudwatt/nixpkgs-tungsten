@@ -168,7 +168,7 @@ let
         '';
       };
     in {
-      imports = [ ../modules/compute-node.nix ../modules/cassandra.nix ];
+      imports = [ ../modules/compute-node.nix ../modules/cassandra.nix ../modules/contrail-discovery.nix ];
       config = rec {
         _module.args = { inherit contrailPkgs; };
 
@@ -191,22 +191,9 @@ let
         ];
 
         contrail.vrouterAgent.enable = true;
-
-        systemd.services.contrailDiscovery = {
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
-                  # Keyspaces are created by the contrail-api...
-                  "contrailApi.service" ];
-          preStart = "mkdir -p /var/log/contrail/";
-          script = "${contrailPkgs.discovery}/bin/contrail-discovery --conf_file ${discovery}";
-          path = [ pkgs.netcat ];
-          postStart = ''
-            sleep 2
-            while ! nc -vz localhost 5998; do
-              sleep 2
-            done
-            sleep 2
-          '';
+        contrail.discovery = {
+          enable = true;
+          configFile = discovery;
         };
 
         systemd.services.contrailApi = {
