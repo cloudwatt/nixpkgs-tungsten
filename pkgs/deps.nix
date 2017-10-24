@@ -12,6 +12,7 @@ rec {
       makeFlags="$makeFlags PREFIX=$out GPERF=${pkgs.gperf_3_0}/bin/gperf"
     '';
     buildInputs = [ pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev pkgs.gperf ];
+    postInstall = "ln -s libgrok.so $out/lib/libgrok.so.1";
   };
 
   cassandra-cpp-driver = pkgs.stdenv.mkDerivation rec {
