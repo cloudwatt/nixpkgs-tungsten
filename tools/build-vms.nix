@@ -1,4 +1,4 @@
-{ contrailPkgs, pkgs_path }:
+{ contrailPkgs, pkgs_path, isContrailMaster, isContrail32 }:
 
 with import (pkgs_path + "/nixos/lib/testing.nix") { system = builtins.currentSystem; };
 
@@ -6,7 +6,7 @@ let
   computeNode = { pkgs, lib, config, ... }: {
     imports = [ ../modules/compute-node.nix ];
     config = {
-      _module.args = { inherit contrailPkgs; };
+      _module.args = { inherit contrailPkgs isContrailMaster isContrail32; };
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
@@ -23,7 +23,7 @@ let
     };
   };
 in
-{ computeNode = (makeTest { name = "computeNode"; machine = computeNode; testScript = ""; }).driver;
+{ computeNode = (makeTest { name = "compute-node"; machine = computeNode; testScript = ""; }).driver;
 }
 
 

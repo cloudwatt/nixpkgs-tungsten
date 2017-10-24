@@ -16,9 +16,9 @@ in
   isContrailMaster = self.contrailVersion == self.contrailMaster;
   isContrail32 = self.contrailVersion == self.contrail32;
 
-  deps = import ./pkgs/deps.nix { inherit pkgs; };
+  deps = callPackage ./pkgs/deps.nix { };
 
-  sources = import ./sources.nix { inherit pkgs; };
+  sources = callPackage ./sources.nix { };
 
   contrailBuildInputs = with pkgs; [
     scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
@@ -52,11 +52,11 @@ in
   collector = callPackage ./pkgs/collector.nix { };
 
   test = {
-    allInOne = with self; import ./test/all-in-one.nix { inherit pkgs isContrailMaster isContrail32; pkgs_path = nixpkgs; contrailPkgs = self; };
-    webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
+    allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
+    webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 
-  vms = import ./tools/build-vms.nix {contrailPkgs = self; pkgs_path = nixpkgs;};
+  vms = callPackage ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
 }
 //  
 (with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
