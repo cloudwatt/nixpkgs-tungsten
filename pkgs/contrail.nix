@@ -1,3 +1,8 @@
+# Be careful, none of these derivations can be overriden!
+#
+# TODO: They should be moved to dedicated files and loaded by using to
+# the callPackage pattern.
+
 { pkgs, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster }:
 
 with deps;
@@ -45,72 +50,6 @@ rec {
     name = "${pname}-${version}";
     src = "${contrailPython}/production/discovery/client/";
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
-  };
-
-  control = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-control";
-    version = "3.2";
-    src = workspace;
-    USER="contrail";
-    # Only required on master
-    dontUseCmakeConfigure = true;
-
-    buildInputs = contrailBuildInputs ++
-     (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
-
-    buildPhase = ''
-      scons -j1 --optimization=production contrail-control
-    '';
-    installPhase = ''
-      mkdir -p $out/{bin,etc/contrail}
-      cp build/production/control-node/contrail-control $out/bin/
-      cp ${workspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
-    '';
-  };
-
-  collector = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-collector";
-    version = "3.2";
-    src = workspace;
-    USER="contrail";
-    buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev libgrok pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev ];
-
-    # To fix a scons cycle on buildinfo
-    patches = pkgs.lib.optional isContrail32 [ ./patches/analytics.patch ];
-    patchFlags = "-p0";
-
-    buildPhase = ''
-      # To export pyconfig.h. This should be patched into the python derivation instead.
-      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -isystem ${pkgs.python}/include/python2.7/"
-
-      scons -j1 --optimization=production contrail-collector
-    '';
-    installPhase = ''
-      mkdir -p $out/{bin,etc/contrail}
-      cp build/production/analytics/vizd $out/bin/contrail-collector
-      cp ${workspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
-    '';
-  };
-
-  vrouterAgent = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-vrouter-agent";
-    version = "3.2";
-    src = workspace;
-    USER="contrail";
-    # Only required on master
-    dontUseCmakeConfigure = true;
-
-    buildInputs = contrailBuildInputs ++
-      (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
-    buildPhase = ''
-      scons -j2 --optimization=production contrail-vrouter-agent
-    '';
-    installPhase = ''
-      mkdir -p $out/{bin,etc/contrail}
-      cp build/production/vnsw/agent/contrail/contrail-vrouter-agent $out/bin/
-      cp ${workspace}/controller/src/vnsw/agent/contrail-vrouter-agent.conf $out/etc/contrail/
-      cp -r build/lib $out/
-    '';
   };
 
   contrailPython = pkgs.stdenv.mkDerivation rec {

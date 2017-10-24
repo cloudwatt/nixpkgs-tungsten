@@ -47,6 +47,10 @@ in
   controller = callPackage ./pkgs/controller.nix { };
   workspace = callPackage ./pkgs/workspace.nix { };
 
+  vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { };
+  control = callPackage ./pkgs/control.nix { };
+  collector = callPackage ./pkgs/collector.nix { };
+
   test = {
     allInOne = import ./test/all-in-one.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
     webui  = import ./test/webui.nix { inherit pkgs; pkgs_path = nixpkgs; contrailPkgs = self; };
