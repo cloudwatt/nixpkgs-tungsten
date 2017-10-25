@@ -43,7 +43,6 @@ in
 
   thirdPartyCache = callPackage ./pkgs/third-party-cache.nix { };
   thirdParty = callPackage ./pkgs/third-party.nix { };
-  sandesh = callPackage ./pkgs/sandesh.nix { };
   controller = callPackage ./pkgs/controller.nix { };
   workspace = callPackage ./pkgs/workspace.nix { };
 

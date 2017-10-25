@@ -1,4 +1,4 @@
-{pkgs, sources, contrailBuildInputs, thirdParty, sandesh, controller }:
+{pkgs, sources, contrailBuildInputs, thirdParty, controller }:
 
 pkgs.stdenv.mkDerivation rec {
   name = "contrail-workspace";
@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
 
   # We don't override the patchPhase to be nix-shell compliant
   preUnpack = ''mkdir workspace || exit; cd workspace'';
-  srcs = [ sources.build thirdParty sources.generateds sandesh sources.vrouter sources.neutronPlugin controller ];
+  srcs = [ sources.build thirdParty sources.generateds sources.sandesh sources.vrouter sources.neutronPlugin controller ];
   sourceRoot = ''./'';
   postUnpack = ''
     cp ${sources.build.out}/SConstruct .
@@ -18,7 +18,7 @@ pkgs.stdenv.mkDerivation rec {
     mkdir tools
     mv ${sources.build.name} tools/build
     mv ${sources.generateds.name} tools/generateds
-    mv ${sandesh.name} tools/sandesh
+    mv ${sources.sandesh.name} tools/sandesh
 
     [[ ${controller.name} != controller ]] && mv ${controller.name} controller
     [[ ${thirdParty.name} != third_party ]] && mv ${thirdParty.name} third_party
