@@ -30,7 +30,7 @@
     rev = "b098b464306b3c78e54a46ca4a8a329118f78fae";
     sha256 = "0ggp3lh6xh9sgaviangpy0fz5hw7wvs2hj7ih0s68bms5lybbml6";
   };
-  thirdPartySrc = pkgs.fetchFromGitHub {
+  thirdParty = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-third-party";
     rev = "16333c4e2ecbea2ef5bc38cecf45bfdc78500053";

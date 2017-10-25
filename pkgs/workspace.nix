@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
 
   # We don't override the patchPhase to be nix-shell compliant
   preUnpack = ''mkdir workspace || exit; cd workspace'';
-  srcs = with sources; [ build thirdParty generateds sandesh vrouter neutronPlugin controller ];
+  srcs = [ sources.build thirdParty sources.generateds sandesh sources.vrouter sources.neutronPlugin controller ];
   sourceRoot = ''./'';
   postUnpack = ''
     cp ${sources.build.out}/SConstruct .

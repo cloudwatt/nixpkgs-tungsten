@@ -30,7 +30,7 @@ sandesh = pkgs.fetchFromGitHub {
   rev = "be6504d469a8befb059ef0150c4fc6ff1b6a0a8a";
   sha256 = "1pv5dli3a3a79chmg11vp6b8dg1sy15hgbpal3xwwqrprbwisb3d";
 };
-thirdPartySrc = pkgs.fetchFromGitHub {
+thirdParty = pkgs.fetchFromGitHub {
   owner = "Juniper";
   repo = "contrail-third-party";
   rev = "bed878908a8bc83b671ffa881d0f9f4dcacdf058";

@@ -4,7 +4,7 @@ pkgs.stdenv.mkDerivation {
   name = "contrail-third-party";
   version = "3.2";
 
-  src = sources.thirdPartySrc;
+  src = sources.thirdParty;
   phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
   buildInputs = with pkgs; [

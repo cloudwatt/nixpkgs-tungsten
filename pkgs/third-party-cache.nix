@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation {
   name = "contrail-third-party-cache";
   version = "3.2";
 
-  src = sources.thirdPartySrc;
+  src = sources.thirdParty;
   phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
   impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
