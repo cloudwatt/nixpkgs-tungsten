@@ -18,11 +18,11 @@ let
   contrailMasterPkgs = pkgs.lib.fix allPackages;
 in {
   contrail32 = with contrail32Pkgs; {
-    inherit configUtils api discovery
+    inherit configUtils api discovery schemaTransformer
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
             collector analyticsApi queryEngine
-            webCore
+            webCore webController
             test
             vms;
     };
