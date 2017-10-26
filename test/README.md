@@ -3,12 +3,12 @@ all OpenContrail components and do some basic tests.
 
 To run tests
 ```
-nixpkgs-contrail$ nix-build -A test.contrail
+nixpkgs-contrail$ nix-build -A contrail32.test.allInOne
 ```
 
 You can also build a VM in order to use it interactively
 ```
-nixpkgs-contrail$ nix-build -A test.contrail.driver
+nixpkgs-contrail$ nix-build -A contrail32.test.allInOne.driver
 nixpkgs-contrail$ QEMU_NET_OPTS="hostfwd=tcp::2222-:22" result/bin/nixos-run-vms
 
 $ ssh -p 2222 root@localhost

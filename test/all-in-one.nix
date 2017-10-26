@@ -53,6 +53,29 @@ let
           ifmap_credentials = api-server:api-server
         '';
       };
+      svcMonitor = pkgs.writeTextFile {
+        name = "contrail-svc-monitor.conf";
+        text = ''
+          [DEFAULTS]
+          rabbit_port = 5672
+          rabbit_server = localhost
+
+          log_file = /var/log/contrail/svc-monitor.log
+          log_level = SYS_DEBUG
+          log_local = 1
+
+          zk_server_port = 2181
+          zk_server_ip = 127.0.0.1
+          cassandra_server_list = 127.0.0.1:9160
+          collectors = 127.0.0.1:8086
+          api_server_port = 8082
+          api_server_ip = 127.0.0.1
+
+          [SCHEDULER]
+          aaa_mode = no-auth
+          analytics_server_list = 127.0.0.1:8081
+        '';
+      };
       discovery = pkgs.writeTextFile {
         name = "contrail-discovery.conf";
         text = ''
@@ -178,6 +201,20 @@ let
           '';
         };
 
+        systemd.services.contrailSvcMonitor = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "contrailApi.service" ];
+          script = "${contrailPkgs.svcMonitor}/bin/contrail-svc-monitor --conf_file ${svcMonitor}";
+          path = [ pkgs.netcat ];
+          postStart = ''
+            sleep 2
+            while ! nc -vz localhost 8088; do
+              sleep 2
+            done
+            sleep 2
+          '';
+        };
+
         systemd.services.contrailQueryEngine = {
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
@@ -211,8 +248,8 @@ let
 
      };
   };
-  testScript = let 
-    contrail32 = 
+  testScript = let
+    contrail32 =
       ''
       $machine->waitForUnit("cassandra.service");
       $machine->waitForUnit("rabbitmq.service");
@@ -221,6 +258,9 @@ let
 
       $machine->waitForUnit("contrailDiscovery.service");
       $machine->waitForUnit("contrailApi.service");
+
+      $machine->waitForUnit("contrailSvcMonitor.service");
+      $machine->waitUntilSucceeds("curl localhost:8088/");
 
       $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
       $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
@@ -256,6 +296,10 @@ let
       $machine->waitForUnit("redis.service");
 
       $machine->waitForUnit("contrailApi.service");
+
+      $machine->waitForUnit("contrailSvcMonitor.service");
+      $machine->waitUntilSucceeds("curl localhost:8088/");
+
       $machine->waitForUnit("contrailCollector.service");
       $machine->waitForUnit("contrailControl.service");
       $machine->succeed("lsmod | grep -q vrouter");

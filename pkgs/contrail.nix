@@ -125,8 +125,8 @@ rec {
     # To be cleaned
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api sandesh_common kombu pyopenssl stevedore discovery_client netifaces jsonpickle
-    ];
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces jsonpickle
+    ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
   svcMonitor = pkgs.pythonPackages.buildPythonApplication {
@@ -138,9 +138,9 @@ rec {
       sed -i '/test_suite/d' setup.py
     '';
     propagatedBuildInputs = with pkgs.pythonPackages; [
-      cfgm_common vnc_api pysandesh sandesh_common discovery_client
-      netaddr gevent kombu pyopenssl pyyaml kazoo mock lxml #FIXME: novaclient
-    ];
+      cfgm_common vnc_api pysandesh sandesh_common
+      netaddr gevent kombu pyopenssl pyyaml kazoo mock lxml pycassa #FIXME: novaclient
+    ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
   discovery =  pkgs.pythonPackages.buildPythonApplication {
