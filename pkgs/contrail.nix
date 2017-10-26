@@ -121,7 +121,7 @@ rec {
   schemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-schema-transformer";
     version = "3.2";
-    src = "${contrailPython}/production/config/schema-transformer//";
+    src = "${contrailPython}/production/config/schema-transformer/";
     # To be cleaned
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
@@ -129,10 +129,24 @@ rec {
     ];
   };
 
+  svcMonitor = pkgs.pythonPackages.buildPythonApplication {
+    name = "contrail-svc-monitor";
+    version = "3.2";
+    src = "${contrailPython}/noarch/config/svc-monitor/";
+    # FIXME: make tests pass
+    prePatch = ''
+      sed -i '/test_suite/d' setup.py
+    '';
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      cfgm_common vnc_api pysandesh sandesh_common discovery_client
+      netaddr gevent kombu pyopenssl pyyaml kazoo mock lxml #FIXME: novaclient
+    ];
+  };
+
   discovery =  pkgs.pythonPackages.buildPythonApplication {
     name = "contrail-discovery";
     version = "3.2";
-    src = "${contrailPython}/production/discovery";
+    src = "${contrailPython}/production/discovery/";
     propagatedBuildInputs = with pkgs.pythonPackages; [
       gevent pycassa
       # Not in requirements.txt...

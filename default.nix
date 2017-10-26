@@ -18,7 +18,7 @@ let
   contrailMasterPkgs = pkgs.lib.fix allPackages;
 in {
   contrail32 = with contrail32Pkgs; {
-    inherit configUtils api discovery schemaTransformer
+    inherit configUtils api discovery schemaTransformer svcMonitor
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
             collector analyticsApi queryEngine
