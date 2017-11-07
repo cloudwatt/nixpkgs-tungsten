@@ -10,15 +10,19 @@ in
   # This is to allow callPackage to fill pkgs
   inherit pkgs;
 
-  contrailVersion = self.contrailMaster;
+  deps = callPackage ./pkgs/deps.nix { };
+
   contrail32 = "R3.2";
   contrailMaster = "master";
   isContrailMaster = self.contrailVersion == self.contrailMaster;
   isContrail32 = self.contrailVersion == self.contrail32;
 
-  deps = callPackage ./pkgs/deps.nix { };
+  sourcesMaster = callPackage ./sources.nix { };
+  sources32 = callPackage ./sources-R3.2.nix { };
 
-  sources = callPackage ./sources.nix { };
+  # We use by default the master sources
+  sources = self.sourcesMaster;
+  contrailVersion = self.contrailMaster;
 
   contrailBuildInputs = with pkgs; [
     scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
