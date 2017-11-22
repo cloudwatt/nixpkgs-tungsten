@@ -15,7 +15,7 @@ let
     };
     in pkgs.lib.fix (pkgs.lib.extends f  allPackages);
 
-  contrailMasterPkgs = pkgs.lib.fix allPackages;
+  contrailPkgs = pkgs.lib.fix allPackages;
 in {
   contrail32 = with contrail32Pkgs; {
     inherit configUtils api discovery schemaTransformer svcMonitor
@@ -26,11 +26,12 @@ in {
             test
             vms;
     };
-  contrailMaster = with contrailMasterPkgs; {
+  contrailMaster = with contrailPkgs; {
     inherit configUtils api svcMonitor
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
             collector analyticsApi
             test;
     };
+  tools = contrailPkgs.tools;
   }

@@ -6,7 +6,7 @@
 self:
 let callPackage = pkgs.lib.callPackageWith self;
 in
-{
+pkgs // {
   # This is to allow callPackage to fill pkgs
   inherit pkgs;
 
@@ -60,6 +60,8 @@ in
   };
 
   vms = callPackage ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
+
+  tools.contrailIntrospectCli = callPackage ./tools/contrail-introspect-cli {};
 }
 //  
 (with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
