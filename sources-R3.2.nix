@@ -4,70 +4,70 @@
 
 {pkgs}:
 {
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-build at 2017-10-25 09:46:52
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-build at 2017-11-23 15:28:57
   build = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-build";
     rev = "a18e25f1fca9c2c75b02faa26189f74b87b9e61f";
     sha256 = "126m7fbrrjxqkaq0wsjdlyllbxl989qrck10i3r3x638g57g4k6c";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-controller at 2017-10-25 09:46:54
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-controller at 2017-11-23 15:28:58
   controller = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-controller";
-    rev = "a46aa3a042ff5dea1017a4676b6da50b97522291";
-    sha256 = "14ns6bw8rkkw3ahji70h3jx7hln7a3rjjmhqng805ir212mg8hgm";
+    rev = "912b816dbdee54bcb16912cf551ad2368aceeae8";
+    sha256 = "1jpn2890bwmyzfahafbj32s2nry57qyfsvgvb9pkf2y7xrkb5yrh";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-generateds at 2017-10-25 09:47:11
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-generateds at 2017-11-23 15:29:33
   generateds = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-generateds";
     rev = "72ee410812e608c3791240fa053ae5a6aca1025e";
     sha256 = "1ljw16sl300d3x1g87vx6p6nqvl268zbky6gggbk7jqhqad55l45";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-neutron-plugin at 2017-10-25 09:47:13
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-neutron-plugin at 2017-11-23 15:29:36
   neutronPlugin = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-neutron-plugin";
-    rev = "0283a82fb7298b8cdfc3d851bec3356aeaa0b69a";
-    sha256 = "05b6h8rxkzh51q1ai6ymxbssc5nzjqd8slvphnx9fzlqs5f4jvpi";
+    rev = "1760dc527b7ec240f3e7aa84d9fac96940df5578";
+    sha256 = "111krmcbar3nw9k0ikmxp31mi1jhssbss803g4a2r9lnr554n97s";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-sandesh at 2017-10-25 09:47:15
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-sandesh at 2017-11-23 15:29:38
   sandesh = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-sandesh";
     rev = "a68a299d8afa65b2951c0df4fcce071b1abb34f9";
     sha256 = "0dk5255685fbjgqhfqs3si2bxwq7sbbbh46prg84wsd2hp3rdqc2";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-third-party at 2017-10-25 09:47:17
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-third-party at 2017-11-23 15:29:41
   thirdParty = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-third-party";
     rev = "6a4e862d8ef308495e27e06784ed7ac412c2ab9f";
     sha256 = "0hawvj108b04rbqn3k6c9lsa2janvqb1gz6h547j886i443qspfs";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-vrouter at 2017-10-25 09:47:19
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-vrouter at 2017-11-23 15:29:43
   vrouter = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-vrouter";
-    rev = "0f31cc922ed643575e8ea7beb8a1e9bcf7ed9beb";
-    sha256 = "1dp34s1vfjb336zklrhngi9xz7gbjx39n70aq6sjsfysjm7vpk27";
+    rev = "4757381b3daed29381b11e2f4abc36d543c45437";
+    sha256 = "05j8zmhh08fqjsq6q819fn7pq8kkc38v2l6c7026fswg1b3n1j3g";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-web-controller at 2017-10-25 09:47:30
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-web-controller at 2017-11-23 15:29:57
   webController = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-web-controller";
-    rev = "532fbd2b4332cabdd4ab9be7258556077a1e9c2e";
-    sha256 = "0n0lx2vwxlrrhnyxzn0g2jmq0kgcms6k0pw8sk3f6dmglzw97cfd";
+    rev = "b532bcdb95b8b5036cacf295358e31615496f3ff";
+    sha256 = "0dzawjkn6xvfdlb4v9l464haipajg3c0sl27hf39ycly1g1m4qa5";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-web-core at 2017-10-25 09:47:33
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-web-core at 2017-11-23 15:30:01
   webCore = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-web-core";
-    rev = "080ff556f2221adf5c687508740df19bad9a6988";
-    sha256 = "01vdj82ics1fdy64sjx9jwld5ws1nqc8mb4n8gnhfhhm9lxand6w";
+    rev = "6a7a1bb81a240af0bff1b0c07a1d0fcca21219a3";
+    sha256 = "1vp318fhr1yyfgvjzcrw7ffil49hzb7xf0nrp1rf0p8d6pf89m6m";
   };
-  # Head of branch R3.2 of repository github.com/Juniper/contrail-webui-third-party at 2017-10-25 09:47:38
+  # Head of branch R3.2 of repository github.com/Juniper/contrail-webui-third-party at 2017-11-23 15:30:12
   webuiThirdParty = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-webui-third-party";
