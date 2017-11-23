@@ -58,7 +58,32 @@ mycurl --silent -X PUT $URL/jobset/$PROJECT_NAME/$JOBSET_NAME -d @data.json -b h
 
 
 JOBSET_NAME="testing"
-echo -e "\nCreating jobset trunk:"
+echo -e "\nCreating jobset testing:"
+cat >data.json <<EOF
+{
+  "description": "Build testing branch of nixpkgs-contrail",
+  "checkinterval": "864000",
+  "enabled": "1",
+  "visible": "1",
+  "nixexprinput": "contrail",
+  "nixexprpath": "jobset.nix",
+  "inputs": {
+    "contrail": {
+      "value": "https://github.com/nlewo/nixpkgs-contrail testing",
+      "type": "git"
+    },
+    "bootstrap_pkgs": {
+      "value": "https://github.com/NixOS/nixpkgs a0e6a891ee21a6dcf3da35169794cc20b110ce05",
+      "type": "git"
+    }
+  }
+}
+EOF
+cat data.json
+mycurl --silent -X PUT $URL/jobset/$PROJECT_NAME/$JOBSET_NAME -d @data.json -b hydra-cookie.txt
+
+JOBSET_NAME="staging"
+echo -e "\nCreating jobset staging:"
 cat >data.json <<EOF
 {
   "description": "Build master of nixpkgs-contrail and follow nixpkgs stable",
@@ -85,6 +110,5 @@ cat >data.json <<EOF
 EOF
 cat data.json
 mycurl --silent -X PUT $URL/jobset/$PROJECT_NAME/$JOBSET_NAME -d @data.json -b hydra-cookie.txt
-
 
 rm -f data.json hydra-cookie.txt
