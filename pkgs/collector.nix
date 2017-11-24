@@ -5,7 +5,12 @@ pkgs.stdenv.mkDerivation {
   version = "3.2";
   src = workspace;
   USER="contrail";
-  buildInputs = contrailBuildInputs ++ [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev deps.libgrok pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev ];
+
+  # Only required on master
+  dontUseCmakeConfigure = true;
+  buildInputs = contrailBuildInputs ++
+                [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev deps.libgrok pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev ] ++
+                (pkgs.lib.optional (!isContrail32) [ pkgs.cmake pkgs."rabbitmq-c" ]);
 
   # To fix a scons cycle on buildinfo
   patches = pkgs.lib.optional isContrail32 [ ./patches/analytics.patch ];

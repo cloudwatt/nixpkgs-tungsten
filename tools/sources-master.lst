@@ -1,5 +1,6 @@
 build Juniper contrail-build master
 controller Juniper contrail-controller master
+contrailCommon Juniper contrail-common master
 generateds Juniper contrail-generateds master
 neutronPlugin Juniper contrail-neutron-plugin master
 sandesh Juniper contrail-sandesh master

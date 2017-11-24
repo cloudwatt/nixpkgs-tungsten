@@ -115,7 +115,8 @@ rec {
      lxml geventhttpclient psutil redis bottle_0_12_1 xmltodict sseclient pycassa requests prettytable
      # Not in requirements.txt...
      pysandesh cassandra-driver sandesh_common cfgm_common stevedore kafka vnc_api
-    ] ++ (optional isContrail32  [ discovery_client ]);
+    ] ++ (optional isContrail32  [ discovery_client ])
+      ++ (optional (!isContrail32)  [ kazoo ]);
   };
 
   schemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
@@ -176,6 +177,8 @@ rec {
     version = "3.2";
     src = workspace;
     USER="contrail";
+    # Remove it when https://review.opencontrail.org/#/c/38139/ is merged
+    patchPhase = optionalString isContrailMaster "cd vrouter; patch -p1 < ${../patches/0001-Fix-build-for-kernels-4.9.patch}; cd ..";
     # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
     buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 ];
     buildPhase = ''

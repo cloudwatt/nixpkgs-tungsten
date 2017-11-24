@@ -1,4 +1,4 @@
-{pkgs, sources, contrailBuildInputs, thirdParty, controller }:
+{pkgs, sources, contrailBuildInputs, thirdParty, controller, isContrail32 }:
 
 pkgs.stdenv.mkDerivation rec {
   name = "contrail-workspace";
@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
 
   # We don't override the patchPhase to be nix-shell compliant
   preUnpack = ''mkdir workspace || exit; cd workspace'';
-  srcs = [ sources.build thirdParty sources.generateds sources.sandesh sources.vrouter sources.neutronPlugin controller ];
+  srcs = [ sources.build thirdParty sources.generateds sources.sandesh sources.vrouter sources.neutronPlugin controller ] ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon];
   sourceRoot = ''./'';
   postUnpack = ''
     cp ${sources.build.out}/SConstruct .
@@ -27,6 +27,10 @@ pkgs.stdenv.mkDerivation rec {
 
     mkdir openstack
     mv ${sources.neutronPlugin.name} openstack/neutron_plugin
+  '' +
+  pkgs.lib.optionalString (!isContrail32) ''
+    mkdir src
+    mv ${sources.contrailCommon.name} src/contrail-common
   '';
 
   prePatch = ''

@@ -1,0 +1,85 @@
+From 856931efaf341d147da415b67cb5e4a65f2853f9 Mon Sep 17 00:00:00 2001
+From: Antoine Eiche <antoine.eiche@cloudwatt.com>
+Date: Tue, 5 Dec 2017 17:31:03 +0100
+Subject: [PATCH] Fix build for kernels >= 4.9
+
+skb_sender_cpu_clear has been removed in kernel 4.6 [1] and is no longer
+required since 4.5 [2].
+
+get_user_page signature has changed in 4.6 [3] and in 4.9 [4]. Since I
+don't have a 4.6 kernel for testing, I didn't add code to support it.
+
+The macro page_cache_release has been finally removed [5].
+
+[1] https://github.com/torvalds/linux/commit/64d4e3431e686dc37ce388ba531c4c4e866fb141
+[2] https://github.com/torvalds/linux/commit/52bd2d62ce6758d811edcbd2256eb9ea7f6a56cb
+[3] https://github.com/torvalds/linux/commit/c12d2da56d0e07d230968ee2305aaa86b93a6832
+[4] https://github.com/torvalds/linux/commit/768ae309a96103ed02eb1e111e838c87854d8b51
+[5] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=09cbfeaf1a5a67bfb3201e0c83c810cecb2efa5a
+
+Change-Id: I569ca66145204f6e71a1083412bf2cb4caab818d
+Partial-Bug: #1633387
+---
+ linux/vr_host_interface.c | 2 +-
+ linux/vr_mem.c            | 9 +++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/linux/vr_host_interface.c b/linux/vr_host_interface.c
+index 79105f7..67293a0 100644
+--- a/linux/vr_host_interface.c
++++ b/linux/vr_host_interface.c
+@@ -811,7 +811,7 @@ linux_if_tx(struct vr_interface *vif, struct vr_packet *pkt)
+     skb->data = pkt_data(pkt);
+     skb->len = pkt_len(pkt);
+     skb_set_tail_pointer(skb, pkt_head_len(pkt));
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0) && LINUX_VERSION_CODE < KERNEL_VERSION(4,6,0))
+     skb_sender_cpu_clear(skb);
+ #endif
+ 
+diff --git a/linux/vr_mem.c b/linux/vr_mem.c
+index aa72ff9..b6c77cf 100644
+--- a/linux/vr_mem.c
++++ b/linux/vr_mem.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+  */
+ #include <linux/init.h>
++#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/fs.h>
+@@ -129,8 +130,12 @@ __vr_huge_page_get(uint64_t uspace_vmem, int npages, int mem_size, struct page *
+      * memory and are not going to be faulted
+      */
+     down_read(&current->mm->mmap_sem);
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
++    spages = get_user_pages(uspace_vmem, npages, FOLL_WRITE, pmem, NULL);
++#else
+     spages = get_user_pages(current, current->mm, uspace_vmem,
+                                         npages, 1, 0, pmem, NULL);
++#endif
+     up_read(&current->mm->mmap_sem);
+ 
+     /*
+@@ -141,7 +146,7 @@ __vr_huge_page_get(uint64_t uspace_vmem, int npages, int mem_size, struct page *
+         for (i = 0; i < spages; i++) {
+             if (!PageReserved(pmem[i]))
+                 SetPageDirty(pmem[i]);
+-            page_cache_release(pmem[i]);
++            put_page(pmem[i]);
+         }
+         if (size)
+             free_pages((unsigned long)pmem, get_order(size));
+@@ -263,7 +268,7 @@ vr_huge_pages_exit(void)
+             for (j = 0; j < hcfg->hcfg_npages; j++) {
+                 if (!PageReserved(hcfg->hcfg_pages[j]))
+                     SetPageDirty(hcfg->hcfg_pages[j]);
+-                page_cache_release(hcfg->hcfg_pages[j]);
++                put_page(hcfg->hcfg_pages[j]);
+                 hcfg->hcfg_pages[j] = NULL;
+             }
+ 
+-- 
+2.10.0
+
