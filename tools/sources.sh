@@ -1,8 +1,7 @@
 # A script that creates a sources.nix skeleton by looking for the latest
 # commit in the specified branch.
-
-# Usage: TOKEN=GITHUB_TOKEN bash sources.sh
-# Note the token is used since there is rate limitation on the API.
+#
+# Usage: bash sources.sh
 
 # The format of this file is
 # Attribute Owner Repos Branch
@@ -28,7 +27,7 @@ echo "{"
 
 while read -r ATTRIBUTE OWNER REPOS BRANCH; do
     echo "  # Head of branch $BRANCH of repository github.com/$OWNER/$REPOS at $(date +'%F %T')"
-    COMMITID=$(curl -H "Authorization: token ${TOKEN}" --silent https://api.github.com/repos/$OWNER/$REPOS/branches/$BRANCH | jq -r '.commit.sha')
+    COMMITID=$(curl --silent https://api.github.com/repos/$OWNER/$REPOS/branches/$BRANCH | jq -r '.commit.sha')
     curl --silent -L https://github.com/$OWNER/$REPOS/archive/$COMMITID.tar.gz > /tmp/tmp.tgz
 
     rm -rf /tmp/untar.tmp/
