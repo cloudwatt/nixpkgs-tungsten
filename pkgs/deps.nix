@@ -17,12 +17,12 @@ rec {
 
   cassandra-cpp-driver = pkgs.stdenv.mkDerivation rec {
     name = "cassandra-cpp-driver";
-    version = "2.5";
+    version = "2.7";
      src = pkgs.fetchFromGitHub {
       owner = "datastax";
       repo = "cpp-driver";
-      rev = "a57e5d289d1ea500ccd958de6b75a5b4e0519377";
-      sha256 = "1zpj9kkw16692dl062khji87i06aya89jncqmblfd1vn0bgbpa18";
+      rev = "d5152deeeb188c1a1cb285233ffd98c6e9261e0c";
+      sha256 = "0rwmfmm3npk92j7rg0nmhm6lb2njpc5n81jb20mdww8hm858mnj8";
     };
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" "fixupPhase"];
