@@ -80,7 +80,11 @@ rec {
 
       # Tests are disabled because they requires to compile vizd (collector)
       sed -i '/OpEnv.AlwaysBuild(test_cmd)/d' controller/src/opserver/SConscript
-    '';
+    '' + (optionalString isContrailMaster ''
+      substituteInPlace controller/src/config/common/setup.py --replace "test_suite='tests.test_suite'," ""
+    '');
+
+
     buildPhase = ''
       export PYTHONPATH=$PYTHONPATH:controller/src/config/common/:build/production/config/api-server/vnc_cfg_api_server/gen/
       scons -j1 --optimization=production controller/src/config
