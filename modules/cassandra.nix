@@ -5,10 +5,17 @@ with lib;
 let
   cfg = config.services.cassandra;
 
-  cassandraPkg = pkgs.cassandra_2_1.override {jre = pkgs.jre7;};
+  cassandraPkg = pkgs.cassandra_3_0.overrideAttrs (oldAttrs: {
+    name = "cassandra-3.5.0";
+    src = pkgs.fetchurl {
+      sha256="0kxz62s6wcnf1xdki79saks50rs0z4q86c87fk37nmjkz86rjxdm";
+      url = "mirror://apache/cassandra/3.5/apache-cassandra-3.5-bin.tar.gz";
+    };
+  });
+
   cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
     mkdir -p $out
-    cat ${pkgs.cassandra_2_1}/conf/cassandra.yaml > $out/cassandra.yaml
+    cat ${cassandraPkg}/conf/cassandra.yaml > $out/cassandra.yaml
     cat >> $out/cassandra.yaml << EOF
     data_file_directories:
         - /tmp/cassandra-data/data
@@ -16,6 +23,9 @@ let
         - /tmp/cassandra-data/commitlog
     saved_caches_directory:
         - /tmp/cassandra-data/saved_caches
+    hints_directory:
+        - /tmp/cassandra-data/hints
+    start_rpc: true
     EOF
 
     cat >> $out/logback.xml << EOF
@@ -75,10 +85,11 @@ in {
         mkdir -p /tmp/cassandra-data/
         chmod a+w /tmp/cassandra-data
         export CASSANDRA_CONF=${cassandraConfigDir}
+        export CASSANDRA_LIBJEMALLOC=${pkgs.jemalloc}/lib/libjemalloc.so
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
-        ${cassandraPkg}/bin/cassandra -f
+        ${cassandraPkg}/bin/cassandra -f -R
       '';
       postStart = ''
         sleep 2
