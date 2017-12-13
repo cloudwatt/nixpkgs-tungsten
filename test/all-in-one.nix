@@ -311,8 +311,8 @@ let
       $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
       $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
 
-      $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
-      $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
+      # $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
+      # $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
       '';
     in if isContrail32 then contrail32 else contrailMaster;
 in

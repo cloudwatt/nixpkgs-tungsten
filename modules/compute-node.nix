@@ -17,7 +17,7 @@ let
       
       [CONTROL-NODE]
       ${optionalString isContrail32 ("server = " + cfg.controlHost)}
-      ${optionalString isContrailMaster ("servers = " + cfg.controlHost)}
+      ${optionalString isContrailMaster ("servers = " + cfg.controlHost + ":5269")}
 
       [DISCOVERY]
       port = 5998
@@ -67,7 +67,7 @@ in {
       };
       controlHost = mkOption {
         type = types.str;
-        default = "127.0.0.1";
+        default = "192.168.1.1";
       };
     };
   };
