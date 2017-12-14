@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Usage example
-# URL=http://localhost:30000 bash doc/create-project.sh
+# URL=http://localhost:30000 bash ci/create-project.sh
 
 set -e
 
@@ -62,7 +62,7 @@ echo -e "\nCreating jobset testing:"
 cat >data.json <<EOF
 {
   "description": "Build testing branch of nixpkgs-contrail",
-  "checkinterval": "864000",
+  "checkinterval": "60",
   "enabled": "1",
   "visible": "1",
   "nixexprinput": "contrail",
