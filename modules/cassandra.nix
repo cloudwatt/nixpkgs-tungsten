@@ -6,10 +6,10 @@ let
   cfg = config.services.cassandra;
 
   cassandraPkg = pkgs.cassandra_3_0.overrideAttrs (oldAttrs: {
-    name = "cassandra-3.5.0";
+    name = "cassandra-3.11.1";
     src = pkgs.fetchurl {
-      sha256="0kxz62s6wcnf1xdki79saks50rs0z4q86c87fk37nmjkz86rjxdm";
-      url = "mirror://apache/cassandra/3.5/apache-cassandra-3.5-bin.tar.gz";
+      sha256="1vgh4ysnl4xg8g5v6zm78h3sq308r7s17ppbw0ck4bwyfnbddvkg";
+      url = "mirror://apache/cassandra/3.11.1/apache-cassandra-3.11.1-bin.tar.gz";
     };
   });
 
@@ -85,7 +85,6 @@ in {
         mkdir -p /tmp/cassandra-data/
         chmod a+w /tmp/cassandra-data
         export CASSANDRA_CONF=${cassandraConfigDir}
-        export CASSANDRA_LIBJEMALLOC=${pkgs.jemalloc}/lib/libjemalloc.so
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
         export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
