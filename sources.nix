@@ -53,12 +53,12 @@
     rev = "bed878908a8bc83b671ffa881d0f9f4dcacdf058";
     sha256 = "1ayzmwr33r0dml5zr5vcmh300ih68i03s44m57yww7xjs54v0rh0";
   };
-  # Head of branch master of repository github.com/Juniper/contrail-vrouter at 2017-12-12 09:01:13
+  # Head of branch master of repository github.com/Juniper/contrail-vrouter at 2017-12-14 12:13:01
   vrouter = pkgs.fetchFromGitHub {
     owner = "Juniper";
     repo = "contrail-vrouter";
-    rev = "7e1320e09d6cdc828ed20eca5ad5f35c0252cead";
-    sha256 = "1a7drgxzk3sxap6vk775zl70nkwisvg41ahcjjy2vd6dg4diqrla";
+    rev = "b95f3489a70b1fdf4a5ad818a95c003af3049bf5";
+    sha256 = "1nxgvndnl94di3zzw5s21mi594dhs8rx1lpwwbz9isdbxapqn89q";
   };
   # Head of branch master of repository github.com/Juniper/contrail-web-controller at 2017-12-12 09:01:24
   webController = pkgs.fetchFromGitHub {
