@@ -150,6 +150,26 @@ let
           redis_query_port = 6379
         '';
       };
+      schema = pkgs.writeTextFile {
+        name = "contrail-schema.conf";
+        text = ''
+          [DEFAULTS]
+          log_file = /var/log/contrail/contrail-schema.log
+          log_local = 1
+          log_level = SYS_DEBUG
+
+          rabbit_port = 5672
+          rabbit_server = localhost
+
+          zk_server_port = 2181
+          zk_server_ip = localhost
+
+          cassandra_server_list = localhost:9160
+
+          api_server_port = 8082
+          api_server_ip = localhost
+        '';
+      };
       control32 = import ./configuration/R3.2/control.nix { inherit pkgs; };
       controlMaster = import ./configuration/master/control.nix { inherit pkgs; };
       control = if isContrail32 then control32 else controlMaster;
@@ -199,6 +219,13 @@ let
             done
             sleep 2
           '';
+        };
+
+        systemd.services.contrailSchema = {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
+          preStart = "mkdir -p /var/log/contrail/";
+          script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${schema}";
         };
 
         systemd.services.contrailSvcMonitor = {

@@ -27,7 +27,7 @@ in {
             vms;
     };
   contrailMaster = with contrailPkgs; {
-    inherit configUtils api svcMonitor
+    inherit configUtils api svcMonitor schemaTransformer
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
             collector analyticsApi
