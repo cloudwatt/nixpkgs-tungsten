@@ -173,11 +173,11 @@ let
 
         virtualisation = { memorySize = 4096; cores = 2; };
 
-        # Required by the test suite
+
         environment.systemPackages = [
-          pkgs.jq # contrailDeps.contrailApiCli
-          contrailPkgs.configUtils
-          contrailCreateNetwork
+          contrailPkgs.tools.contrailApiCliWithExtra
+          # Required by the test suite
+          pkgs.jq contrailPkgs.configUtils contrailCreateNetwork
         ];
 
         contrail.vrouterAgent.enable = true;
