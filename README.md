@@ -95,7 +95,7 @@ builds a script to run a compute node with QEMU.
 
 Once built, the VM can be run
 ```
-$ QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/nixos-run-vms
+$ QEMU_NET_OPTS="hostfwd=tcp::2222-:22,guestfwd=tcp:10.0.2.201:5998-tcp:127.0.0.1:5998" ./result/bin/nixos-run-vms
 ```
 
 and reached with
@@ -107,7 +107,7 @@ Password: root
 
 A default configuration file is generated. By default, the agent
 tryies to contact the controller, discovery and collector by using
-the IP `172.16.42.42` which could be overriden at build time in
+the IP `10.0.2.200` which could be overriden at build time in
 `tools/build-vms.nix`.
 
 

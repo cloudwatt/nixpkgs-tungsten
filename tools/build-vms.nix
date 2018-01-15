@@ -15,10 +15,11 @@ let
 
       contrail.vrouterAgent = {
         enable = true;
-        provisionning = false;
-        collectorHost = "172.16.42.42";
-        discoveryHost = "172.16.42.42";
-        controlHost = "172.16.42.42";
+        provisionning = true;
+        collectorHost = "10.0.2.200";
+        discoveryHost = "10.0.2.200";
+        controlHost = "10.0.2.200";
+        apiHost= "10.0.2.200";
       };
     };
   };

@@ -69,6 +69,10 @@ in {
         type = types.str;
         default = "192.168.1.1";
       };
+      apiHost = mkOption {
+        type = types.str;
+        default = "127.0.0.1";
+      };
     };
   };
 
@@ -89,7 +93,7 @@ in {
         (mkIf cfg.provisionning "contrailApi.service") ];
       preStart = "mkdir -p /var/log/contrail/";
       script = "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
-      postStart = mkIf cfg.provisionning "${contrailPkgs.configUtils}/bin/provision_vrouter.py  --api_server_ip 127.0.0.1 --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
+      postStart = mkIf cfg.provisionning "${contrailPkgs.configUtils}/bin/provision_vrouter.py  --api_server_ip ${cfg.apiHost} --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
     };
 
     systemd.services.configureVhostInterface = {
