@@ -1,6 +1,10 @@
 { pkgs, python }:
 
 self: super: {
+  "datrie" = python.overrideDerivation super."datrie" (old: {
+    buildInputs = old.buildInputs ++ [ pkgs.pythonPackages."pytestrunner" ];
+  });
+
   "contrail-api-cli-with-extra" = with self; let
       # I tryied to override contrail-api-cli attribute by adding
       # contrail-api-cli-extra in propagatedBuildInputs but entry
