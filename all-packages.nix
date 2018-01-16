@@ -4,7 +4,9 @@
 }:
 
 self:
-let callPackage = pkgs.lib.callPackageWith self;
+let
+  callPackage = pkgs.lib.callPackageWith self;
+  callPackages = pkgs.lib.callPackagesWith self;
 in
 pkgs // {
   # This is to allow callPackage to fill pkgs
@@ -59,7 +61,7 @@ pkgs // {
     webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 
-  vms = callPackage ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
+  vms = callPackages ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
 
   tools.contrailIntrospectCli = callPackage ./tools/contrail-introspect-cli {};
   tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli {};
