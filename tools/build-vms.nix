@@ -28,6 +28,8 @@ in
 rec {
   computeNode = (makeTest { name = "compute-node"; machine = config; testScript = ""; }).driver;
 
+  # This image is quiet big. There are some dependencies that should
+  # be removed.
   computeNodeDockerImage = pkgs.dockerTools.buildImage {
     name = "vrouter";
     config = {
