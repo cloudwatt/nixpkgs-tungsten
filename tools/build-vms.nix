@@ -3,11 +3,12 @@
 with import (pkgs_path + "/nixos/lib/testing.nix") { system = builtins.currentSystem; };
 
 let
-  computeNode = { pkgs, lib, config, ... }: {
+  config = { pkgs, lib, config, ... }: {
     imports = [ ../modules/compute-node.nix ];
     config = {
       _module.args = { inherit contrailPkgs isContrailMaster isContrail32; };
 
+      networking.firewall.enable = false;
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
       users.extraUsers.root.password = "root";
@@ -24,7 +25,18 @@ let
     };
   };
 in
-{ computeNode = (makeTest { name = "compute-node"; machine = computeNode; testScript = ""; }).driver;
+rec {
+  computeNode = (makeTest { name = "compute-node"; machine = config; testScript = ""; }).driver;
+
+  computeNodeDockerImage = pkgs.dockerTools.buildImage {
+    name = "vrouter";
+    config = {
+      Cmd = [ "${computeNode}/bin/nixos-run-vms" ];
+      Env = [ ''
+        QEMU_NET_OPTS=hostfwd=udp::51234-:51234,hostfwd=tcp::22-:22,hostfwd=tcp::8085-:8085,guestfwd=tcp:10.0.2.200:5998-tcp:discovery:5998,guestfwd=tcp:10.0.2.200:8082-tcp:api:8082''
+      ];
+    };
+  };
 }
 
 
