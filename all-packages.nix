@@ -67,6 +67,7 @@ pkgs // {
   tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli {};
   tools.gremlinConsole = callPackage ./tools/gremlin-console {};
   tools.gremlinDump = callPackage ./tools/gremlin-dump {};
+  tools.gremlinChecks = callPackage ./tools/gremlin-checks { contrailPkgs = self; };
 }
 //  
 (with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
