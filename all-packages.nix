@@ -65,7 +65,7 @@ pkgs // {
 
   tools.contrailIntrospectCli = callPackage ./tools/contrail-introspect-cli {};
   tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli {};
-  tools.gremlin = callPackage ./tools/gremlin {};
+  tools.gremlinConsole = callPackage ./tools/gremlin-console {};
   tools.gremlinDump = callPackage ./tools/gremlin-dump {};
 }
 //  
