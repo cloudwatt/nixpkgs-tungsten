@@ -7,8 +7,7 @@ let
   };
 in
 {
-  gremlinChecks = pkgs.writeScriptBin "gremlin-checks" ''
-#!${stdenv.shell}
+  gremlinChecks = pkgs.writeShellScriptBin "gremlin-checks" ''
 ${contrailPkgs.tools.contrailGremlin}/bin/gremlin-dump /tmp/dump.gson && ${contrailPkgs.tools.gremlinConsole}/bin/gremlin-console -i ${gremlinChecksScript} /tmp/dump.gson
 '';
 }

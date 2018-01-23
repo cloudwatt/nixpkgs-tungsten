@@ -21,8 +21,7 @@ rec {
     '';
   };
 
-  gremlinServerContrail = pkgs.writeScriptBin "gremlin-server-contrail" ''
-#!${stdenv.shell}
+  gremlinServerContrail = pkgs.writeShellScriptBin "gremlin-server-contrail" ''
 ${gremlinServer}/bin/gremlin-server ${contrailPkgs.tools.contrailGremlin}/conf/gremlin-server-contrail.yaml
 '';
 
