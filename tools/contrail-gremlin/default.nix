@@ -16,6 +16,11 @@ buildGoPackage rec {
 
   goDeps = ./deps.nix;
 
+  postInstall = ''
+    mkdir -p $bin/conf
+    cp -v go/src/github.com/eonpatapon/contrail-gremlin/conf/* $bin/conf
+  '';
+
   # TODO: add metadata https://nixos.org/nixpkgs/manual/#sec-standard-meta-attributes
   meta = {
   };
