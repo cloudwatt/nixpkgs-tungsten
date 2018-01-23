@@ -2,19 +2,17 @@
 { stdenv, buildGoPackage, fetchgit, fetchhg, fetchbzr, fetchsvn }:
 
 buildGoPackage rec {
-  name = "contrail-gremlin-dump-${version}";
-  version = "2018-01-19";
-  rev = "7eb9424cec6b4ff239d4a1fe667debc2db41ed1d";
+  name = "contrail-gremlin-${version}";
+  version = "2018-01-23";
+  rev = "26a6c607c29ca768c77642681aba5bd93fa242a5";
 
   goPackagePath = "github.com/eonpatapon/contrail-gremlin";
 
   src = fetchgit {
     inherit rev;
     url = "https://github.com/eonpatapon/contrail-gremlin.git";
-    sha256 = "1vqldfwjzsqk31884cpzd5fqlyjymiazb728si8x6q7ibr7g8mlp";
+    sha256 = "15206w8w7gng03cqpnaz9yqwc9q46i5xaciizgqgpxlc8n9n2x2r";
   };
-
-  subPackages = [ "gremlin-dump" ];
 
   goDeps = ./deps.nix;
 

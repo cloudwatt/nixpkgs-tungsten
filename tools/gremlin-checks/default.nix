@@ -9,7 +9,7 @@ rec {
 
   gremlinChecks= pkgs.writeScriptBin "gremlin-checks" ''
 #!${pkgs.bash}/bin/bash
-${contrailPkgs.tools.gremlinDump}/bin/gremlin-dump /tmp/dump.gson && ${contrailPkgs.tools.gremlinConsole}/bin/gremlin -i ${gremlinChecksScript} /tmp/dump.gson
+${contrailPkgs.tools.contrailGremlin}/bin/gremlin-dump /tmp/dump.gson && ${contrailPkgs.tools.gremlinConsole}/bin/gremlin -i ${gremlinChecksScript} /tmp/dump.gson
   '';
 
 }
