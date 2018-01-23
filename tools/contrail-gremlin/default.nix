@@ -19,6 +19,7 @@ buildGoPackage rec {
   postInstall = ''
     mkdir -p $bin/conf
     cp -v go/src/github.com/eonpatapon/contrail-gremlin/conf/* $bin/conf
+    sed -i "s!conf/\(.*\).properties!$bin/conf/\1.properties!" $bin/conf/*.yaml
   '';
 
   # TODO: add metadata https://nixos.org/nixpkgs/manual/#sec-standard-meta-attributes
