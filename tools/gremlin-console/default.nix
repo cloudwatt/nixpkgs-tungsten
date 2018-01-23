@@ -11,10 +11,10 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/{bin,opt}
     cp -r * $out/opt
-    ln -s $out/opt/bin/gremlin.sh $out/bin/gremlin
+    ln -s $out/opt/bin/gremlin.sh $out/bin/gremlin-console
   '';
   # Not sure /tmp/gremlin is a good choice...
   postFixup = ''
-    wrapProgram "$out/bin/gremlin" --prefix PATH ":" "${openjdk}/bin/" --set JAVA_OPTIONS -Dtinkerpop.ext=/tmp/gremlin/
+    wrapProgram "$out/bin/gremlin-console" --prefix PATH ":" "${openjdk}/bin/" --set JAVA_OPTIONS -Dtinkerpop.ext=/tmp/gremlin/
   '';
 }

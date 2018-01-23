@@ -66,6 +66,7 @@ pkgs // {
   tools.contrailIntrospectCli = callPackage ./tools/contrail-introspect-cli {};
   tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli {};
   tools.gremlinConsole = callPackage ./tools/gremlin-console {};
+  tools.gremlinServer = callPackage ./tools/gremlin-server {};
   tools.gremlinChecks = callPackage ./tools/gremlin-checks { contrailPkgs = self; };
   tools.contrailGremlin = callPackage ./tools/contrail-gremlin {};
 }
