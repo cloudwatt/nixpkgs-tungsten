@@ -17,7 +17,7 @@ rec {
     '';
     # Not sure /tmp/gremlin is a good choice...
     postFixup = ''
-      wrapProgram "$out/bin/gremlin-server" --prefix PATH ":" "${openjdk}/bin/" --set JAVA_OPTIONS -Dtinkerpop.ext=/tmp/gremlin/
+      wrapProgram "$out/bin/gremlin-server" --prefix PATH ":" "${openjdk}/bin/" --suffix JAVA_OPTIONS " " "-Dtinkerpop.ext=/tmp/gremlin/"
     '';
   };
 
