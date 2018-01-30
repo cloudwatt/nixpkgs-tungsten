@@ -47,6 +47,13 @@ in {
         type = types.bool;
         default = false;
       };
+      configurationFilepath = mkOption {
+        type = types.str;
+        default = "";
+        description = ''To specify a alternative configuration
+          filepath. The generated configuration file is no longer
+          used.'';
+      };
       provisionning = mkOption {
         type = types.bool;
         default = true;
@@ -92,7 +99,9 @@ in {
         "network.target"
         (mkIf cfg.provisionning "contrailApi.service") ];
       preStart = "mkdir -p /var/log/contrail/";
-      script = "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}";
+      script = if cfg.configurationFilepath == ""
+        then "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agent}"
+        else "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configurationFilepath}";
       postStart = mkIf cfg.provisionning "${contrailPkgs.configUtils}/bin/provision_vrouter.py  --api_server_ip ${cfg.apiHost} --api_server_port 8082 --oper add --host_name machine --host_ip 192.168.1.1";
     };
 
