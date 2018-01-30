@@ -80,6 +80,11 @@ in {
         type = types.str;
         default = "127.0.0.1";
       };
+      contrailInterface = mkOption {
+        type = types.str;
+        default = "eth0";
+        description = "Physical interface name to which virtual host interface maps to";
+      };
     };
   };
 
@@ -110,12 +115,26 @@ in {
       serviceConfig.RemainAfterExit = true;
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
+      before = [ "contrailVrouterAgent.service" ];
       path = [ pkgs.iproute contrailPkgs.vrouterUtils ];
       script = ''
-        vif --create vhost0 --mac $(cat /sys/class/net/eth1/address)
-        vif --add vhost0 --mac $(cat /sys/class/net/eth1/address) --vrf 0 --xconnect eth1 --type vhost
-        vif --add eth1 --mac $(cat /sys/class/net/eth0/address) --vrf 0 --vhost-phys --type physical
+        set -x
+        sleep 2
+        CONTRAIL_INTERFACE=${cfg.contrailInterface}
+        vif --create vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address)
+        vif --add $CONTRAIL_INTERFACE --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) --vrf 0 --vhost-phys --type physical
+        vif --add vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) --vrf 0 --xconnect $CONTRAIL_INTERFACE --type vhost
         ip link set vhost0 up
+
+        # Warning, this doesn't work if a default route is installed
+        # on the CONTRAIL_INTERFACE.
+        ROUTE=$(ip r | grep $CONTRAIL_INTERFACE | sed 's/\(.*\) dev.*/\1/')
+        IP=$(ip a show $CONTRAIL_INTERFACE | grep "inet "| sed 's/.*inet \(.*\) scope.*/\1/')
+        ip a del $IP dev $CONTRAIL_INTERFACE
+        ip a add $IP dev vhost0
+        ip r del $ROUTE dev $CONTRAIL_INTERFACE || true
+        ip r add $ROUTE dev vhost0
+        sleep 1
       '';
     };
   };
