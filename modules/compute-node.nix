@@ -98,6 +98,17 @@ in {
       contrailPkgs.vrouterNetns
     ];
     
+    # This is to prevent the netns-daemon-start to update resolv.conf
+    # (since it is using dhclient).
+    environment.etc.dhclient-enter-hooks = {
+      text = ''
+        #!/bin/sh
+        make_resolv_conf() {
+        echo "doing nothing to resolv.conf"
+        }'';
+      mode = "0555";
+    };
+
     systemd.services.contrailVrouterAgent = {
       wantedBy = [ "multi-user.target" ];
       after = [
