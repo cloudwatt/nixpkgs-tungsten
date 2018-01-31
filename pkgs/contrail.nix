@@ -175,8 +175,7 @@ rec {
     '';
   };
 
-
-  vrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
+  lib.buildVrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
     name = "contrail-vrouter-${kernelHeaders.name}";
     version = "3.2";
     src = workspace;
