@@ -194,8 +194,8 @@ rec {
       # https://github.com/NixOS/nixpkgs/issues/34006.
       # Note this is only used with Nix kernel headers.
       cp -r ${kernelHeaders} kernel-headers
-      chmod -R u+w kernel-headers
-      sed -i "s|MAKEARGS := -C /nix/store/.*-linux-${KERNEL_VERSION}-dev/lib/modules/${KERNEL_VERSION}/source|MAKEARGS := -C $PWD/kernel-headers/lib/modules/${KERNEL_VERSION}/source|" kernel-headers/lib/modules/${KERNEL_VERSION}/build/Makefile
+      chmod -R a+w kernel-headers
+      sed -i "s|MAKEARGS := -C /nix/store/.*-linux-${KERNEL_VERSION}-dev/lib/modules/${KERNEL_VERSION}/source|MAKEARGS := -C $PWD/kernel-headers/lib/modules/${KERNEL_VERSION}/source|" kernel-headers/lib/modules/${KERNEL_VERSION}/build/Makefile || true
 
       kernelSrc=$(echo $PWD/kernel-headers/lib/modules/*/build/)
       scons --optimization=production --kernel-dir=$kernelSrc vrouter/vrouter.ko
