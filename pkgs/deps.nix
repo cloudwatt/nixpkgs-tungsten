@@ -126,5 +126,18 @@ rec {
     propagatedBuildInputs = with pkgs.python27Packages; [ setuptools ];
   };
 
+  gremlinPython = with pkgs.python27Packages; buildPythonPackage rec {
+    pname = "gremlinpython";
+    version = "3.3.1";
+    name = "${pname}-${version}";
+
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "119pziz0lysrqjfj6ffks3r6dlhr4blgspl9sx01lzdksgswbdl9";
+    };
+
+    doCheck = false;
+    propagatedBuildInputs = [ six aenum futures tornado ];
+  };
 
 }

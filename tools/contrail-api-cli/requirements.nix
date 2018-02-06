@@ -5,8 +5,7 @@
 #   pypi2nix -V 2.7 -e contrail-api-cli-extra
 #
 
-{ pkgs ? import <nixpkgs> {}
-}:
+{ contrailPkgs, pkgs ? import <nixpkgs> {} }:
 
 let
 
@@ -194,7 +193,6 @@ let
         description = "Supplementary commands for contrail-api-cli";
       };
     };
-
 
 
     "datrie" = python.mkDerivation {
@@ -833,7 +831,7 @@ let
     };
 
   };
-  overrides = import ./requirements_override.nix { inherit pkgs python; };
+  overrides = import ./requirements_override.nix { inherit contrailPkgs pkgs python; };
   commonOverrides = [
 
   ];
