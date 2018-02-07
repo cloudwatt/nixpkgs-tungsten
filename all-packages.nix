@@ -64,7 +64,7 @@ pkgs // {
   vms = callPackages ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
 
   tools.contrailIntrospectCli = callPackage ./tools/contrail-introspect-cli {};
-  tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli { contrailPkgs = self; };
+  tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli { pkgs = pkgs // { contrailPkgs = self; }; };
   tools.gremlinConsole = callPackage ./tools/gremlin-console {};
   tools.gremlinServer = callPackage ./tools/gremlin-server { contrailPkgs = self; };
   tools.gremlinChecks = callPackage ./tools/gremlin-checks { contrailPkgs = self; };
