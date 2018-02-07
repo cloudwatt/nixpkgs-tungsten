@@ -111,34 +111,6 @@ rec {
     propagatedBuildInputs = [ pkgs.pythonPackages.thrift ];
   };
 
-  promptToolkit = pkgs.pythonPackages.buildPythonPackage rec {
-    pname = "prompt_toolkit";
-    version = "1.0.15";
-    name = "${pname}-${version}";
-    src = pkgs.pythonPackages.fetchPypi {
-      inherit pname version;
-      sha256 = "05v9h5nydljwpj5nm8n804ms0glajwfy1zagrzqrg91wk3qqi1c5";
-    };
-    propagatedBuildInputs = with pkgs.pythonPackages; [ wcwidth six ];
-  };
-
-  contrailApiCli = pkgs.python27Packages.buildPythonApplication {
-    name = "contrail-api-cli";
-    version = "0";
-    src = pkgs.fetchFromGitHub {
-      owner = "eonpatapon";
-      repo = "contrail-api-cli";
-      rev = "6a2777f2f8354a624fc5919befd5c4afc4192aba";
-      sha256 = "0xp3kiyih2fi55syfspsb3sz5ha9nilxs0c7yssryg0zjlcvp4in";
-    };
-    buildInputs = with pkgs.python27Packages; [
-      funcsigs mock
-    ];
-    propagatedBuildInputs = with pkgs.python27Packages; [
-      pathlib gevent promptToolkit pygments keystoneauth1 datrie
-    ];
-  };
-
   # This version is required by contrail-api. With version 0.12.11,
   # contrail-api fails to read any objects with a useless error
   # message...
