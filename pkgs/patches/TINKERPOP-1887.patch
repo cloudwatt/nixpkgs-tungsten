@@ -1,0 +1,38 @@
+commit 0856ab94112f100225e7211423b8d688ef693c48
+Author: Jean-Philippe Braun <eon@patapon.info>
+Date:   Mon Feb 12 13:57:21 2018 +0100
+
+    TINKERPOP-1887 Allow to use bindings in predicates
+    
+    Currently the python GLV does not allow to have bindings in predicates,
+    eg:
+    
+        g.V().has('foo', lt(('bar', 10)))
+        g.V().has('foo', inside(('a', 10), ('b', 20)))
+    
+    This patch fixes this
+
+diff --git a/gremlin-python/src/main/jython/gremlin_python/process/traversal.py b/gremlin-python/src/main/jython/gremlin_python/process/traversal.py
+index 6e88d0204a..ece84a07b3 100644
+--- a/gremlin-python/src/main/jython/gremlin_python/process/traversal.py
++++ b/gremlin-python/src/main/jython/gremlin_python/process/traversal.py
+@@ -403,6 +403,19 @@ class Bytecode(object):
+         if isinstance(arg, Traversal):
+             self.bindings.update(arg.bytecode.bindings)
+             return arg.bytecode
++        elif isinstance(arg, P):
++            binding = self.__convertArgument(arg.value)
++            if isinstance(binding, Binding):
++                arg.value = binding.value
++            else:
++                arg.value = binding
++            if arg.other is not None:
++                binding = self.__convertArgument(arg.other)
++                if isinstance(binding, Binding):
++                    arg.other = binding.value
++                else:
++                    arg.other = binding
++            return arg
+         elif isinstance(arg, dict):
+             newDict = {}
+             for key in arg:

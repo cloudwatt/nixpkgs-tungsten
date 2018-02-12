@@ -136,6 +136,9 @@ rec {
       sha256 = "119pziz0lysrqjfj6ffks3r6dlhr4blgspl9sx01lzdksgswbdl9";
     };
 
+    patchFlags = "-p5";
+    patches = ./patches/TINKERPOP-1887.patch;
+
     doCheck = false;
     propagatedBuildInputs = [ six aenum futures tornado pytestrunner ];
   };
