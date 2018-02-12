@@ -1,0 +1,13 @@
+diff --git a/gremlin-fsck/gremlin_fsck/fsck.py b/gremlin-fsck/gremlin_fsck/fsck.py
+index 1679238..141eccd 100644
+--- a/gremlin-fsck/gremlin_fsck/fsck.py
++++ b/gremlin-fsck/gremlin_fsck/fsck.py
+@@ -92,7 +92,7 @@ class Fsck(Command):
+             return graph.traversal().withRemote(
+                 DriverRemoteConnection('ws://%s/gremlin' % self.gremlin_server, 'g')
+             ).withStrategies(
+-                SubgraphStrategy(vertices=__.has('updated', lt(time_point)).has('deleted', 0))
++                SubgraphStrategy(vertices=__.has('updated', lt(('_time_point', time_point))).has('deleted', 0))
+             )
+         except (HTTPError, socket.error) as e:
+             raise CommandError('Failed to connect to Gremlin server: %s' % e)
