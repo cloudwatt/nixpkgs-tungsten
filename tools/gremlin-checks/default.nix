@@ -7,5 +7,5 @@ let
   };
 in
   pkgs.writeShellScriptBin "gremlin-checks" ''
-${contrailPkgs.tools.contrailGremlin}/bin/gremlin-dump /tmp/dump.gson && ${contrailPkgs.tools.gremlinConsole}/bin/gremlin-console -i ${gremlinChecksScript} /tmp/dump.gson
+    ${contrailPkgs.tools.gremlinConsole}/bin/gremlin-console -i ${gremlinChecksScript} $1
 ''
