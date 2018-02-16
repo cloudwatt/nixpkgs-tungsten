@@ -11,7 +11,8 @@ with pkgs.pythonPackages; buildPythonPackage rec {
     cd gremlin-fsck
   '';
 
-  patches = ../../pkgs/patches/TINKERPOP-1887-fsck.patch;
+  patchFlags = "-p2";
+  patch = ../../pkgs/patches/TINKERPOP-1887-fsck.patch;
 
   doCheck = false;
   propagatedBuildInputs = [
