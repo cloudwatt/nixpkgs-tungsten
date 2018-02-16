@@ -13,8 +13,7 @@ stdenv.mkDerivation rec {
     cp -r * $out/opt
     ln -s $out/opt/bin/gremlin.sh $out/bin/gremlin-console
   '';
-  # Not sure /tmp/gremlin is a good choice...
   postFixup = ''
-    wrapProgram "$out/bin/gremlin-console" --prefix PATH ":" "${openjdk}/bin/" --suffix JAVA_OPTIONS " " "-Dtinkerpop.ext=/tmp/gremlin/"
+    wrapProgram "$out/bin/gremlin-console" --prefix PATH ":" "${openjdk}/bin/"
   '';
 }
