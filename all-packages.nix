@@ -67,8 +67,8 @@ pkgs // {
   tools.contrailApiCliWithExtra = callPackage ./tools/contrail-api-cli { pkgs = pkgs // { contrailPkgs = self; }; };
   tools.gremlinConsole = callPackage ./tools/gremlin-console {};
   tools.gremlinServer = callPackage ./tools/gremlin-server { contrailPkgs = self; };
-  tools.gremlinChecks = callPackage ./tools/gremlin-checks { contrailPkgs = self; };
   tools.contrailGremlin = callPackage ./tools/contrail-gremlin {};
+  tools.gremlinChecks = callPackage ./tools/contrail-gremlin/checks.nix { contrailPkgs = self; };
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
 }
 //  
