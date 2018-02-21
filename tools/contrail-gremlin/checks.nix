@@ -1,7 +1,7 @@
-{ contrailPkgs, pkgs, fetchgit, stdenv }:
+{ contrailPkgs, pkgs, fetchFromGitHub, stdenv }:
 
 let
-  src = (import ./sources.nix) fetchgit;
+  src = (import ./sources.nix) fetchFromGitHub;
 in
   pkgs.writeShellScriptBin "gremlin-checks" ''
     if [ "" == "$1" ]; then

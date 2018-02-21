@@ -1,7 +1,8 @@
-fetchgit:
+fetchFromGitHub:
 
-fetchgit {
-  url = "https://github.com/eonpatapon/contrail-gremlin.git";
-  rev = "c47c44f2eef2d8c4b8ba24daa3c8d475f115f962";
-  sha256 = "16m7jlyj65mp7bjmiiqsizh7fjld6v6vg5fza69lxybbgiw5rcpj";
+fetchFromGitHub {
+  owner = "eonpatapon";
+  repo = "contrail-gremlin";
+  rev = "856f57ceb7f898e18e226fcd4492887ec7e87fd7";
+  sha256 = "0rwz1mxn6w98b6lnyil1kq5c3v5zmqaw5dk0gnxrc9xjrv5hqdfk";
 }
