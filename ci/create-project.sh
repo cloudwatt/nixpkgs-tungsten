@@ -39,6 +39,7 @@ cat >data.json <<EOF
   "checkinterval": "60",
   "enabled": "1",
   "visible": "1",
+  "keepnr": "1",
   "nixexprinput": "contrail",
   "nixexprpath": "jobset.nix",
   "inputs": {
@@ -65,6 +66,7 @@ cat >data.json <<EOF
   "checkinterval": "60",
   "enabled": "1",
   "visible": "1",
+  "keepnr": "1",
   "nixexprinput": "contrail",
   "nixexprpath": "jobset.nix",
   "inputs": {
@@ -90,6 +92,7 @@ cat >data.json <<EOF
   "checkinterval": "86400",
   "enabled": "1",
   "visible": "1",
+  "keepnr": "1",
   "nixexprinput": "contrail",
   "nixexprpath": "jobset.nix",
   "inputs": {
