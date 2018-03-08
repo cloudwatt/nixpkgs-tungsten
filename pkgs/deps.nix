@@ -140,4 +140,14 @@ rec {
     propagatedBuildInputs = [ six aenum futures tornado pytestrunner ];
   };
 
+  keystoneMiddleware =  with pkgs.python27Packages; buildPythonPackage rec {
+    pname = "keystonemiddleware";
+    version = "4.4.1";
+    name = "${pname}-${version}";
+
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "119priz0lysrqjfj6ffks3r6dlhr4blgspl9sx01lzdksgswbdl9";
+    };
+  };
 }

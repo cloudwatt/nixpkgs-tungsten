@@ -101,9 +101,9 @@ rec {
     name = "contrail-api-server";
     version = "3.2";
     src = "${contrailPython}/production/config/api-server/";
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pkgs.pythonPackages; with (import ./deps/keystonemiddleware/requirements.nix { inherit pkgs; }); [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces packages.keystonemiddleware
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
