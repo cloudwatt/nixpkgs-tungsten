@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{ pkgs, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster }:
+{ pkgs, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware }:
 
 with deps;
 with pkgs.lib;
@@ -101,9 +101,9 @@ rec {
     name = "contrail-api-server";
     version = "3.2";
     src = "${contrailPython}/production/config/api-server/";
-    propagatedBuildInputs = with pkgs.pythonPackages; with (import ./deps/keystonemiddleware/requirements.nix { inherit pkgs; }); [
+    propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces packages.keystonemiddleware
+      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces keystonemiddleware
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 

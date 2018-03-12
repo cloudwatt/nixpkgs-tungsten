@@ -56,6 +56,8 @@ pkgs // {
   control = callPackage ./pkgs/control.nix { };
   collector = callPackage ./pkgs/collector.nix { };
 
+  keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
+
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
     webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
@@ -72,6 +74,6 @@ pkgs // {
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
 }
 //  
-(with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster; })
+(with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware; })
 //
 (with self; import ./pkgs/webui.nix {inherit pkgs sources;})
