@@ -24,9 +24,10 @@ $ nix-channel --update
 
 We can easily install the `contrail-api` for instance:
 ```
-$ nix-env -i contrail-api-server
+$ nix-env -i contrail-api-server --option extra-binary-caches http://84.39.63.212 --option trusted-public-keys cache.opencontrail.org:OWF7nfkyJEPX4jYvOrcuelFUH4njVRJ6SDM6+xlFUOQ=
 $ contrail-api -h
 ```
+Note options can also be set in your `nix.conf` file.
 
 To list available packages on the channel
 ```
