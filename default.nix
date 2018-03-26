@@ -26,12 +26,12 @@ in {
             test
             vms;
     };
-  contrailMaster = with contrailPkgs; {
-    inherit configUtils api svcMonitor schemaTransformer
-            control
-            vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
-            collector analyticsApi
-            test;
-    };
+  # contrailMaster = with contrailPkgs; {
+  #   inherit configUtils api svcMonitor schemaTransformer
+  #           control
+  #           vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
+  #           collector analyticsApi
+  #           test;
+  #   };
   tools = contrailPkgs.tools;
   }
