@@ -1,6 +1,6 @@
-{pkgs, contrailBuildInputs, workspace, isContrailMaster }:
+{pkgs, stdenv, contrailBuildInputs, workspace, isContrailMaster }:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation {
   name = "contrail-control";
   version = "3.2";
   src = workspace;

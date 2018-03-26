@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{ pkgs, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware }:
+{pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware }:
 
 with deps;
 with pkgs.lib;
@@ -14,7 +14,9 @@ rec {
     version = "0";
     name = "${pname}-${version}";
     src = "${contrailPython}/production/api-lib";
-    propagatedBuildInputs = with pkgs.pythonPackages; [ requests ];
+    doCheck = false;
+    # buildInputs = [ pkgs.pythonPackages.fixtures ];
+    propagatedBuildInputs = with pkgs.pythonPackages; [ requests];
   };
 
   cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
@@ -52,7 +54,7 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
   };
 
-  contrailPython = pkgs.stdenv.mkDerivation rec {
+  contrailPython = stdenv.mkDerivation rec {
     name = "contrail-python";
     version = "3.2";
     src = workspace;
@@ -101,6 +103,7 @@ rec {
     name = "contrail-api-server";
     version = "3.2";
     src = "${contrailPython}/production/config/api-server/";
+    doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces keystonemiddleware
@@ -112,6 +115,7 @@ rec {
     name = "contrail-analytics-api";
     version = "3.2";
     src = "${contrailPython}/production/opserver/";
+    doCheck = false;
     prePatch = ''
       sed -i 's/sseclient/sseclient_py/' requirements.txt
     '';
@@ -128,6 +132,7 @@ rec {
     version = "3.2";
     src = "${contrailPython}/production/config/schema-transformer/";
     # To be cleaned
+    doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces jsonpickle
@@ -138,6 +143,7 @@ rec {
     name = "contrail-svc-monitor";
     version = "3.2";
     src = "${contrailPython}/noarch/config/svc-monitor/";
+    doCheck = false;
     # FIXME: make tests pass
     prePatch = ''
       sed -i '/test_suite/d' setup.py
@@ -152,6 +158,7 @@ rec {
     name = "contrail-discovery";
     version = "3.2";
     src = "${contrailPython}/production/discovery/";
+    doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       gevent pycassa
       # Not in requirements.txt...
@@ -172,37 +179,6 @@ rec {
     installPhase = ''
       mkdir -p $out/bin
       cp build/production/vrouter/utils/usr/bin/* $out/bin/
-    '';
-  };
-
-  lib.buildVrouter = kernelHeaders: pkgs.stdenv.mkDerivation rec {
-    name = "contrail-vrouter-${kernelHeaders.name}";
-    version = "3.2";
-    src = workspace;
-    USER="contrail";
-    KERNEL_VERSION=pkgs.lib.getVersion kernelHeaders;
-    # Remove it when https://review.opencontrail.org/#/c/38139/ is merged
-    patchPhase = optionalString isContrailMaster "cd vrouter; patch -p1 < ${../patches/0001-Fix-build-for-kernels-4.9.patch}; cd ..";
-    # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
-    buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 ];
-    buildPhase = ''
-      export hardeningDisable=pic
-
-      # We patch the kernel Makefile ONLY to reduce the closure
-      # size of the vrouter kernel module. Without this patch, the
-      # kernel source are referenced by the output path. See the issue
-      # https://github.com/NixOS/nixpkgs/issues/34006.
-      # Note this is only used with Nix kernel headers.
-      cp -r ${kernelHeaders} kernel-headers
-      chmod -R a+w kernel-headers
-      sed -i "s|MAKEARGS := -C /nix/store/.*-linux-${KERNEL_VERSION}-dev/lib/modules/${KERNEL_VERSION}/source|MAKEARGS := -C $PWD/kernel-headers/lib/modules/${KERNEL_VERSION}/source|" kernel-headers/lib/modules/${KERNEL_VERSION}/build/Makefile || true
-
-      kernelSrc=$(echo $PWD/kernel-headers/lib/modules/*/build/)
-      scons --optimization=production --kernel-dir=$kernelSrc vrouter/vrouter.ko
-    '';
-    installPhase = ''
-      mkdir -p $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
-      cp vrouter/vrouter.ko $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
     '';
   };
 
@@ -256,21 +232,5 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [
       docker netaddr vrouterApi eventlet vnc_api cfgm_common
     ];
-  };
-
-  queryEngine = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-query-engine";
-    version = "3.2";
-    src = workspace;
-    USER="contrail";
-    buildInputs = contrailBuildInputs;
-    buildPhase = ''
-      scons -j1 --optimization=production contrail-query-engine
-    '';
-    installPhase = ''
-      mkdir -p $out/{bin,etc/contrail}
-      cp build/production/query_engine/qed $out/bin/
-      cp ${workspace}/controller/src/query_engine/contrail-query-engine.conf $out/etc/contrail/
-    '';
   };
 }

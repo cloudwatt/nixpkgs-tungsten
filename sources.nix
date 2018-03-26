@@ -6,6 +6,7 @@
 {
   # Head of branch master of repository github.com/Juniper/contrail-build at 2017-12-12 09:00:45
   build = pkgs.fetchFromGitHub {
+    name = "build";
     owner = "Juniper";
     repo = "contrail-build";
     rev = "c0c0bc7fc99d700968ec3f055c899defe376a789";
@@ -13,6 +14,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-controller at 2017-12-12 09:00:47
   controller = pkgs.fetchFromGitHub {
+    name = "controller";
     owner = "Juniper";
     repo = "contrail-controller";
     rev = "273f91316a3ce8cfdc207d482af18060fbc404ee";
@@ -20,6 +22,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-common at 2017-12-12 09:01:03
   contrailCommon = pkgs.fetchFromGitHub {
+    name = "common";
     owner = "Juniper";
     repo = "contrail-common";
     rev = "37024c97efa219113b655057aaa25157d89da53f";
@@ -27,6 +30,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-generateds at 2017-12-12 09:01:06
   generateds = pkgs.fetchFromGitHub {
+    name = "generateds";
     owner = "Juniper";
     repo = "contrail-generateds";
     rev = "836c6d3fd0bfaf0b6c832db8827a45b14053c619";
@@ -34,6 +38,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-neutron-plugin at 2017-12-12 09:01:08
   neutronPlugin = pkgs.fetchFromGitHub {
+    name = "neutronPlugin";
     owner = "Juniper";
     repo = "contrail-neutron-plugin";
     rev = "4a92735088ff6784a26dad6974f68e4a0da6523b";
@@ -41,6 +46,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-sandesh at 2017-12-12 09:01:10
   sandesh = pkgs.fetchFromGitHub {
+    name = "sandesh";
     owner = "Juniper";
     repo = "contrail-sandesh";
     rev = "0f2c2d4400855d1e98847675aa7904fbdf2bf4ea";
@@ -55,6 +61,7 @@
   };
   # Head of branch master of repository github.com/Juniper/contrail-vrouter at 2017-12-14 12:13:01
   vrouter = pkgs.fetchFromGitHub {
+    name = "vrouter";
     owner = "Juniper";
     repo = "contrail-vrouter";
     rev = "b95f3489a70b1fdf4a5ad818a95c003af3049bf5";

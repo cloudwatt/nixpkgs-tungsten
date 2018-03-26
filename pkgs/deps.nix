@@ -15,7 +15,7 @@ rec {
     postInstall = "ln -s libgrok.so $out/lib/libgrok.so.1";
   };
 
-  cassandra-cpp-driver = pkgs.stdenv.mkDerivation rec {
+  cassandra-cpp-driver = (pkgs.overrideCC pkgs.stdenv pkgs.gcc6) .mkDerivation rec {
     name = "cassandra-cpp-driver";
     version = "2.7";
      src = pkgs.fetchFromGitHub {
@@ -27,7 +27,7 @@ rec {
 
     phases = [ "unpackPhase" "buildPhase" "installPhase" "fixupPhase"];
 
-    buildInputs = [ pkgs.cmake pkgs.libuv pkgs.openssl ];
+    buildInputs = [ pkgs.cmake pkgs.libuv pkgs.openssl pkgs.gcc6];
 
     buildPhase = ''
     mkdir build

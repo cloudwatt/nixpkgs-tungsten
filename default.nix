@@ -22,7 +22,7 @@ in {
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
             collector analyticsApi queryEngine
-            webCore webController
+#            webCore webController
             test
             vms;
     };

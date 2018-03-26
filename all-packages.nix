@@ -29,11 +29,12 @@ pkgs // {
   contrailBuildInputs = with pkgs; [
     scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
     # Global build deps
-    libkrb5 openssl libxml2 perl tbb curl
+    libkrb5 openssl libxml2 perl curl
     # This overriding should be avoided by patching log4cplus to
     # support older compilers.
+    (tbb.override{stdenv = pkgs.overrideCC stdenv gcc5;})
     (log4cplus.override{stdenv = pkgs.overrideCC stdenv gcc5;})
-    (boost155.override{stdenv = pkgs.overrideCC stdenv gcc5;})
+    (boost155.override{buildPackages.stdenv.cc = gcc5; stdenv = pkgs.overrideCC stdenv gcc5;})
 
     # api-server
     pythonPackages.lxml pythonPackages.pip
@@ -52,15 +53,16 @@ pkgs // {
   controller = callPackage ./pkgs/controller.nix { };
   workspace = callPackage ./pkgs/workspace.nix { };
 
-  vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { };
-  control = callPackage ./pkgs/control.nix { };
-  collector = callPackage ./pkgs/collector.nix { };
-
+  vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
+  control = callPackage ./pkgs/control.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
+  collector = callPackage ./pkgs/collector.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
+  queryEngine = callPackage ./pkgs/query-engine.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
+  lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
   keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
-    webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
+    # webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 
   vms = callPackages ./tools/build-vms.nix { contrailPkgs = self; pkgs_path = nixpkgs;};
@@ -72,8 +74,11 @@ pkgs // {
   tools.contrailGremlin = callPackage ./tools/contrail-gremlin {};
   tools.gremlinChecks = callPackage ./tools/contrail-gremlin/checks.nix { contrailPkgs = self; };
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
-}
-//  
-(with self; import ./pkgs/contrail.nix { inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware; })
-//
-(with self; import ./pkgs/webui.nix {inherit pkgs sources;})
+} // (
+  with self; import ./pkgs/contrail.nix {
+    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware;
+    stdenv = pkgs.overrideCC pkgs.stdenv gcc5;
+  })
+  # // (
+  # with self; import ./pkgs/webui.nix {inherit pkgs sources;
+  # })

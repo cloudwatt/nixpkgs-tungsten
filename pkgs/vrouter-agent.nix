@@ -1,13 +1,13 @@
-{pkgs, contrailBuildInputs, workspace, isContrailMaster }:
+{pkgs, stdenv, contrailBuildInputs, workspace, isContrailMaster }:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation {
   name = "contrail-vrouter-agent";
   version = "3.2";
   src = workspace;
   USER="contrail";
   # Only required on master
   dontUseCmakeConfigure = true;
-
+  NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable"; 
   buildInputs = contrailBuildInputs ++
     (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
   buildPhase = ''

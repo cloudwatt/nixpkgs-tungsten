@@ -6,6 +6,7 @@
 {
   # Head of branch R3.2 of repository github.com/Juniper/contrail-build at 2017-11-23 15:28:57
   build = pkgs.fetchFromGitHub {
+    name = "build";
     owner = "Juniper";
     repo = "contrail-build";
     rev = "a18e25f1fca9c2c75b02faa26189f74b87b9e61f";
@@ -13,6 +14,7 @@
   };
   # Head of branch R3.2 of repository github.com/Juniper/contrail-controller at 2017-11-23 15:28:58
   controller = pkgs.fetchFromGitHub {
+    name = "controller";
     owner = "Juniper";
     repo = "contrail-controller";
     rev = "912b816dbdee54bcb16912cf551ad2368aceeae8";
@@ -20,6 +22,7 @@
   };
   # Head of branch R3.2 of repository github.com/Juniper/contrail-generateds at 2017-11-23 15:29:33
   generateds = pkgs.fetchFromGitHub {
+    name = "generateds";
     owner = "Juniper";
     repo = "contrail-generateds";
     rev = "72ee410812e608c3791240fa053ae5a6aca1025e";
@@ -27,6 +30,7 @@
   };
   # Head of branch R3.2 of repository github.com/Juniper/contrail-neutron-plugin at 2017-11-23 15:29:36
   neutronPlugin = pkgs.fetchFromGitHub {
+    name = "neutronPlugin";
     owner = "Juniper";
     repo = "contrail-neutron-plugin";
     rev = "1760dc527b7ec240f3e7aa84d9fac96940df5578";
@@ -34,6 +38,7 @@
   };
   # Head of branch R3.2 of repository github.com/Juniper/contrail-sandesh at 2017-11-23 15:29:38
   sandesh = pkgs.fetchFromGitHub {
+    name = "sandesh";
     owner = "Juniper";
     repo = "contrail-sandesh";
     rev = "a68a299d8afa65b2951c0df4fcce071b1abb34f9";
@@ -48,6 +53,7 @@
   };
   # Head of branch R3.2 of repository github.com/Juniper/contrail-vrouter at 2017-11-23 15:29:43
   vrouter = pkgs.fetchFromGitHub {
+    name = "vrouter";
     owner = "Juniper";
     repo = "contrail-vrouter";
     rev = "4757381b3daed29381b11e2f4abc36d543c45437";
