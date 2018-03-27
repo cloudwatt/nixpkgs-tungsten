@@ -19,6 +19,16 @@ rec {
     propagatedBuildInputs = with pkgs.pythonPackages; [ requests];
   };
 
+  vnc_openstack = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "vnc_openstack";
+    version = "0";
+    name = "${pname}-${version}";
+    src = "${contrailPython}/production/config/vnc_openstack";
+    doCheck = false;
+    propagatedBuildInputs = with pkgs.pythonPackages;
+      [ gevent requests bottle_0_12_1 netaddr cfgm_common pysandesh vnc_api keystonemiddleware ];
+  };
+
   cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "cfgm_common";
     version = "0";
@@ -106,7 +116,7 @@ rec {
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces keystonemiddleware
+      kazoo vnc_api vnc_openstack sandesh_common kombu pyopenssl stevedore netifaces keystonemiddleware
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
