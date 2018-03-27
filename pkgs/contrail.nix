@@ -116,9 +116,6 @@ rec {
     version = "3.2";
     src = "${contrailPython}/production/opserver/";
     doCheck = false;
-    prePatch = ''
-      sed -i 's/sseclient/sseclient_py/' requirements.txt
-    '';
     propagatedBuildInputs = with pkgs.pythonPackages; [
      lxml geventhttpclient psutil redis bottle_0_12_1 xmltodict sseclient pycassa requests prettytable
      # Not in requirements.txt...
