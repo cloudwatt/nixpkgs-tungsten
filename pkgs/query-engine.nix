@@ -1,8 +1,8 @@
-{ stdenv, contrailBuildInputs, workspace }:
+{ stdenv, contrailBuildInputs, workspace, contrailVersion }:
 
-stdenv.mkDerivation {
-    name = "contrail-query-engine";
-    version = "3.2";
+stdenv.mkDerivation rec {
+    name = "contrail-query-engine-${version}";
+    version = contrailVersion;
     src = workspace;
     USER="contrail";
     buildInputs = contrailBuildInputs;

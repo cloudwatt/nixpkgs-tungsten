@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware }:
+{pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, contrailVersion }:
 
 with deps;
 with pkgs.lib;
@@ -109,9 +109,9 @@ rec {
     mkdir $out; cp -r build/* $out'';
   };
 
-  api =  pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-api-server";
-    version = "3.2";
+  api =  pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-api-server-${version}";
+    version = contrailVersion;
     src = "${contrailPython}/production/config/api-server/";
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
@@ -121,9 +121,9 @@ rec {
   };
 
   # Contains more than just the contrail-analytics-api!
-  analyticsApi =  pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-analytics-api";
-    version = "3.2";
+  analyticsApi =  pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-analytics-api-${version}";
+    version = contrailVersion;
     src = "${contrailPython}/production/opserver/";
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
@@ -134,9 +134,9 @@ rec {
       ++ (optional (!isContrail32)  [ kazoo ]);
   };
 
-  schemaTransformer =  pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-schema-transformer";
-    version = "3.2";
+  schemaTransformer =  pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-schema-transformer-${version}";
+    version = contrailVersion;
     src = "${contrailPython}/production/config/schema-transformer/";
     # To be cleaned
     doCheck = false;
@@ -146,9 +146,9 @@ rec {
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
-  svcMonitor = pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-svc-monitor";
-    version = "3.2";
+  svcMonitor = pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-svc-monitor-${version}";
+    version = contrailVersion;
     src = "${contrailPython}/noarch/config/svc-monitor/";
     doCheck = false;
     # FIXME: make tests pass
@@ -161,9 +161,9 @@ rec {
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
-  discovery =  pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-discovery";
-    version = "3.2";
+  discovery =  pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-discovery-${version}";
+    version = contrailVersion;
     src = "${contrailPython}/production/discovery/";
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
@@ -174,8 +174,8 @@ rec {
   };
 
   vrouterUtils = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-vrouter-utils";
-    version = "3.2";
+    name = "contrail-vrouter-utils-${version}";
+    version = contrailVersion;
     src = workspace;
     USER="contrail";
     NIX_CFLAGS_COMPILE="-I ${pkgs.libxml2.dev}/include/libxml2/";
@@ -190,8 +190,8 @@ rec {
   };
 
   configUtils = pkgs.stdenv.mkDerivation rec {
-   name = "contrail-config-utils";
-   version = "3.2";
+   name = "contrail-config-utils-${version}";
+   version = contrailVersion;
    src = workspace;
    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
    buildInputs = [
@@ -205,8 +205,8 @@ rec {
   };
 
   vrouterPortControl = pkgs.stdenv.mkDerivation rec {
-   name = "contrail-vrouter-port-control";
-   version = "3.2";
+   name = "contrail-vrouter-port-control-${version}";
+   version = contrailVersion;
    src = workspace;
    phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
    buildInputs = [
@@ -226,9 +226,9 @@ rec {
     src = "${workspace}/controller/src/vnsw/contrail-vrouter-api/";
   };
 
-  vrouterNetns =  pkgs.pythonPackages.buildPythonApplication {
-    name = "contrail-vrouter-netns";
-    version = "3.2";
+  vrouterNetns =  pkgs.pythonPackages.buildPythonApplication rec {
+    name = "contrail-vrouter-netns-${version}";
+    version = contrailVersion;
     src = "${workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";
     patchPhase = ''
       substituteInPlace requirements.txt --replace "docker-py" "docker"

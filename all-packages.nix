@@ -14,7 +14,7 @@ pkgs // {
 
   deps = callPackage ./pkgs/deps.nix { };
 
-  contrail32 = "R3.2";
+  contrail32 = "3.2";
   contrailMaster = "master";
   isContrailMaster = self.contrailVersion == self.contrailMaster;
   isContrail32 = self.contrailVersion == self.contrail32;
@@ -76,7 +76,7 @@ pkgs // {
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
 } // (
   with self; import ./pkgs/contrail.nix {
-    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware;
+    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware contrailVersion;
     stdenv = pkgs.overrideCC pkgs.stdenv gcc5;
   })
   # // (

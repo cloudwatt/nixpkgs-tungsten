@@ -1,8 +1,8 @@
-{pkgs, stdenv, contrailBuildInputs, deps, workspace, isContrail32 }:
+{pkgs, stdenv, contrailBuildInputs, deps, workspace, isContrail32, contrailVersion }:
 
-stdenv.mkDerivation {
-  name = "contrail-collector";
-  version = "3.2";
+stdenv.mkDerivation rec {
+  name = "contrail-collector-${version}";
+  version = contrailVersion;
   src = workspace;
   USER="contrail";
 

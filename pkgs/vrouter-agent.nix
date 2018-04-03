@@ -1,8 +1,8 @@
-{pkgs, stdenv, contrailBuildInputs, workspace, isContrailMaster }:
+{pkgs, stdenv, contrailBuildInputs, workspace, isContrailMaster, contrailVersion }:
 
-stdenv.mkDerivation {
-  name = "contrail-vrouter-agent";
-  version = "3.2";
+stdenv.mkDerivation rec {
+  name = "contrail-vrouter-agent-${version}";
+  version = contrailVersion;
   src = workspace;
   USER="contrail";
   # Only required on master
