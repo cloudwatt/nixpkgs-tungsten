@@ -62,6 +62,7 @@ pkgs // {
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
+    databaseLoader = callPackage ./test/database-loader.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
     # webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 
@@ -74,6 +75,7 @@ pkgs // {
   tools.contrailGremlin = callPackage ./tools/contrail-gremlin {};
   tools.gremlinChecks = callPackage ./tools/contrail-gremlin/checks.nix { contrailPkgs = self; };
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
+  tools.contrail32DatabaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; pkgs_path = nixpkgs; };
 } // (
   with self; import ./pkgs/contrail.nix {
     inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware contrailVersion;

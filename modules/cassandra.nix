@@ -72,12 +72,17 @@ in {
         type = types.bool;
         default = false;
       };
+      postStart = mkOption {
+        type = types.lines;
+        default = "";
+      };
     };
   };
   config = mkIf cfg.enable {
     systemd.services.cassandra = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
+      path = [ cassandraPkg ];
       environment = {
         CASSANDRA_CONFIG = cassandraConfigDir;
       };
@@ -95,6 +100,8 @@ in {
         while ! ${cassandraPkg}/bin/nodetool status >/dev/null 2>&1; do
           sleep 2
         done
+
+        ${cfg.postStart}
       '';
     };
   };

@@ -128,3 +128,21 @@ unpacking source archive /nix/store/9jswqjmq6q4ijrmac5qbw2z5b63cl1x0-contrail-wo
 source root is contrail-workspace
 $ scons contrail-control
 ```				 
+
+### Load a Cassandra database dump and start the contrail api and schema transformer
+
+```
+$ nix-build -A tools.contrail32DatabaseLoader
+```
+
+This builds a script that runs a VM. This VM loads a database dump
+from the host directory `/tmp/xchg-shared/cassandra-dump/`. This
+directory contents can be created by running the script
+
+```
+cqlsh -e "DESC SCHEMA" > /tmp/cassandra-dump/schema.cql
+for t in obj_uuid_table obj_fq_name_table; do
+  echo "COPY config_db_uuid.$t TO '/tmp/cassandra-dump/config_db_uuid.$t.csv';" | cqlsh
+done
+```
+
