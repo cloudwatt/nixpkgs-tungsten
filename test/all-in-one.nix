@@ -28,31 +28,6 @@ let
         '';
       };
 
-      api = pkgs.writeTextFile {
-        name = "contrail-api.conf";
-        text = ''
-          [DEFAULTS]
-          log_file = /var/log/contrail/api.log
-          log_level = SYS_DEBUG
-          log_local = 1
-          cassandra_server_list = localhost:9160
-          disc_server_ip = localhost
-          disc_server_port = 5998
-
-          rabbit_port = 5672
-          rabbit_server = localhost
-          listen_port = 8082
-          listen_ip_addr = 0.0.0.0
-          zk_server_port = 2181
-          zk_server_ip = localhost
-
-
-          [IFMAP_SERVER]
-          ifmap_listen_ip = 0.0.0.0
-          ifmap_listen_port = 8443
-          ifmap_credentials = api-server:api-server
-        '';
-      };
       svcMonitor = pkgs.writeTextFile {
         name = "contrail-svc-monitor.conf";
         text = ''
@@ -150,26 +125,6 @@ let
           redis_query_port = 6379
         '';
       };
-      schema = pkgs.writeTextFile {
-        name = "contrail-schema.conf";
-        text = ''
-          [DEFAULTS]
-          log_file = /var/log/contrail/contrail-schema.log
-          log_local = 1
-          log_level = SYS_DEBUG
-
-          rabbit_port = 5672
-          rabbit_server = localhost
-
-          zk_server_port = 2181
-          zk_server_ip = localhost
-
-          cassandra_server_list = localhost:9160
-
-          api_server_port = 8082
-          api_server_ip = localhost
-        '';
-      };
       control32 = import ./configuration/R3.2/control.nix { inherit pkgs; };
       controlMaster = import ./configuration/master/control.nix { inherit pkgs; };
       control = if isContrail32 then control32 else controlMaster;
@@ -177,8 +132,16 @@ let
       collector32 = import ./configuration/R3.2/control.nix { inherit pkgs; };
       collectorMaster = import ./configuration/master/control.nix { inherit pkgs; };
       collector = if isContrail32 then collector32 else collectorMaster;
+
+      api = import ./configuration/R3.2/api.nix { inherit pkgs; };
+      schema = import ./configuration/R3.2/api.nix { inherit pkgs; };
+
     in {
-      imports = [ ../modules/compute-node.nix ../modules/cassandra.nix ../modules/contrail-discovery.nix ];
+      imports = [ ../modules/compute-node.nix
+                  ../modules/cassandra.nix
+                  ../modules/contrail-api.nix
+                  ../modules/contrail-schema-transformer.nix
+                  ../modules/contrail-discovery.nix ];
       config = rec {
         _module.args = { inherit contrailPkgs isContrail32 isContrailMaster; };
 
@@ -201,31 +164,18 @@ let
         ];
 
         contrail.vrouterAgent.enable = true;
+
         contrail.discovery = {
           enable = isContrail32;
           configFile = discovery;
         };
-
-        systemd.services.contrailApi = {
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
-          preStart = "mkdir -p /var/log/contrail/";
-          script = "${contrailPkgs.api}/bin/contrail-api --conf_file ${api}";
-          path = [ pkgs.netcat ];
-          postStart = ''
-            sleep 2
-            while ! nc -vz localhost 8082; do
-              sleep 2
-            done
-            sleep 2
-          '';
+        contrail.api = {
+          enable = true;
+          configFile = api;
         };
-
-        systemd.services.contrailSchema = {
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
-          preStart = "mkdir -p /var/log/contrail/";
-          script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${schema}";
+        contrail.schemaTransformer = {
+          enable = true;
+          configFile = schema;
         };
 
         systemd.services.contrailSvcMonitor = {
