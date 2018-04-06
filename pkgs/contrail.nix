@@ -11,7 +11,7 @@ with pkgs.lib;
 rec {
   vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "vnc_api";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/api-lib";
     doCheck = false;
@@ -21,7 +21,7 @@ rec {
 
   vnc_openstack = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "vnc_openstack";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/vnc_openstack";
     doCheck = false;
@@ -31,7 +31,7 @@ rec {
 
   cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "cfgm_common";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/common";
     doCheck = false;
@@ -41,7 +41,7 @@ rec {
 
   sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "sandesh-common";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/sandesh/common/";
     propagatedBuildInputs = with pkgs.pythonPackages; [  ];
@@ -49,7 +49,7 @@ rec {
 
   pysandesh = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "pysandesh";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/tools/sandesh/library/python/";
 
@@ -58,7 +58,7 @@ rec {
 
   discovery_client = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "discovery-client";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/discovery/client/";
     propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
@@ -221,7 +221,7 @@ rec {
 
   vrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "contrail-vrouter-api";
-    version = "0";
+    version = contrailVersion;
     name = "${pname}-${version}";
     src = "${workspace}/controller/src/vnsw/contrail-vrouter-api/";
   };
