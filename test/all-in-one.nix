@@ -147,7 +147,8 @@ let
 
         services.openssh.enable = true;
         services.openssh.permitRootLogin = "yes";
-        users.extraUsers.root.password = "root";
+        services.openssh.extraConfig = "PermitEmptyPasswords yes";
+        users.extraUsers.root.password = "";
 
         services.rabbitmq.enable = true;
         services.zookeeper.enable = true;
