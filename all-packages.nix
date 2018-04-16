@@ -76,6 +76,7 @@ pkgs // {
   tools.gremlinChecks = callPackage ./tools/contrail-gremlin/checks.nix { contrailPkgs = self; };
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
   tools.contrail32DatabaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; pkgs_path = nixpkgs; };
+  tools.contrail32NovaImage = callPackage ./tools/contrail-nova-image.nix { contrailPkgs = self; };
 } // (
   with self; import ./pkgs/contrail.nix {
     inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion;
