@@ -18,7 +18,7 @@ with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 let
   api = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
   schemaTransformer = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
-  cassandraDumpPath = "/tmp/xchg-shared/cassandra-dump/";
+  cassandraDumpPath = "/tmp/shared/cassandra-dump/";
 
   machine = {pkgs, config, ...}: {
     imports = [ ../modules/contrail-database-loader.nix ];

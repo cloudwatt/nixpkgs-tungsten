@@ -4,6 +4,12 @@ with lib;
 
 let
   cfg = config.contrail.databaseLoader;
+
+  # Some columns can have really big value...
+  cqlshrc = pkgs.writeText "cqlshrc" ''
+    [csv]
+    field_size_limit = 1000000000
+  '';
 in {
   imports = [ ./cassandra.nix ./contrail-api.nix  ./contrail-schema-transformer.nix ];
   options = {
@@ -27,22 +33,25 @@ in {
     };
   };
 
-  config = rec {
-    virtualisation = { memorySize = 1024; cores = 1; };
+  config = {
+    virtualisation = { memorySize = 8096; cores = 2; };
     services.zookeeper.enable = true;
     services.rabbitmq.enable = true;
     services.cassandra = {
       enable = true;
       postStart = ''
+        set -e
         cat ${cfg.cassandraDumpPath}/schema.cql | grep -v caching | sed "s|'replication_factor': '3'|'replication_factor': '1'|" | cqlsh
         for t in obj_uuid_table obj_fq_name_table; do
-           echo "COPY config_db_uuid.$t FROM '${cfg.cassandraDumpPath}/config_db_uuid.$t.csv';" | cqlsh
+           # A bigger batch size fails on big Contrail databases
+           echo "COPY config_db_uuid.$t FROM '${cfg.cassandraDumpPath}/config_db_uuid.$t.csv' WITH MAXBATCHSIZE = 2;" | cqlsh --cqlshrc=${cqlshrc}
         done
       '';
       };
     contrail.api = {
       enable = true;
       configFile = cfg.apiConfigFile;
+      waitFor = false;
     };
     contrail.schemaTransformer = {
       enable = true;

@@ -83,6 +83,9 @@ in {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       path = [ cassandraPkg ];
+      serviceConfig= {
+        TimeoutSec="infinity";
+      };
       environment = {
         CASSANDRA_CONFIG = cassandraConfigDir;
       };

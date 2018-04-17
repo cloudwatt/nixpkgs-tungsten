@@ -15,6 +15,13 @@ in {
         type = types.path;
         description = "The contrail api file path";
       };
+      waitFor = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to wait for the API port in the post start phase
+        '';
+      };
     };
   };
 
@@ -25,7 +32,7 @@ in {
       preStart = "mkdir -p /var/log/contrail/";
       script = "${contrailPkgs.api}/bin/contrail-api --conf_file  ${cfg.configFile}";
       path = [ pkgs.netcat ];
-      postStart = ''
+      postStart = lib.optionalString cfg.waitFor ''
         sleep 2
         while ! nc -vz localhost 8082; do
           sleep 2
