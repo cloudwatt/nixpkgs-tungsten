@@ -5,7 +5,7 @@ in {
   pkgs = bootstrap_pkgs.fetchFromGitHub {
     owner = "NixOS";
     repo = "nixpkgs";
-    # Belong to the branch release-18.03-cloudwatt
-    rev = "590320e107e1a047061d0a7d801830f61be38082";
-    sha256 = "0pr404mrjcwhxckkhp4qscxh73nsb3yxwy41hy6cdsvvj53zc3ji";};
+    # Belong to the branch release-18.03
+    rev = "32f08fe6c502d04b6350364a626634d425706bb1";
+    sha256 = "0fjv0xbwqsajbil9vxlqkqf1iffr5f6cil0cc5wa5xwi7bm1rm9s";};
   }
