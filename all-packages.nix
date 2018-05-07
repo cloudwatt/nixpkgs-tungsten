@@ -57,7 +57,7 @@ pkgs // {
   control = callPackage ./pkgs/control.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
   collector = callPackage ./pkgs/collector.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
   queryEngine = callPackage ./pkgs/query-engine.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
-  lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
+  lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc49; };
   keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
 
   test = {
