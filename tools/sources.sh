@@ -26,6 +26,7 @@ while read -r ATTRIBUTE OWNER REPOS BRANCH; do
     SHA256=$(find /tmp/untar.tmp/ -maxdepth 1 -mindepth 1 -exec nix-hash --type sha256 --base32 '{}' \;)
 
     echo "  $ATTRIBUTE = pkgs.fetchFromGitHub {"
+    echo "    name = \"$ATTRIBUTE\";";
     echo "    owner = \"$OWNER\";";
     echo "    repo = \"$REPOS\";"
     echo "    rev = \"$COMMITID\";"
