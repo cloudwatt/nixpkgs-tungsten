@@ -4,7 +4,7 @@ self: super: {
   "datrie" = python.overrideDerivation super."datrie" (old: {
     buildInputs = old.buildInputs ++ [ pkgs.pythonPackages."pytestrunner" ];
   });
-  
+
   "gremlin-fsck" = pkgs.contrailPkgs.tools.gremlinFsck;
 
   "contrail-api-cli-with-extra" = with self; let

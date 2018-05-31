@@ -76,8 +76,8 @@ let
   generated = self: {
 
     "Babel" = python.mkDerivation {
-      name = "Babel-2.5.3";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/0e/d5/9b1d6a79c975d0e9a32bd337a1465518c2519b14b214682ca9892752417e/Babel-2.5.3.tar.gz"; sha256 = "8ce4cb6fdd4393edd323227cba3a077bceb2a6ce5201c902c65e730046f41f14"; };
+      name = "Babel-2.6.0";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/be/cc/9c981b249a455fa0c76338966325fc70b7265521bad641bf2932f77712f4/Babel-2.6.0.tar.gz"; sha256 = "8cba50f48c529ca3fa18cf81fa9403be176d374ac4d60738b839122dfaaa3d23"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -153,8 +153,8 @@ let
 
 
     "contrail-api-cli" = python.mkDerivation {
-      name = "contrail-api-cli-0.2.1";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/5d/55/90320f2f642c93712ac2f8c1d3345eb8bf0f909a1adebd6b39cb8788643a/contrail-api-cli-0.2.1.tar.gz"; sha256 = "4e035d34370e1d7c0befea92fcd1fc759aa655d4bbfb7c6a11c6366e4fece9a5"; };
+      name = "contrail-api-cli-0.2.3";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/9a/2b/21959c888b281ff5434deb1ad7ada37f2b53df2a845fd109405520b94b17/contrail-api-cli-0.2.3.tar.gz"; sha256 = "24ea6e728bb8c1fa29d347781f423938ac2c4290c31307f62c190704d31df400"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -176,8 +176,8 @@ let
 
 
     "contrail-api-cli-extra" = python.mkDerivation {
-      name = "contrail-api-cli-extra-0.5.1";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/ab/7d/63754904c7f8be30fd64e9196d7a5348b5498674fe20912ff2b0ef534a8e/contrail-api-cli-extra-0.5.1.tar.gz"; sha256 = "269134e7b13c2748f6b8f88e6b2e90712ee8247cab527a89a6ef9720df24e67a"; };
+      name = "contrail-api-cli-extra-0.5.3";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/65/52/92a4a65c95fd83ab2a8bacf18abf6e3a73d2d96fd9934764b2017031ecec/contrail-api-cli-extra-0.5.3.tar.gz"; sha256 = "9515cde04c6f8e51642da0b82e1e52e4040f0d35f02592bff2d1897a5d479d69"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -359,13 +359,14 @@ let
 
 
     "keystoneauth1" = python.mkDerivation {
-      name = "keystoneauth1-3.5.0";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/7e/3e/79238e265b094afa93b11fa167503030962c1842cf13a8f6f9c346951298/keystoneauth1-3.5.0.tar.gz"; sha256 = "0579c112df9ab6764d6e005b7bacbaf2524f7cfcf9a89cc041b2b72d00414268"; };
+      name = "keystoneauth1-3.7.0";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/9a/0d/bf50992f3ad603a3051e5033bad82713e7c86a370acca0f5525e5517bf04/keystoneauth1-3.7.0.tar.gz"; sha256 = "50ae1e3247f02d71a92b23dc5d19dac553a8c76bbdc9371c074d68d037ff84a1"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
       self."PyYAML"
       self."iso8601"
+      self."os-service-types"
       self."oslo.config"
       self."oslo.utils"
       self."pbr"
@@ -383,8 +384,8 @@ let
 
 
     "monotonic" = python.mkDerivation {
-      name = "monotonic-1.4";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/14/73/04da85fc1bacfa94361f00205a464b7f1ed23bfe8de3511cbff0fa2eeda7/monotonic-1.4.tar.gz"; sha256 = "a02611d5b518cd4051bf22d21bd0ae55b3a03f2d2993a19b6c90d9d168691f84"; };
+      name = "monotonic-1.5";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/19/c1/27f722aaaaf98786a1b338b78cf60960d9fe4849825b071f4e300da29589/monotonic-1.5.tar.gz"; sha256 = "23953d55076df038541e648a53676fb24980f7a1be290cdda21300b3bc21dfb0"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];
@@ -428,13 +429,13 @@ let
 
 
     "netifaces" = python.mkDerivation {
-      name = "netifaces-0.10.6";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/72/01/ba076082628901bca750bf53b322a8ff10c1d757dc29196a8e6082711c9d/netifaces-0.10.6.tar.gz"; sha256 = "0c4da523f36d36f1ef92ee183f2512f3ceb9a9d2a45f7d19cda5a42c6689ebe0"; };
+      name = "netifaces-0.10.7";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/81/39/4e9a026265ba944ddf1fea176dbb29e0fe50c43717ba4fcf3646d099fe38/netifaces-0.10.7.tar.gz"; sha256 = "bd590fcb75421537d4149825e1e63cca225fd47dad861710c46bd1cb329d8cbd"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];
       meta = with pkgs.stdenv.lib; {
-        homepage = "https://bitbucket.org/al45tair/netifaces";
+        homepage = "https://github.com/al45tair/netifaces";
         license = licenses.mit;
         description = "Portable network interface information.";
       };
@@ -460,9 +461,26 @@ let
 
 
 
+    "os-service-types" = python.mkDerivation {
+      name = "os-service-types-1.2.0";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/b3/22/1d0a1f5fd633fdbdff3ac1191f95773e3277d1138e4cee09a891c9ee51aa/os-service-types-1.2.0.tar.gz"; sha256 = "b08fb4ec1249d313afea2728fa4db916b1907806364126fe46de482671203111"; };
+      doCheck = commonDoCheck;
+      buildInputs = commonBuildInputs;
+      propagatedBuildInputs = [
+      self."pbr"
+    ];
+      meta = with pkgs.stdenv.lib; {
+        homepage = "http://www.openstack.org/";
+        license = "License :: OSI Approved :: Apache Software License";
+        description = "Python library for consuming OpenStack sevice-types-authority data";
+      };
+    };
+
+
+
     "oslo.config" = python.mkDerivation {
-      name = "oslo.config-6.2.0";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/b4/0d/539499bb0c13bf10f398dad32ef4852a173aad3914453ed0c8386203db4b/oslo.config-6.2.0.tar.gz"; sha256 = "135ae788d7a1bb57327364da9a6fd9225f053d33b9da0bbece9a146c8cc55802"; };
+      name = "oslo.config-6.2.1";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/a8/b4/85f50eee25a65f6ce0dca6b4965cf8067bfe23c7c785aedd34b0bb94d042/oslo.config-6.2.1.tar.gz"; sha256 = "c989f7441e5eea658482276d2f34d3c9d77089f4f723076efc442211c3256743"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -525,8 +543,8 @@ let
 
 
     "oslo.utils" = python.mkDerivation {
-      name = "oslo.utils-3.36.1";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/e2/31/4a1b716dd899599df2a7fb7f1899fa2d6dc08da627d918d8321035567ac8/oslo.utils-3.36.1.tar.gz"; sha256 = "baaffb9d1528bdb5677f8c67828c457d5c015249674a33c62e6a0dbddd9f0e58"; };
+      name = "oslo.utils-3.36.2";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/69/21/bde1fb98e77a0b4d82585c3808e13bfeff28917fb4f7af2f8a0e56530355/oslo.utils-3.36.2.tar.gz"; sha256 = "9900be2bc8bf14c187731393dea672ea9579312d6f31b862e527999fde63f2c6"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -567,8 +585,8 @@ let
 
 
     "pbr" = python.mkDerivation {
-      name = "pbr-4.0.2";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/c6/46/f414e7d9ba9621c8acd3e7a82e08c47e0de34ad3e213c16e458b6c04d432/pbr-4.0.2.tar.gz"; sha256 = "dae4aaa78eafcad10ce2581fc34d694faa616727837fd8e55c1a00951ad6744f"; };
+      name = "pbr-4.0.3";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/a7/d7/eeb3cc66469e21843748e9b8f196eefd42fc81ea43191715e8ec54fee4df/pbr-4.0.3.tar.gz"; sha256 = "6874feb22334a1e9a515193cba797664e940b763440c88115009ec323a7f2df5"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];
