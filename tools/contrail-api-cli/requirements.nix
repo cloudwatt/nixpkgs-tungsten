@@ -176,8 +176,8 @@ let
 
 
     "contrail-api-cli-extra" = python.mkDerivation {
-      name = "contrail-api-cli-extra-0.5.3";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/65/52/92a4a65c95fd83ab2a8bacf18abf6e3a73d2d96fd9934764b2017031ecec/contrail-api-cli-extra-0.5.3.tar.gz"; sha256 = "9515cde04c6f8e51642da0b82e1e52e4040f0d35f02592bff2d1897a5d479d69"; };
+      name = "contrail-api-cli-extra-0.5.4";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/85/bb/5561c470ecb3722d66a29ad1ffbbd01b7f674a9a9bfcfac1349d3e6d4253/contrail-api-cli-extra-0.5.4.tar.gz"; sha256 = "8334a1520244e6844017596099b4f2974e4d3dd562addbecb4aa9ce8acdcf00b"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
