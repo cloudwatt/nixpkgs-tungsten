@@ -7,6 +7,15 @@ self: super: {
 
   "gremlin-fsck" = pkgs.contrailPkgs.tools.gremlinFsck;
 
+  "contrail-api-cli-extra" = python.overrideDerivation super."contrail-api-cli-extra" (old: {
+    src = pkgs.fetchFromGitHub {
+      owner = "cloudwatt";
+      repo = "contrail-api-cli-extra";
+      rev = "2ac298f7a86ec41c8bb2837f255169c5afded140";
+      sha256 = "0059snva7f5g4bh6x7c3p8h49fzxwy5fp1zy7vsc8h4hwcqgdxmc";
+    };
+  });
+
   "contrail-api-cli-with-extra" = with self; let
       # I tryied to override contrail-api-cli attribute by adding
       # contrail-api-cli-extra in propagatedBuildInputs but entry
