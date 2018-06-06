@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, contrailVersion }:
+{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, contrailVersion }:
 
 with deps;
 with pkgs.lib;
@@ -238,6 +238,9 @@ rec {
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       docker netaddr vrouterApi eventlet vnc_api cfgm_common
+    ];
+    makeWrapperArgs = [
+      "--prefix PATH : ${pkgs.iptables}/bin:${pkgs.procps}/bin:${pkgs.nettools}/bin:${pkgs.iproute}/bin:${pkgs.sudo}/bin"
     ];
   };
 }
