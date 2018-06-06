@@ -190,18 +190,26 @@ rec {
   };
 
   configUtils = pkgs.stdenv.mkDerivation rec {
-   name = "contrail-config-utils-${version}";
-   version = contrailVersion;
-   src = workspace;
-   phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
-   buildInputs = [
-    (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-       netaddr vnc_api cfgm_common ]))
-   ];
-   installPhase = ''
-     mkdir -p $out/bin
-     cp controller/src/config/utils/*.{py,sh} $out/bin
-   '';
+    name = "contrail-config-utils-${version}";
+    version = contrailVersion;
+    src = workspace;
+    phases = [ "unpackPhase" "patchPhase" "installPhase" "fixupPhase" ];
+    buildInputs = [
+      (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+        netaddr vnc_api cfgm_common requests ]))
+      pkgs.makeWrapper
+    ];
+    patchPhase = ''
+      sed -i 's!/usr/bin/vif!${vrouterUtils}/bin/vif!' controller/src/config/utils/provision_vgw_interface.py
+      sed -i '/from vnc_api.*/d' controller/src/config/utils/provision_vgw_interface.py
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      cp controller/src/config/utils/*.{py,sh} $out/bin
+    '';
+    postFixup = ''
+      wrapProgram "$out/bin/provision_vgw_interface.py" --prefix PATH ":" "${pkgs.nettools}/bin"
+    '';
   };
 
   vrouterPortControl = pkgs.stdenv.mkDerivation rec {
