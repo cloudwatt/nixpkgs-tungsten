@@ -11,8 +11,8 @@ self: super: {
     src = pkgs.fetchFromGitHub {
       owner = "cloudwatt";
       repo = "contrail-api-cli-extra";
-      rev = "2ac298f7a86ec41c8bb2837f255169c5afded140";
-      sha256 = "0059snva7f5g4bh6x7c3p8h49fzxwy5fp1zy7vsc8h4hwcqgdxmc";
+      rev = "41272f8be74e8d7627a394e960afc552d6ad64ad";
+      sha256 = "1qm4sfpf2ff59nfdngammddbbbk11lq9cxbpm9c3b1m8lvx504yc";
     };
   });
 
