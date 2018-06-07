@@ -5,6 +5,14 @@
 {
   imports = [ <nixpkgs/nixos/modules/virtualisation/nova-config.nix> ];
 
+  # Be careful since this has to be commented for the first
+  # boot... The store has to be manually first copyied to this
+  # partition.
+  fileSystems."/nix/store" = {
+    device = "/dev/vdb";
+    fsType = "ext3";
+  };
+
   networking.firewall = {
     allowedTCPPorts = [ 22 80 3000 ];
     # because hydra user is not allowed to bind port 80
@@ -32,13 +40,13 @@
     extraOptions = ''
       auto-optimise-store = true
     '';
-        buildMachines = [
-    {
-          hostName = "localhost";
-          systems = [ "x86_64-linux" ];
-          maxJobs = 8;
-          supportedFeatures = [ "kvm" "nixos-test" "big-parallel"];
-        }
+    buildMachines = [
+      {
+        hostName = "localhost";
+        systems = [ "x86_64-linux" "builtin" ];
+        maxJobs = 8;
+        supportedFeatures = [ "kvm" "nixos-test" "big-parallel" ];
+      }
     ];
   };
 }
