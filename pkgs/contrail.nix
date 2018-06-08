@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, contrailVersion }:
+{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, neutronConstants, contrailVersion }:
 
 with deps;
 with pkgs.lib;
@@ -25,8 +25,10 @@ rec {
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/vnc_openstack";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages;
-      [ gevent requests bottle_0_12_1 netaddr cfgm_common pysandesh vnc_api keystonemiddleware ];
+    propagatedBuildInputs = with pkgs.pythonPackages; [
+      gevent requests bottle_0_12_1 netaddr cfgm_common pysandesh vnc_api
+      keystonemiddleware neutronConstants
+    ];
   };
 
   cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
@@ -116,7 +118,8 @@ rec {
     doCheck = false;
     propagatedBuildInputs = with pkgs.pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
-      kazoo vnc_api vnc_openstack sandesh_common kombu pyopenssl stevedore netifaces keystonemiddleware
+      kazoo vnc_api vnc_openstack sandesh_common kombu pyopenssl stevedore netifaces
+      keystonemiddleware
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 

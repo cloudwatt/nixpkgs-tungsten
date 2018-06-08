@@ -59,6 +59,7 @@ pkgs // {
   queryEngine = callPackage ./pkgs/query-engine.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc5; };
   lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc49; };
   keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
+  neutronConstants = callPackage ./pkgs/neutron_constants {};
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
@@ -77,7 +78,7 @@ pkgs // {
   tools.contrail32DatabaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; pkgs_path = nixpkgs; };
 } // (
   with self; import ./pkgs/contrail.nix {
-    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware contrailVersion;
+    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion;
     stdenv = pkgs.overrideCC pkgs.stdenv gcc5;
   })
   # // (
