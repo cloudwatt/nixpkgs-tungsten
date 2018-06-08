@@ -164,7 +164,10 @@ let
           pkgs.jq contrailPkgs.configUtils contrailCreateNetwork
         ];
 
-        contrail.vrouterAgent.enable = true;
+        contrail.vrouterAgent = {
+          enable = true;
+          contrailInterface = "eth1";
+        };
 
         contrail.discovery = {
           enable = isContrail32;
