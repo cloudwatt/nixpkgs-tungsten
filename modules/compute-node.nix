@@ -144,7 +144,7 @@ in {
         ip a del $IP dev $CONTRAIL_INTERFACE
         ip a add $IP dev vhost0
         ip r del $ROUTE dev $CONTRAIL_INTERFACE || true
-        ip r add $ROUTE dev vhost0
+        ip r add $ROUTE dev vhost0 || true
         sleep 1
       '';
     };
