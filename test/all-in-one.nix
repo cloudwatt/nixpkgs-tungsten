@@ -6,6 +6,8 @@
 , contrailPkgs
 , isContrail32
 , isContrailMaster
+# If not set, contrail32 or contrailMaster test scripts are used.
+, testScript ? null
 }:
 
 with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
@@ -30,7 +32,7 @@ let
     };
   };
 
-  testScript = let
+  contrailTestScript = let
     contrail32 =
       ''
       $machine->waitForUnit("cassandra.service");
@@ -97,5 +99,10 @@ let
       # $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
       '';
     in if isContrail32 then contrail32 else contrailMaster;
+
 in
-  makeTest { name = "all-in-one"; nodes = { inherit machine; }; testScript = testScript; }
+  makeTest {
+    name = "all-in-one";
+    nodes = { inherit machine; };
+    testScript = if testScript != null then testScript else contrailTestScript;
+  }
