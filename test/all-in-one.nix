@@ -23,7 +23,8 @@ let
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
-      users.extraUsers.root.password = "root";
+      users.extraUsers.root.password = "";
+
       environment.systemPackages = [
         # Used by the test suite
         pkgs.jq contrailPkgs.configUtils contrailCreateNetwork
