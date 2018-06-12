@@ -161,8 +161,6 @@ in
 
         environment.systemPackages = [
           contrailPkgs.tools.contrailApiCliWithExtra
-          # Required by the test suite
-          pkgs.jq contrailPkgs.configUtils contrailCreateNetwork
         ];
 
         contrail.vrouterAgent = {
