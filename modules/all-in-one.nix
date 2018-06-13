@@ -145,10 +145,6 @@ in
         services.redis.enable = true;
         services.cassandra.enable = true;
 
-        environment.systemPackages = [
-          contrailPkgs.tools.contrailApiCliWithExtra
-        ];
-
         contrail.vrouterAgent = {
           enable = true;
           contrailInterfaceName = cfg.contrailInterfaceName;

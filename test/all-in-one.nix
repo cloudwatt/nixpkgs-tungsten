@@ -14,20 +14,6 @@ with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 with pkgs.lib;
 
 let
-  contrailCreateNetwork = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-create-network";
-    src = ./contrail-create-network.py;
-    phases = [ "installPhase" "fixupPhase" ];
-    buildInputs = [
-      (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-      contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
-    ];
-    installPhase = ''
-      mkdir -p $out/bin
-      cp ${src} $out/bin/contrail-create-network.py
-    '';
-  };
-
   machine = {pkgs, config, ...}: {
     imports = [ ../modules/all-in-one.nix ];
 
@@ -41,7 +27,8 @@ let
 
       environment.systemPackages = [
         # Used by the test suite
-        pkgs.jq contrailPkgs.configUtils contrailCreateNetwork
+        pkgs.jq contrailPkgs.configUtils
+        contrailPkgs.tools.contrailApiCliWithExtra
       ];
 
       contrail.allInOne = {
@@ -51,73 +38,44 @@ let
     };
   };
 
-  contrailTestScript = let
-    contrail32 =
-      ''
-      $machine->waitForUnit("cassandra.service");
-      $machine->waitForUnit("rabbitmq.service");
-      $machine->waitForUnit("zookeeper.service");
-      $machine->waitForUnit("redis.service");
+  contrailTestScript = ''
+    $machine->waitForUnit("cassandra.service");
+    $machine->waitForUnit("rabbitmq.service");
+    $machine->waitForUnit("zookeeper.service");
+    $machine->waitForUnit("redis.service");
 
-      $machine->waitForUnit("contrailDiscovery.service");
-      $machine->waitForUnit("contrailApi.service");
+    $machine->waitForUnit("contrailDiscovery.service");
+    $machine->waitForUnit("contrailApi.service");
 
-      $machine->waitForUnit("contrailSvcMonitor.service");
-      $machine->waitUntilSucceeds("curl localhost:8088/");
+    $machine->waitForUnit("contrailSvcMonitor.service");
+    $machine->waitUntilSucceeds("curl localhost:8088/");
 
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
 
-      $machine->waitForUnit("contrailCollector.service");
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
+    $machine->waitForUnit("contrailCollector.service");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
 
-      $machine->waitForUnit("contrailControl.service");
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
-      $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
+    $machine->waitForUnit("contrailControl.service");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
+    $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
 
-      $machine->succeed("lsmod | grep -q vrouter");
-      $machine->waitForUnit("contrailVrouterAgent.service");
+    $machine->succeed("lsmod | grep -q vrouter");
+    $machine->waitForUnit("contrailVrouterAgent.service");
 
-      $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
+    $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
 
-      $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
-      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
-      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
+    $machine->succeed("contrail-api-cli --ns contrail_api_cli.provision add-vn --project-fqname default-domain:default-project --subnet 20.1.1.0/24 vn1");
+    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
+    $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
 
-      $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
-      $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
+    $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
+    $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
 
-      $machine->waitForUnit("contrailAnalyticsApi.service");
-      $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
-      '';
-    contrailMaster =
-     ''
-      $machine->waitForUnit("cassandra.service");
-      $machine->waitForUnit("rabbitmq.service");
-      $machine->waitForUnit("zookeeper.service");
-      $machine->waitForUnit("redis.service");
-
-      $machine->waitForUnit("contrailApi.service");
-
-      $machine->waitForUnit("contrailSvcMonitor.service");
-      $machine->waitUntilSucceeds("curl localhost:8088/");
-
-      $machine->waitForUnit("contrailCollector.service");
-      $machine->waitForUnit("contrailControl.service");
-      $machine->succeed("lsmod | grep -q vrouter");
-      $machine->waitForUnit("contrailVrouterAgent.service");
-
-      $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
-
-      $machine->succeed("contrail-create-network.py default-domain:default-project:vn1");
-      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm1");
-      $machine->succeed("netns-daemon-start -n default-domain:default-project:vn1 vm2");
-
-      # $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
-      # $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
-      '';
-    in if isContrail32 then contrail32 else contrailMaster;
+    $machine->waitForUnit("contrailAnalyticsApi.service");
+    $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
+  '';
 
 in
   makeTest {
