@@ -14,6 +14,20 @@ with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 with pkgs.lib;
 
 let
+  contrailCreateNetwork = pkgs.stdenv.mkDerivation rec {
+    name = "contrail-create-network";
+    src = ./contrail-create-network.py;
+    phases = [ "installPhase" "fixupPhase" ];
+    buildInputs = [
+      (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
+      contrailPkgs.vnc_api contrailPkgs.cfgm_common ]))
+    ];
+    installPhase = ''
+      mkdir -p $out/bin
+      cp ${src} $out/bin/contrail-create-network.py
+    '';
+  };
+
   machine = {pkgs, config, ...}: {
     imports = [ ../modules/all-in-one.nix ];
 
