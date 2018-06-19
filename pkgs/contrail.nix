@@ -256,7 +256,7 @@ rec {
   };
 
   contrailNeutronPlugin = pkgs.pythonPackages.buildPythonPackage rec {
-    pname = "contrail-neutron-plugin-${version}";
+    pname = "contrail-neutron-plugin";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${workspace}/openstack/neutron_plugin";
