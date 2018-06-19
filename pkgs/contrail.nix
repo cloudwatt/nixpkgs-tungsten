@@ -3,7 +3,7 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, neutronConstants, contrailVersion }:
+{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, neutronConstants, contrailVersion, pythonNeutronClient }:
 
 with deps;
 with pkgs.lib;
@@ -253,5 +253,15 @@ rec {
     makeWrapperArgs = [
       "--prefix PATH : ${pkgs.iptables}/bin:${pkgs.procps}/bin:${pkgs.nettools}/bin:${pkgs.iproute}/bin:${pkgs.sudo}/bin"
     ];
+  };
+
+  contrailNeutronPlugin = pkgs.pythonPackages.buildPythonPackage rec {
+    pname = "contrail-neutron-plugin-${version}";
+    version = contrailVersion;
+    name = "${pname}-${version}";
+    src = "${workspace}/openstack/neutron_plugin";
+
+    doCheck = false;
+    propagatedBuildInputs = with pkgs.pythonPackages; [ vnc_api cfgm_common pythonNeutronClient ];
   };
 }

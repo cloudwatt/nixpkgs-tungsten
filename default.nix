@@ -16,7 +16,7 @@ let
     in pkgs.lib.fix (pkgs.lib.extends f  allPackages);
 
   contrailPkgs = pkgs.lib.fix allPackages;
-  contrail32PythonPackages = with contrail32Pkgs; { inherit vnc_api cfgm_common; };
+  contrail32PythonPackages = with contrail32Pkgs; { inherit vnc_api cfgm_common contrailNeutronPlugin; };
 in {
   contrail32 = with contrail32Pkgs; {
     inherit configUtils api discovery schemaTransformer svcMonitor

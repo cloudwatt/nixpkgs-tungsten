@@ -79,7 +79,7 @@ pkgs // {
   tools.contrail32DatabaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; pkgs_path = nixpkgs; };
 } // (
   with self; import ./pkgs/contrail.nix {
-    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion;
+    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion pythonNeutronClient;
     stdenv = pkgs.overrideCC pkgs.stdenv gcc5;
   })
   # // (
