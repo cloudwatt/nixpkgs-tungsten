@@ -60,6 +60,7 @@ pkgs // {
   lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc49; };
   keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
   neutronConstants = callPackage ./pkgs/neutron_constants {};
+  pythonNeutronClient = callPackage ./pkgs/python-neutronclient { };
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
