@@ -3,6 +3,6 @@ fetchFromGitHub:
 fetchFromGitHub {
   owner = "eonpatapon";
   repo = "contrail-gremlin";
-  rev = "d6d05f729df2a3fc23f14550eda69dee074ce7bc";
-  sha256 = "1hbyknzph7vmiiqik1ipiiirprpqwhzxr2nxq6iyh1bkxmkjgzfg";
+  rev = "f0efe034f5ec53470f425f19a84cebfc996803dc";
+  sha256 = "03jb90qpw5f9ql2nck12jdq59r0512p3wr4a1h96fdmvzqpmbkpw";
 }
