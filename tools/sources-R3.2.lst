@@ -4,7 +4,7 @@ generateds Juniper contrail-generateds R3.2
 neutronPlugin Juniper contrail-neutron-plugin R3.2
 sandesh Juniper contrail-sandesh R3.2
 thirdParty Juniper contrail-third-party R3.2
-vrouter Juniper contrail-vrouter R3.2
+vrouter cloudwatt contrail-vrouter R3.2-cloudwatt
 webController Juniper contrail-web-controller R3.2
 webCore Juniper contrail-web-core R3.2
 webuiThirdParty Juniper contrail-webui-third-party R3.2
