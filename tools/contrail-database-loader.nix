@@ -24,10 +24,6 @@ let
     imports = [ ../modules/contrail-database-loader.nix ];
     config = {
       _module.args = { inherit contrailPkgs; };
-      services.openssh.enable = true;
-      services.openssh.permitRootLogin = "yes";
-      services.openssh.extraConfig = "PermitEmptyPasswords yes";
-      users.extraUsers.root.password = "";
 
       contrail.databaseLoader = {
         inherit cassandraDumpPath;
