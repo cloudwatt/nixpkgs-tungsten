@@ -64,6 +64,7 @@ pkgs // {
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
+    loadDatabase = callPackage ./test/load-database.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
     # webui  = callPackage ./test/webui.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
   };
 
