@@ -26,6 +26,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    services.zookeeper.enable = true;
+    services.rabbitmq.enable = true;
     systemd.services.contrailApi = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];

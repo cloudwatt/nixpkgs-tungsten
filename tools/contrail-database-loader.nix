@@ -16,22 +16,35 @@
 with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
-  api = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
-  schemaTransformer = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
+  apiConf = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
+  schemaTransformerConf = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
   cassandraDumpPath = "/tmp/shared/cassandra-dump/";
 
   machine = {pkgs, config, ...}: {
-    imports = [ ../modules/contrail-database-loader.nix ];
+    imports = [
+      ../modules/contrail-database-loader.nix
+      ../modules/contrail-api.nix
+      ../modules/contrail-schema-transformer.nix
+    ];
     config = {
       _module.args = { inherit contrailPkgs; };
 
       contrail.databaseLoader = {
-        inherit cassandraDumpPath;
         enable = true;
-
-        apiConfigFile = api;
-        schemaTransformerConfigFile = schemaTransformer;
+        inherit cassandraDumpPath;
       };
+
+      contrail.api = {
+        enable = true;
+        configFile = apiConf;
+        waitFor = false;
+      };
+
+      contrail.schemaTransformer = {
+        enable = true;
+        configFile = schemaTransformerConf;
+      };
+
     };
   };
   vm = (makeTest { name = "contrail-database-loader"; nodes = { inherit machine; }; testScript = ""; }).driver;

@@ -11,7 +11,7 @@ let
     field_size_limit = 1000000000
   '';
 in {
-  imports = [ ./cassandra.nix ./contrail-api.nix  ./contrail-schema-transformer.nix ];
+  imports = [ ./cassandra.nix ];
   options = {
     contrail.databaseLoader = {
       enable = mkOption {
@@ -22,21 +22,11 @@ in {
         type = types.path;
         description = "The path of the database dump folder";
       };
-      apiConfigFile = mkOption {
-        type = types.path;
-        description = "The contrail api file path";
-      };
-      schemaTransformerConfigFile = mkOption {
-        type = types.path;
-        description = "The contrail schema transformer file path";
-      };
     };
   };
 
   config = {
     virtualisation = { memorySize = 8096; cores = 2; };
-    services.zookeeper.enable = true;
-    services.rabbitmq.enable = true;
     services.cassandra = {
       enable = true;
       postStart = ''
@@ -48,14 +38,5 @@ in {
         done
       '';
       };
-    contrail.api = {
-      enable = true;
-      configFile = cfg.apiConfigFile;
-      waitFor = false;
-    };
-    contrail.schemaTransformer = {
-      enable = true;
-      configFile = cfg.schemaTransformerConfigFile;
-    };
   };
 }

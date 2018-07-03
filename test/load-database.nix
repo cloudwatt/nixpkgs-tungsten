@@ -8,9 +8,8 @@ with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 
 let
 
-  api = import ./configuration/R3.2/api.nix { inherit pkgs; };
-
-  schemaTransformer = import ./configuration/R3.2/schema-transformer.nix { inherit pkgs; };
+  apiConf = import ./configuration/R3.2/api.nix { inherit pkgs; };
+  schemaTransformerConf = import ./configuration/R3.2/schema-transformer.nix { inherit pkgs; };
 
   dump = stdenv.mkDerivation {
     name = "cassandra-dump";
@@ -23,17 +22,30 @@ let
   };
 
   machine = {pkgs, config, ...}: {
-    imports = [ ../modules/contrail-database-loader.nix ];
+    imports = [
+      ../modules/contrail-database-loader.nix
+      ../modules/contrail-api.nix
+      ../modules/contrail-schema-transformer.nix
+    ];
     config = {
       _module.args = { inherit contrailPkgs; };
 
       contrail.databaseLoader = {
-        cassandraDumpPath = dump;
         enable = true;
-
-        apiConfigFile = api;
-        schemaTransformerConfigFile = schemaTransformer;
+        cassandraDumpPath = dump;
       };
+
+      contrail.api = {
+        enable = true;
+        configFile = apiConf;
+        waitFor = false;
+      };
+
+      contrail.schemaTransformer = {
+        enable = true;
+        configFile = schemaTransformerConf;
+      };
+
     };
   };
 
