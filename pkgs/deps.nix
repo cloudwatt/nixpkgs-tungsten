@@ -33,10 +33,10 @@ rec {
     mkdir build
     pushd build
     cmake ..
-    make 
+    make
     popd
     '';
-    
+
     installPhase = ''
     mkdir $out
     mkdir $out/include
@@ -53,7 +53,7 @@ rec {
       sha256 = "0h7v0sxjjdc41hl5vq2x0yhyn04bczl11bqm97825mivrvfymhn6";
     };
   };
-  
+
   bitarray = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "bitarray";
     version = "0.8.1";
@@ -128,12 +128,12 @@ rec {
 
   gremlinPython = with pkgs.python27Packages; buildPythonPackage rec {
     pname = "gremlinpython";
-    version = "3.3.1";
+    version = "3.3.2";
     name = "${pname}-${version}";
 
     src = fetchPypi {
       inherit pname version;
-      sha256 = "119pziz0lysrqjfj6ffks3r6dlhr4blgspl9sx01lzdksgswbdl9";
+      sha256 = "1fml9r52x56cg4ghcyrf5zs74c8lcr2da8nbicdmf88j0fbpgzds";
     };
 
     doCheck = false;
