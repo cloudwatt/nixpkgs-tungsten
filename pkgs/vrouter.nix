@@ -6,9 +6,8 @@ kernelHeaders: stdenv.mkDerivation rec {
   src = workspace;
   hardeningDisable = [ "pic" ];
   USER="contrail";
-  NIX_DEBUG=true;
   KERNEL_VERSION=pkgs.lib.getVersion kernelHeaders;
-  # Remove it when https://review.opencontrail.org/#/c/38139/ is merged
+  # Remove it when https://review.opencontrail.org/#/c/38139/ is merged on all branches we are using
   patchPhase = pkgs.lib.optionalString isContrailMaster "cd vrouter; patch -p1 < ${../patches/0001-Fix-build-for-kernels-4.9.patch}; cd ..";
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
   buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 pkgs.libelf ];
@@ -29,5 +28,8 @@ kernelHeaders: stdenv.mkDerivation rec {
     mkdir -p $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
     cp vrouter/vrouter.ko $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
   '';
+  meta = {
+    description = "Contrail vrouter kernel module for kernel ${kernelHeaders.name}";
+  };
 }
 
