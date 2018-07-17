@@ -4,6 +4,7 @@ kernelHeaders: stdenv.mkDerivation rec {
   name = "contrail-vrouter-${kernelHeaders.name}";
   version = "3.2";
   src = workspace;
+  hardeningDisable = [ "pic" ];
   USER="contrail";
   NIX_DEBUG=true;
   KERNEL_VERSION=pkgs.lib.getVersion kernelHeaders;
@@ -12,8 +13,6 @@ kernelHeaders: stdenv.mkDerivation rec {
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
   buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 pkgs.libelf ];
   buildPhase = ''
-    export hardeningDisable=pic
-
     # We patch the kernel Makefile ONLY to reduce the closure
     # size of the vrouter kernel module. Without this patch, the
     # kernel source are referenced by the output path. See the issue
