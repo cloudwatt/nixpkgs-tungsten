@@ -28,6 +28,10 @@ kernelHeaders: stdenv.mkDerivation rec {
     mkdir -p $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
     cp vrouter/vrouter.ko $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
   '';
+  shellHook = ''
+    kernelSrc=$(echo ${kernelHeaders}/lib/modules/*/build/)
+  '';
+
   meta = {
     description = "Contrail vrouter kernel module for kernel ${kernelHeaders.name}";
   };
