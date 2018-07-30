@@ -6,6 +6,6 @@ in {
     owner = "NixOS";
     repo = "nixpkgs";
     # Belong to the branch release-18.03
-    rev = "2ee48415afc58cb9043a2463e0bde1a91d46c09a";
-    sha256 = "1fca1mfpzb2r4ijxllrcyl8qzbws9wxlvqr3fsh4agrpkf68rci5";};
+    rev = "6796f5db1c2a25aeade10d613ddb403e4eb7a928";
+    sha256 = "0fmvh1wcr1rgsr6cv8bpw5rmm9ypg94q7h9s4xqzaq567d3nhhhz";};
   }
