@@ -16,6 +16,7 @@ let
   cassandraConfigDir = pkgs.runCommand "cassandraConfDir" {} ''
     mkdir -p $out
     cat ${cassandraPkg}/conf/cassandra.yaml > $out/cassandra.yaml
+    sed -i 's/^rpc_address.*/rpc_address: ${cfg.rpcAddress}/' $out/cassandra.yaml
     cat >> $out/cassandra.yaml << EOF
     data_file_directories:
         - /tmp/cassandra-data/data
@@ -71,6 +72,11 @@ in {
       enable = mkOption {
         type = types.bool;
         default = false;
+      };
+      rpcAddress = mkOption {
+        description = "rpc listener address";
+        default = "localhost";
+        type = types.str;
       };
       postStart = mkOption {
         type = types.lines;
