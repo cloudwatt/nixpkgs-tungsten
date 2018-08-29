@@ -4,7 +4,7 @@ pkgs.stdenv.mkDerivation rec {
   name = "contrail-workspace";
   version = "3.2";
 
-  phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" ];
+  phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" "fixupPhase" ];
 
   buildInputs = contrailBuildInputs;
 
