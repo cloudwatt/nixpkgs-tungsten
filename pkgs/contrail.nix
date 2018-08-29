@@ -3,42 +3,22 @@
 # TODO: They should be moved to dedicated files and loaded by using to
 # the callPackage pattern.
 
-{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, neutronConstants, contrailVersion, pythonNeutronClient }:
+{ pkgs, stdenv, workspace, deps, contrailBuildInputs, isContrail32, isContrailMaster, keystonemiddleware, neutronConstants, contrailVersion, pythonPackages }:
 
 with deps;
 with pkgs.lib;
 
 rec {
-  vnc_api = pkgs.pythonPackages.buildPythonPackage rec {
-    pname = "vnc_api";
-    version = contrailVersion;
-    name = "${pname}-${version}";
-    src = "${contrailPython}/production/api-lib";
-    doCheck = false;
-    # buildInputs = [ pkgs.pythonPackages.fixtures ];
-    propagatedBuildInputs = with pkgs.pythonPackages; [ requests];
-  };
-
   vnc_openstack = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "vnc_openstack";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/config/vnc_openstack";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       gevent requests bottle_0_12_1 netaddr cfgm_common pysandesh vnc_api
       keystonemiddleware neutronConstants
     ];
-  };
-
-  cfgm_common = pkgs.pythonPackages.buildPythonPackage rec {
-    pname = "cfgm_common";
-    version = contrailVersion;
-    name = "${pname}-${version}";
-    src = "${contrailPython}/production/config/common";
-    doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [ psutil geventhttpclient bottle_0_12_1 bitarray ] ++
-      (optional isContrailMaster [ sqlalchemy ]);
   };
 
   sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
@@ -116,7 +96,7 @@ rec {
     version = contrailVersion;
     src = "${contrailPython}/production/config/api-server/";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
       kazoo vnc_api vnc_openstack sandesh_common kombu pyopenssl stevedore netifaces
       keystonemiddleware
@@ -129,7 +109,7 @@ rec {
     version = contrailVersion;
     src = "${contrailPython}/production/opserver/";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
      lxml geventhttpclient psutil redis bottle_0_12_1 xmltodict sseclient pycassa requests prettytable
      # Not in requirements.txt...
      pysandesh cassandra-driver sandesh_common cfgm_common stevedore kafka vnc_api
@@ -143,7 +123,7 @@ rec {
     src = "${contrailPython}/production/config/schema-transformer/";
     # To be cleaned
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       netaddr psutil bitarray pycassa lxml geventhttpclient cfgm_common pysandesh
       kazoo vnc_api sandesh_common kombu pyopenssl stevedore netifaces jsonpickle
     ] ++ (optional isContrail32  [ discovery_client ]);
@@ -158,7 +138,7 @@ rec {
     prePatch = ''
       sed -i '/test_suite/d' setup.py
     '';
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       cfgm_common vnc_api pysandesh sandesh_common
       netaddr gevent kombu pyopenssl pyyaml kazoo mock lxml pycassa #FIXME: novaclient
     ] ++ (optional isContrail32  [ discovery_client ]);
@@ -169,7 +149,7 @@ rec {
     version = contrailVersion;
     src = "${contrailPython}/production/discovery/";
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       gevent pycassa
       # Not in requirements.txt...
       cfgm_common vnc_api pysandesh sandesh_common xmltodict discovery_client
@@ -192,43 +172,45 @@ rec {
     '';
   };
 
-  configUtils = pkgs.stdenv.mkDerivation rec {
-    name = "contrail-config-utils-${version}";
-    version = contrailVersion;
-    src = workspace;
-    phases = [ "unpackPhase" "patchPhase" "installPhase" "fixupPhase" ];
-    buildInputs = [
-      (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-        netaddr vnc_api cfgm_common requests ]))
-      pkgs.makeWrapper
-    ];
-    patchPhase = ''
-      sed -i 's!/usr/bin/vif!${vrouterUtils}/bin/vif!' controller/src/config/utils/provision_vgw_interface.py
-      sed -i '/from vnc_api.*/d' controller/src/config/utils/provision_vgw_interface.py
-    '';
-    installPhase = ''
-      mkdir -p $out/bin
-      cp controller/src/config/utils/*.{py,sh} $out/bin
-    '';
-    postFixup = ''
-      wrapProgram "$out/bin/provision_vgw_interface.py" --prefix PATH ":" "${pkgs.nettools}/bin"
-    '';
-  };
+  configUtils = let
+    pythonPath = with pythonPackages; makePythonPath [ netaddr vnc_api cfgm_common requests ];
+    in pkgs.stdenv.mkDerivation rec {
+      name = "contrail-config-utils-${version}";
+      version = contrailVersion;
+      src = workspace;
+      phases = [ "unpackPhase" "patchPhase" "installPhase" "fixupPhase" ];
+      buildInputs = [ pkgs.makeWrapper ];
+      patchPhase = ''
+        sed -i 's!/usr/bin/vif!${vrouterUtils}/bin/vif!' controller/src/config/utils/provision_vgw_interface.py
+        sed -i '/from vnc_api.*/d' controller/src/config/utils/provision_vgw_interface.py
+      '';
+      installPhase = ''
+        mkdir -p $out/bin
+        cp controller/src/config/utils/*.{py,sh} $out/bin
+      '';
+      postFixup = ''
+        for i in $(find $out/bin -type f -executable -name "*.py"); do
+          wrapProgram $i --prefix PATH ":" "${pkgs.nettools}/bin" --prefix PYTHONPATH ":" ${pythonPath}
+        done
+      '';
+    };
 
-  vrouterPortControl = pkgs.stdenv.mkDerivation rec {
-   name = "contrail-vrouter-port-control-${version}";
-   version = contrailVersion;
-   src = workspace;
-   phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
-   buildInputs = [
-    (pkgs.python27.withPackages (pythonPackages: with pythonPackages; [
-       netaddr requests ]))
-   ];
-   installPhase = ''
-     mkdir -p $out/bin
-     cp controller/src/vnsw/agent/port_ipc/vrouter-port-control $out/bin
-   '';
-  };
+  vrouterPortControl = let
+    pythonPath = with pythonPackages; makePythonPath [ netaddr requests ];
+    in pkgs.stdenv.mkDerivation rec {
+      name = "contrail-vrouter-port-control-${version}";
+      version = contrailVersion;
+      src = workspace;
+      phases = [ "unpackPhase" "installPhase" "fixupPhase" ];
+      buildInputs = [ pkgs.makeWrapper ];
+      installPhase = ''
+        mkdir -p $out/bin
+        cp controller/src/vnsw/agent/port_ipc/vrouter-port-control $out/bin
+      '';
+      postFixup = ''
+          wrapProgram $out/bin/vrouter-port-control --prefix PYTHONPATH ":" ${pythonPath}
+      '';
+    };
 
   vrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
     pname = "contrail-vrouter-api";
@@ -247,21 +229,11 @@ rec {
     '';
     # Try to access /var/log/contrail/contrail-lbaas-haproxy-stdout.log
     doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       docker netaddr vrouterApi eventlet vnc_api cfgm_common
     ];
     makeWrapperArgs = [
       "--prefix PATH : ${pkgs.iptables}/bin:${pkgs.procps}/bin:${pkgs.nettools}/bin:${pkgs.iproute}/bin:${pkgs.sudo}/bin"
     ];
-  };
-
-  contrailNeutronPlugin = pkgs.pythonPackages.buildPythonPackage rec {
-    pname = "contrail-neutron-plugin";
-    version = contrailVersion;
-    name = "${pname}-${version}";
-    src = "${workspace}/openstack/neutron_plugin";
-
-    doCheck = false;
-    propagatedBuildInputs = with pkgs.pythonPackages; [ vnc_api cfgm_common pythonNeutronClient ];
   };
 }

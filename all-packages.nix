@@ -60,7 +60,6 @@ pkgs // {
   lib.buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc49; };
   keystonemiddleware = callPackage ./pkgs/keystonemiddleware { };
   neutronConstants = callPackage ./pkgs/neutron_constants {};
-  pythonNeutronClient = callPackage ./pkgs/python-neutronclient { };
 
   test = {
     allInOne = callPackage ./test/all-in-one.nix { pkgs_path = nixpkgs; contrailPkgs = self; };
@@ -79,9 +78,12 @@ pkgs // {
   tools.gremlinChecks = callPackage ./tools/contrail-gremlin/checks.nix { contrailPkgs = self; };
   tools.gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { contrailPkgs = self; };
   tools.contrail32DatabaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; pkgs_path = nixpkgs; };
+
+  pythonPackages = callPackages ./all-packages-python.nix { };
+
 } // (
   with self; import ./pkgs/contrail.nix {
-    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion pythonNeutronClient;
+    inherit pkgs workspace deps contrailBuildInputs isContrail32 isContrailMaster keystonemiddleware neutronConstants contrailVersion pythonPackages;
     stdenv = pkgs.overrideCC pkgs.stdenv gcc5;
   })
   # // (

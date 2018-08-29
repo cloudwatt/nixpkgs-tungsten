@@ -16,9 +16,9 @@ let
     in pkgs.lib.fix (pkgs.lib.extends f  allPackages);
 
   contrailPkgs = pkgs.lib.fix allPackages;
-  contrail32PythonPackages = with contrail32Pkgs; { inherit vnc_api cfgm_common contrailNeutronPlugin; };
 in {
   contrail32 = with contrail32Pkgs; {
+    pythonPackages = pkgs.lib.filterAttrs (n: v: builtins.elem n [ "vnc_api" "cfgm_common" "contrailNeutronPlugin" ]) pythonPackages;
     inherit configUtils api discovery schemaTransformer svcMonitor
             control
             vrouterAgent vrouterUtils vrouterNetns vrouterPortControl
@@ -26,7 +26,7 @@ in {
             # webCore webController
             test
             vms;
-    } // { pythonPackages = contrail32PythonPackages; };
+    };
   # contrailMaster = with contrailPkgs; {
   #   inherit configUtils api svcMonitor schemaTransformer
   #           control
