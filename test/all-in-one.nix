@@ -33,7 +33,7 @@ let
 
       contrail.allInOne = {
         enable = true;
-        contrailInterfaceName = "eth1";
+        vhostInterface = "eth1";
       };
     };
   };
@@ -44,25 +44,25 @@ let
     $machine->waitForUnit("zookeeper.service");
     $machine->waitForUnit("redis.service");
 
-    $machine->waitForUnit("contrailDiscovery.service");
-    $machine->waitForUnit("contrailApi.service");
+    $machine->waitForUnit("contrail-discovery.service");
+    $machine->waitForUnit("contrail-api.service");
 
-    $machine->waitForUnit("contrailSvcMonitor.service");
+    $machine->waitForUnit("contrail-svc-monitor.service");
     $machine->waitUntilSucceeds("curl localhost:8088/");
 
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q IfmapServer");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q ApiServer");
 
-    $machine->waitForUnit("contrailCollector.service");
+    $machine->waitForUnit("contrail-collector.service");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q Collector");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"Collector\")) | .[].status' | grep -q up");
 
-    $machine->waitForUnit("contrailControl.service");
+    $machine->waitForUnit("contrail-control.service");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services[].ep_type' | grep -q xmpp-server");
     $machine->waitUntilSucceeds("curl localhost:5998/services.json | jq '.services | map(select(.ep_type == \"xmpp-server\")) | .[].status' | grep -q up");
 
     $machine->succeed("lsmod | grep -q vrouter");
-    $machine->waitForUnit("contrailVrouterAgent.service");
+    $machine->waitForUnit("contrail-vrouter-agent.service");
 
     $machine->waitUntilSucceeds("curl http://localhost:8083/Snh_ShowBgpNeighborSummaryReq | grep machine | grep -q Established");
 
@@ -73,7 +73,7 @@ let
     $machine->succeed("ip netns exec ns-vm1 ip a | grep -q 20.1.1.252");
     $machine->succeed("ip netns exec ns-vm1 ping -c1 20.1.1.251");
 
-    $machine->waitForUnit("contrailAnalyticsApi.service");
+    $machine->waitForUnit("contrail-analytics-api.service");
     $machine->waitUntilSucceeds("curl http://localhost:8081/analytics/uves/vrouters | jq '. | length' | grep -q 1");
   '';
 

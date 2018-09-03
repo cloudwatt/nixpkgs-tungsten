@@ -121,12 +121,12 @@ in
             type = types.bool;
             default = false;
           };
-          contrailInterfaceName = mkOption {
+          vhostInterface = mkOption {
             type = types.str;
             default = "eth1";
             description = "Physical interface name to which virtual host interface maps to";
           };
-          contrailInterfaceIp = mkOption {
+          vhostIP = mkOption {
             type = types.str;
             default = "192.168.1.1";
           };
@@ -147,8 +147,8 @@ in
 
         contrail.vrouterAgent = {
           enable = true;
-          contrailInterfaceName = cfg.contrailInterfaceName;
-          contrailInterfaceIp = cfg.contrailInterfaceIp;
+          vhostInterface = cfg.vhostInterface;
+          vhostIP = cfg.vhostIP;
         };
 
         contrail.discovery = {
@@ -164,9 +164,9 @@ in
           configFile = schema;
         };
 
-        systemd.services.contrailSvcMonitor = {
+        systemd.services.contrail-svc-monitor = {
           wantedBy = [ "multi-user.target" ];
-          after = [ "contrailApi.service" ];
+          after = [ "contrail-api.service" ];
           script = "${contrailPkgs.svcMonitor}/bin/contrail-svc-monitor --conf_file ${svcMonitor}";
           path = [ pkgs.netcat ];
           postStart = ''
@@ -178,31 +178,31 @@ in
           '';
         };
 
-        systemd.services.contrailQueryEngine = {
+        systemd.services.contrail-query-engine = {
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
           preStart = "mkdir -p /var/log/contrail/";
           script = "${contrailPkgs.queryEngine}/bin/qed --conf_file ${query-engine}";
         };
 
-        systemd.services.contrailCollector = {
+        systemd.services.contrail-collector = {
           wantedBy = [ "network-online.target" ];
-          after = [ "contrailQueryEngine.service" ];
+          after = [ "contrail-query-engine.service" ];
           preStart = "mkdir -p /var/log/contrail/";
           script = "${contrailPkgs.collector}/bin/contrail-collector --conf_file ${collector}";
         };
 
-        systemd.services.contrailAnalyticsApi = {
+        systemd.services.contrail-analytics-api = {
           wantedBy = [ "multi-user.target" ];
           requires = [ "redis.service" ];
-          after = [ "contrailCollector.service" ];
+          after = [ "contrail-collector.service" ];
           preStart = "mkdir -p /var/log/contrail/ && ${pkgs.redis}/bin/redis-cli config set protected-mode no";
           script = "${contrailPkgs.analyticsApi}/bin/contrail-analytics-api --conf_file ${analytics}";
         };
 
-        systemd.services.contrailControl = {
+        systemd.services.contrail-control = {
           wantedBy = [ "multi-user.target" ];
-          after = [ "contrailApi.service" "contrailCollector.service" ];
+          after = [ "contrail-api.service" "contrail-collector.service" ];
           preStart = "mkdir -p /var/log/contrail/";
           script = "${contrailPkgs.control}/bin/contrail-control --conf_file ${control}";
           postStart = ''

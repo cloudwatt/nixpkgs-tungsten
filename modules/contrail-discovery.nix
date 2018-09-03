@@ -20,11 +20,11 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.contrailDiscovery = {
+    systemd.services.contrail-discovery = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
-              # Keyspaces are created by the contrail-api...
-              "contrailApi.service" ];
+                # Keyspaces are created by the contrail-api...
+                "contrail-api.service" ];
       preStart = "mkdir -p /var/log/contrail/";
       script = "${contrailPkgs.discovery}/bin/contrail-discovery --conf_file ${cfg.configFile}";
       path = [ pkgs.netcat ];

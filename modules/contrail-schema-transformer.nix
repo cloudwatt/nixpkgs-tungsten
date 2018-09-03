@@ -19,7 +19,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.contrailSchema = {
+    systemd.services.contrail-schema = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
       preStart = "mkdir -p /var/log/contrail/";
