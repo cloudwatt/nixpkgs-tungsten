@@ -143,7 +143,7 @@ in
         services.rabbitmq.enable = true;
         services.zookeeper.enable = true;
         services.redis.enable = true;
-        services.cassandra.enable = true;
+        cassandra.enable = true;
 
         contrail.vrouterAgent = {
           enable = true;

@@ -34,8 +34,11 @@ pkgs // {
     # support older compilers.
     (tbb.override{stdenv = pkgs.overrideCC stdenv gcc5;})
     (log4cplus.override{stdenv = pkgs.overrideCC stdenv gcc5;})
-    (boost155.override{buildPackages.stdenv.cc = gcc5; stdenv = pkgs.overrideCC stdenv gcc5;})
-
+    (boost155.override{
+      buildPackages.stdenv.cc = gcc5;
+      stdenv = pkgs.overrideCC stdenv gcc5;
+      enablePython = true;
+    })
     # api-server
     pythonPackages.lxml pythonPackages.pip
     # To get xxd binary required by sandesh

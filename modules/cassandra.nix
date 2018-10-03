@@ -3,7 +3,7 @@
 with lib;
 
 let
-  cfg = config.services.cassandra;
+  cfg = config.cassandra;
 
   cassandraPkg = pkgs.cassandra_3_0.overrideAttrs (oldAttrs: {
     name = "cassandra-3.11.1";
@@ -68,7 +68,7 @@ let
 
 in {
   options = {
-    services.cassandra = {
+    cassandra = {
       enable = mkOption {
         type = types.bool;
         default = false;

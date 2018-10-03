@@ -9,7 +9,7 @@ with deps;
 with pkgs.lib;
 
 rec {
-  vnc_openstack = pkgs.pythonPackages.buildPythonPackage rec {
+  vnc_openstack = pythonPackages.buildPythonPackage rec {
     pname = "vnc_openstack";
     version = contrailVersion;
     name = "${pname}-${version}";
@@ -21,29 +21,29 @@ rec {
     ];
   };
 
-  sandesh_common = pkgs.pythonPackages.buildPythonPackage rec {
+  sandesh_common = pythonPackages.buildPythonPackage rec {
     pname = "sandesh-common";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/sandesh/common/";
-    propagatedBuildInputs = with pkgs.pythonPackages; [  ];
+    propagatedBuildInputs = with pythonPackages; [  ];
   };
 
-  pysandesh = pkgs.pythonPackages.buildPythonPackage rec {
+  pysandesh = pythonPackages.buildPythonPackage rec {
     pname = "pysandesh";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/tools/sandesh/library/python/";
 
-    propagatedBuildInputs = with pkgs.pythonPackages; [ gevent netaddr ];
+    propagatedBuildInputs = with pythonPackages; [ gevent netaddr ];
   };
 
-  discovery_client = pkgs.pythonPackages.buildPythonPackage rec {
+  discovery_client = pythonPackages.buildPythonPackage rec {
     pname = "discovery-client";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${contrailPython}/production/discovery/client/";
-    propagatedBuildInputs = with pkgs.pythonPackages; [ gevent pycassa ];
+    propagatedBuildInputs = with pythonPackages; [ gevent pycassa ];
   };
 
   contrailPython = stdenv.mkDerivation rec {
@@ -54,11 +54,11 @@ rec {
     # Only required on master
     dontUseCmakeConfigure = true;
 
-    buildInputs = with pkgs.pythonPackages; contrailBuildInputs ++
+    buildInputs = with pythonPackages; contrailBuildInputs ++
       # Used by python unit tests
       [ bitarray pbr funcsigs mock bottle ] ++
       (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
-    propagatedBuildInputs = with pkgs.pythonPackages; [
+    propagatedBuildInputs = with pythonPackages; [
       psutil geventhttpclient
     ];
 
@@ -91,7 +91,7 @@ rec {
     mkdir $out; cp -r build/* $out'';
   };
 
-  api =  pkgs.pythonPackages.buildPythonApplication rec {
+  api =  pythonPackages.buildPythonApplication rec {
     name = "contrail-api-server-${version}";
     version = contrailVersion;
     src = "${contrailPython}/production/config/api-server/";
@@ -104,7 +104,7 @@ rec {
   };
 
   # Contains more than just the contrail-analytics-api!
-  analyticsApi =  pkgs.pythonPackages.buildPythonApplication rec {
+  analyticsApi =  pythonPackages.buildPythonApplication rec {
     name = "contrail-analytics-api-${version}";
     version = contrailVersion;
     src = "${contrailPython}/production/opserver/";
@@ -117,7 +117,7 @@ rec {
       ++ (optional (!isContrail32)  [ kazoo ]);
   };
 
-  schemaTransformer =  pkgs.pythonPackages.buildPythonApplication rec {
+  schemaTransformer =  pythonPackages.buildPythonApplication rec {
     name = "contrail-schema-transformer-${version}";
     version = contrailVersion;
     src = "${contrailPython}/production/config/schema-transformer/";
@@ -129,7 +129,7 @@ rec {
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
-  svcMonitor = pkgs.pythonPackages.buildPythonApplication rec {
+  svcMonitor = pythonPackages.buildPythonApplication rec {
     name = "contrail-svc-monitor-${version}";
     version = contrailVersion;
     src = "${contrailPython}/noarch/config/svc-monitor/";
@@ -144,7 +144,7 @@ rec {
     ] ++ (optional isContrail32  [ discovery_client ]);
   };
 
-  discovery =  pkgs.pythonPackages.buildPythonApplication rec {
+  discovery =  pythonPackages.buildPythonApplication rec {
     name = "contrail-discovery-${version}";
     version = contrailVersion;
     src = "${contrailPython}/production/discovery/";
@@ -212,14 +212,14 @@ rec {
       '';
     };
 
-  vrouterApi = pkgs.pythonPackages.buildPythonPackage rec {
+  vrouterApi = pythonPackages.buildPythonPackage rec {
     pname = "contrail-vrouter-api";
     version = contrailVersion;
     name = "${pname}-${version}";
     src = "${workspace}/controller/src/vnsw/contrail-vrouter-api/";
   };
 
-  vrouterNetns =  pkgs.pythonPackages.buildPythonApplication rec {
+  vrouterNetns =  pythonPackages.buildPythonApplication rec {
     name = "contrail-vrouter-netns-${version}";
     version = contrailVersion;
     src = "${workspace}/controller/src/vnsw/opencontrail-vrouter-netns/";

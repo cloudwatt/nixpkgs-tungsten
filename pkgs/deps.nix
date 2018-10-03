@@ -137,6 +137,6 @@ rec {
     };
 
     doCheck = false;
-    propagatedBuildInputs = [ six aenum futures tornado pytestrunner ];
+    propagatedBuildInputs = [ six aenum futures tornado_4 pytestrunner ];
   };
 }

@@ -27,7 +27,7 @@ in {
 
   config = {
     virtualisation = { memorySize = 8096; cores = 2; };
-    services.cassandra = {
+    cassandra = {
       enable = true;
       postStart = ''
         set -e

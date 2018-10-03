@@ -1,6 +1,6 @@
-{ pkgs, buildGo110Package, fetchFromGitHub }:
+{ pkgs, buildGoPackage, fetchFromGitHub }:
 
-buildGo110Package rec {
+buildGoPackage rec {
   name = "contrail-gremlin-${version}";
   version = "2018-01-23";
 
