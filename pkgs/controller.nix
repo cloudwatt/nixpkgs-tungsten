@@ -1,10 +1,10 @@
-{pkgs, sources, isContrailMaster, isContrail32}:
+{ pkgs, stdenv, contrailSources, isContrailMaster, isContrail32 }:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation {
   name = "controller";
   version = "R3.2";
   phases = [ "unpackPhase" "patchPhase" "installPhase" ];
-  src = sources.controller;
+  src = contrailSources.controller;
   patchPhase = ''
     sed -i "s|config_opts = |config_opts = ' --with-openssl=${pkgs.openssl.dev} ' + |" lib/bind/SConscript
 

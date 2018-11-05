@@ -1,12 +1,12 @@
-{ contrailPkgs, pkgs_path, isContrailMaster, isContrail32 }:
+{ pkgs, contrailPkgs }:
 
-with import (pkgs_path + "/nixos/lib/testing.nix") { system = builtins.currentSystem; };
+with import (pkgs.path + "/nixos/lib/testing.nix") { system = builtins.currentSystem; };
 
 let
-  config = { pkgs, lib, config, ... }: {
+  config = { lib, config, ... }: {
     imports = [ ../modules/compute-node.nix ];
     config = {
-      _module.args = { inherit contrailPkgs isContrailMaster isContrail32; };
+      _module.args = { inherit pkgs contrailPkgs; };
 
       networking.firewall.enable = false;
       services.openssh.enable = true;

@@ -1,16 +1,24 @@
-{pkgs, stdenv, contrailBuildInputs, deps, workspace, isContrail32, contrailVersion }:
+{ pkgs
+, stdenv
+, libgrok
+, contrailVersion
+, contrailWorkspace
+, contrailBuildInputs
+, isContrail32
+}:
 
 stdenv.mkDerivation rec {
   name = "contrail-collector-${version}";
   version = contrailVersion;
-  src = workspace;
+  src = contrailWorkspace;
   USER="contrail";
 
   # Only required on master
   dontUseCmakeConfigure = true;
-  buildInputs = contrailBuildInputs ++
-                [ pkgs.coreutils pkgs.cyrus_sasl.dev pkgs.gperftools pkgs.lz4.dev deps.libgrok pkgs.pcre.dev pkgs.tokyocabinet pkgs.libevent.dev ] ++
-                (pkgs.lib.optional (!isContrail32) [ pkgs.cmake pkgs."rabbitmq-c" ]);
+  buildInputs = with pkgs;
+    contrailBuildInputs ++
+    [ coreutils cyrus_sasl.dev gperftools lz4.dev libgrok pcre.dev tokyocabinet libevent.dev ] ++
+    (pkgs.lib.optional (!isContrail32) [ cmake rabbitmq-c ]);
 
   # To fix a scons cycle on buildinfo
   patches = pkgs.lib.optional isContrail32 [ ./patches/analytics.patch ];
@@ -25,6 +33,6 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/{bin,etc/contrail}
     cp build/production/analytics/vizd $out/bin/contrail-collector
-    cp ${workspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
+    cp ${contrailWorkspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
   '';
 }

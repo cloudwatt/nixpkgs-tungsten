@@ -4,6 +4,14 @@
 }:
 
 let
-  pkgs = import nixpkgs {};
-in
-  import ./default.nix { inherit nixpkgs; }
+  pkgs = import ./default.nix { inherit nixpkgs; };
+in with pkgs; {
+  inherit contrailIntrospectCli;
+  inherit contrailApiCliWithExtra;
+  inherit contrailGremlin;
+  inherit gremlinChecks;
+  inherit gremlinConsole;
+  inherit gremlinServer;
+  inherit gremlinFsck;
+  contrail32 = contrail32.lib.sanitizeOutputs contrail32;
+}

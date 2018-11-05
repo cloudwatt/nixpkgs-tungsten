@@ -1,4 +1,8 @@
-{ config, lib, pkgs, contrailPkgs, ... }:
+{ config
+, lib
+, pkgs
+, contrailPkgs
+, ... }:
 
 with lib;
 
@@ -32,7 +36,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
       preStart = "mkdir -p /var/log/contrail/";
-      script = "${contrailPkgs.api}/bin/contrail-api --conf_file  ${cfg.configFile}";
+      script = "${contrailPkgs.apiServer}/bin/contrail-api --conf_file  ${cfg.configFile}";
       path = [ pkgs.netcat ];
       postStart = lib.optionalString cfg.waitFor ''
         sleep 2

@@ -1,4 +1,4 @@
-{ contrailPkgs, pkgs, fetchFromGitHub, stdenv }:
+{ pkgs, fetchFromGitHub, gremlinConsole }:
 
 let
   src = (import ./sources.nix) fetchFromGitHub;
@@ -12,5 +12,5 @@ in
       echo File not found
       exit 1
     fi
-    ${contrailPkgs.tools.gremlinConsole}/bin/gremlin-console -i ${src}/gremlin-checks/checks.groovy $1
+    ${gremlinConsole}/bin/gremlin-console -i ${src}/gremlin-checks/checks.groovy $1
   ''

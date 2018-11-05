@@ -1,15 +1,21 @@
-{pkgs, stdenv, contrailBuildInputs, workspace, isContrailMaster, contrailVersion }:
+{ pkgs
+, stdenv
+, contrailVersion
+, contrailBuildInputs
+, contrailWorkspace
+, isContrailMaster }:
 
 stdenv.mkDerivation rec {
   name = "contrail-control-${version}";
   version = contrailVersion;
-  src = workspace;
-  USER="contrail";
+  src = contrailWorkspace;
+  USER = "contrail";
   # Only required on master
   dontUseCmakeConfigure = true;
 
-  buildInputs = contrailBuildInputs ++
-   (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
+  buildInputs = with pkgs;
+    contrailBuildInputs ++
+    (pkgs.lib.optional isContrailMaster [ cmake rabbitmq-c gperftools ]);
 
   buildPhase = ''
     scons -j1 --optimization=production contrail-control
@@ -17,7 +23,7 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/{bin,etc/contrail}
     cp build/production/control-node/contrail-control $out/bin/
-    cp ${workspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
+    cp ${contrailWorkspace}/controller/src/control-node/contrail-control.conf $out/etc/contrail/
   '';
 }
 

@@ -1,7 +1,4 @@
-{ pkgs
-, contrailPkgs
-, stdenv
-}:
+{ pkgs, stdenv, contrailPkgs }:
 
 with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
@@ -17,13 +14,13 @@ let
     '';
   };
 
-  machine = {pkgs, config, ...}: {
+  machine = { config, ... }: {
     imports = [
       ../modules/contrail-database-loader.nix
       ../modules/gremlin-server.nix
     ];
     config = {
-      _module.args = { inherit contrailPkgs; };
+      _module.args = { inherit pkgs contrailPkgs; };
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
@@ -42,7 +39,7 @@ let
 
   testScript = ''
     $machine->waitForOpenPort(8182);
-    $machine->succeed("${contrailPkgs.tools.contrailGremlin}/bin/gremlin-send 'g.V().count()'");
+    $machine->succeed("${pkgs.contrailGremlin}/bin/gremlin-send 'g.V().count()'");
   '';
 
 in

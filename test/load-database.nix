@@ -1,10 +1,9 @@
 { pkgs
-, pkgs_path ? <nixpkgs>
-, contrailPkgs
 , stdenv
+, contrailPkgs
 }:
 
-with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
 
@@ -21,14 +20,14 @@ let
     '';
   };
 
-  machine = {pkgs, config, ...}: {
+  machine = { config, ... }: {
     imports = [
       ../modules/contrail-database-loader.nix
       ../modules/contrail-api.nix
       ../modules/contrail-schema-transformer.nix
     ];
     config = {
-      _module.args = { inherit contrailPkgs; };
+      _module.args = { inherit pkgs contrailPkgs; };
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
@@ -56,7 +55,7 @@ let
 
   testScript = ''
     $machine->waitForOpenPort(8082);
-    $machine->waitUntilSucceeds("${contrailPkgs.tools.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l virtual-network | grep -q vn1");
+    $machine->waitUntilSucceeds("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l virtual-network | grep -q vn1");
   '';
 
 in

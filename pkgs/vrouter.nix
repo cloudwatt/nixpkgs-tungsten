@@ -1,12 +1,18 @@
-{ pkgs, stdenv, workspace, libelf, contrailBuildInputs, isContrailMaster }:
+{ pkgs
+, stdenv
+, contrailVersion
+, contrailWorkspace
+, contrailBuildInputs
+, isContrailMaster
+}:
 
 kernelHeaders: stdenv.mkDerivation rec {
   name = "contrail-vrouter-${kernelHeaders.name}";
-  version = "3.2";
-  src = workspace;
+  version = contrailVersion;
+  src = contrailWorkspace;
   hardeningDisable = [ "pic" ];
-  USER="contrail";
-  KERNEL_VERSION=pkgs.lib.getVersion kernelHeaders;
+  USER = "contrail";
+  KERNEL_VERSION = pkgs.lib.getVersion kernelHeaders;
   # Remove it when https://review.opencontrail.org/#/c/38139/ is merged on all branches we are using
   patchPhase = pkgs.lib.optionalString isContrailMaster "cd vrouter; patch -p1 < ${../patches/0001-Fix-build-for-kernels-4.9.patch}; cd ..";
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18

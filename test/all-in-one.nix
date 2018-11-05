@@ -1,24 +1,19 @@
 { pkgs
-# I didn't find a better way to run test by using the test framework
-# of the bootstrapped nixpkgs. In fact, this is to avoid the user to
-# set a specific NIX_PATH env var.
-, pkgs_path ? <nixpkgs>
 , contrailPkgs
-, isContrail32
-, isContrailMaster
 # If not set, contrail32 or contrailMaster test scripts are used.
 , testScript ? null
 }:
 
-with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 with pkgs.lib;
 
 let
-  machine = {pkgs, config, ...}: {
+  machine = { config, ...}: {
     imports = [ ../modules/all-in-one.nix ];
 
     config = {
-      _module.args = { inherit contrailPkgs isContrail32 isContrailMaster; };
+      # include pkgs to have access to tools overlay
+      _module.args = { inherit pkgs contrailPkgs; };
       virtualisation = { memorySize = 4096; cores = 2; };
 
       services.openssh.enable = true;
@@ -26,10 +21,11 @@ let
       services.openssh.extraConfig = "PermitEmptyPasswords yes";
       users.extraUsers.root.password = "";
 
-      environment.systemPackages = [
+      environment.systemPackages = with pkgs; [
         # Used by the test suite
-        pkgs.jq contrailPkgs.configUtils
-        contrailPkgs.tools.contrailApiCliWithExtra
+        jq
+        contrailApiCliWithExtra
+        contrailPkgs.configUtils
       ];
 
       contrail.allInOne = {

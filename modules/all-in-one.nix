@@ -1,4 +1,4 @@
-{ config, lib, pkgs, contrailPkgs, isContrail32, isContrailMaster,... }:
+{ config, lib, pkgs, contrailPkgs, ... }:
 
 with lib;
 
@@ -104,11 +104,11 @@ in
       };
       control32 = import ../test/configuration/R3.2/control.nix { inherit pkgs; };
       controlMaster = import ../test/configuration/master/control.nix { inherit pkgs; };
-      control = if isContrail32 then control32 else controlMaster;
+      control = if contrailPkgs.isContrail32 then control32 else controlMaster;
 
       collector32 = import ../test/configuration/R3.2/control.nix { inherit pkgs; };
       collectorMaster = import ../test/configuration/master/control.nix { inherit pkgs; };
-      collector = if isContrail32 then collector32 else collectorMaster;
+      collector = if contrailPkgs.isContrail32 then collector32 else collectorMaster;
 
       api = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
       schema = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
@@ -151,13 +151,15 @@ in
         };
 
         contrail.discovery = {
-          enable = isContrail32;
+          enable = contrailPkgs.isContrail32;
           configFile = discovery;
         };
+
         contrail.api = {
           enable = true;
           configFile = api;
         };
+
         contrail.schemaTransformer = {
           enable = true;
           configFile = schema;

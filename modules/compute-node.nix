@@ -1,4 +1,4 @@
-{ config, lib, pkgs, contrailPkgs, isContrail32, isContrailMaster,... }:
+{ config, lib, pkgs, contrailPkgs, ... }:
 
 with lib;
 
@@ -49,7 +49,7 @@ let
       tbb_keepawake_timeout = 25
 
       [SERVICE-INSTANCE]
-      netns_command = ${contrailPkgs.vrouterNetns}/bin/opencontrail-vrouter-netns
+      netns_command = ${contrailPkgs.vrouterNetNs}/bin/opencontrail-vrouter-netns
     '';
   };
 
@@ -116,9 +116,8 @@ in {
     boot.kernelModules = [ "vrouter" ];
     boot.kernelPackages = pkgs.linuxPackages_4_9;
 
-    environment.systemPackages = [
-      contrailPkgs.vrouterPortControl contrailPkgs.vrouterUtils
-      contrailPkgs.vrouterNetns
+    environment.systemPackages = with contrailPkgs; [
+      vrouterPortControl vrouterUtils vrouterNetNs
     ];
 
     networking.usePredictableInterfaceNames = false;

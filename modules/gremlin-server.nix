@@ -1,4 +1,4 @@
-{ config, lib, pkgs, contrailPkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 with lib;
 
@@ -110,14 +110,14 @@ in {
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ] ++ (pkgs.lib.optional cfg.makeDump "gremlinDump.service");
         requires = pkgs.lib.optional cfg.makeDump "gremlinDump.service";
-        script = "${contrailPkgs.tools.gremlinServer}/bin/gremlin-server ${serverConf}";
+        script = "${pkgs.gremlinServer}/bin/gremlin-server ${serverConf}";
       };
     })
     (mkIf cfg.makeDump {
       systemd.services.gremlinDump = {
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" "cassandra.service" ];
-        script = "${contrailPkgs.tools.contrailGremlin}/bin/gremlin-dump --cassandra 127.0.0.1:9042 ${cfg.dumpPath}";
+        script = "${pkgs.contrailGremlin}/bin/gremlin-dump --cassandra 127.0.0.1:9042 ${cfg.dumpPath}";
         serviceConfig = {
           Type = "oneshot";
         };

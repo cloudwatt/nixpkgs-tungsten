@@ -8,26 +8,23 @@
 #   echo "COPY config_db_uuid.$t TO '/tmp/cassandra-dump/config_db_uuid.$t.csv';" | cqlsh
 # done
 
-{ pkgs
-, pkgs_path ? <nixpkgs>
-, contrailPkgs
-}:
+{ pkgs, contrailPkgs }:
 
-with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
   apiConf = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
   schemaTransformerConf = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
   cassandraDumpPath = "/tmp/shared/cassandra-dump/";
 
-  machine = {pkgs, config, ...}: {
+  machine = { config, ...}: {
     imports = [
       ../modules/contrail-database-loader.nix
       ../modules/contrail-api.nix
       ../modules/contrail-schema-transformer.nix
     ];
     config = {
-      _module.args = { inherit contrailPkgs; };
+      _module.args = { inherit pkgs contrailPkgs; };
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";

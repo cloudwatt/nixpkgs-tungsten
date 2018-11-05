@@ -1,4 +1,4 @@
-{ contrailPkgs, pkgs, fetchzip, stdenv, makeWrapper, openjdk }:
+{ pkgs, fetchzip, stdenv, makeWrapper, openjdk }:
 
 stdenv.mkDerivation rec {
   name = "gremlin-server-${version}";

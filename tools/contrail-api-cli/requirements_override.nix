@@ -5,7 +5,7 @@ self: super: {
     buildInputs = old.buildInputs ++ [ pkgs.pythonPackages."pytestrunner" ];
   });
 
-  "gremlin-fsck" = pkgs.contrailPkgs.tools.gremlinFsck;
+  "gremlin-fsck" = pkgs.gremlinFsck;
 
   "contrail-api-cli-extra" = python.overrideDerivation super."contrail-api-cli-extra" (old: {
     src = pkgs.fetchFromGitHub {

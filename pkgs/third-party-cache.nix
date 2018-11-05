@@ -1,4 +1,4 @@
-{pkgs, sources}:
+{ pkgs, contrailSources }:
 
 # Hack: we create this derivation to split the downloading from
 # the autotool reconfiguration of thrift made by fetch_packages.
@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation {
   name = "contrail-third-party-cache";
   version = "3.2";
 
-  src = sources.thirdParty;
+  src = contrailSources.thirdParty;
   phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
   impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
@@ -18,7 +18,7 @@ pkgs.stdenv.mkDerivation {
   # This is really shitty since the hash depends on the autotool version used by thrift.
   outputHashMode = "recursive";
   outputHashAlgo = "sha256";
-  outputHash = "0a5x86azcxk8gnxw10qhd02a75sxzi8dlh149br7n9nny96fz2f9";
+  outputHash = null;
 
   buildInputs = with pkgs; [
     pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget

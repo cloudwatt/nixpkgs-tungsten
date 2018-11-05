@@ -1,36 +1,43 @@
-{pkgs, sources, contrailBuildInputs, thirdParty, controller, isContrail32 }:
+{ pkgs
+, isContrail32
+, contrailVersion
+, contrailBuildInputs
+, contrailSources
+, contrailThirdParty
+, contrailController }:
 
 pkgs.stdenv.mkDerivation rec {
   name = "contrail-workspace";
-  version = "3.2";
+  version = contrailVersion;
+  buildInputs = contrailBuildInputs;
 
   phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" "fixupPhase" ];
 
-  buildInputs = contrailBuildInputs;
-
   # We don't override the patchPhase to be nix-shell compliant
   preUnpack = ''mkdir workspace || exit; cd workspace'';
-  srcs = [ sources.build thirdParty sources.generateds sources.sandesh sources.vrouter sources.neutronPlugin controller ] ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon];
+  srcs = with contrailSources;
+    [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ]
+    ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon ];
   sourceRoot = ''./'';
-  postUnpack = ''
-    cp ${sources.build.out}/SConstruct .
+  postUnpack = with contrailSources; ''
+    cp ${build.out}/SConstruct .
 
     mkdir tools
-    mv ${sources.build.name} tools/build
-    mv ${sources.generateds.name} tools/generateds
-    mv ${sources.sandesh.name} tools/sandesh
+    mv ${build.name} tools/build
+    mv ${generateds.name} tools/generateds
+    mv ${sandesh.name} tools/sandesh
 
-    [[ ${controller.name} != controller ]] && mv ${controller.name} controller
-    [[ ${thirdParty.name} != third_party ]] && mv ${thirdParty.name} third_party
+    [[ ${contrailController.name} != controller ]] && mv ${contrailController.name} controller
+    [[ ${contrailThirdParty.name} != third_party ]] && mv ${contrailThirdParty.name} third_party
     find third_party -name configure -exec chmod 755 {} \;
-    [[ ${sources.vrouter.name} != vrouter ]] && mv ${sources.vrouter.name} vrouter
+    [[ ${vrouter.name} != vrouter ]] && mv ${vrouter.name} vrouter
 
     mkdir openstack
-    mv ${sources.neutronPlugin.name} openstack/neutron_plugin
+    mv ${neutronPlugin.name} openstack/neutron_plugin
   '' +
   pkgs.lib.optionalString (!isContrail32) ''
     mkdir src
-    mv ${sources.contrailCommon.name} src/contrail-common
+    mv ${contrailCommon.name} src/contrail-common
   '';
 
   prePatch = ''
