@@ -18,6 +18,8 @@ pkgs.writeTextFile {
     zk_server_port = 2181
     zk_server_ip = localhost
 
+    sandesh_send_rate_limit = 1000
+    aaa_mode = no-auth
 
     [IFMAP_SERVER]
     ifmap_listen_ip = 0.0.0.0

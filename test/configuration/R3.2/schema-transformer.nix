@@ -1,10 +1,10 @@
 { pkgs }:
 
 pkgs.writeTextFile {
-  name = "contrail-schema.conf";
+  name = "contrail-schema-transformer.conf";
   text = ''
     [DEFAULTS]
-    log_file = /var/log/contrail/contrail-schema.log
+    log_file = /var/log/contrail/schema.log
     log_local = 1
     log_level = SYS_DEBUG
 
@@ -18,5 +18,10 @@ pkgs.writeTextFile {
 
     api_server_port = 8082
     api_server_ip = localhost
+
+    disc_server_port = 5998
+    disc_server_ip = localhost
+
+    sandesh_send_rate_limit = 1000
   '';
 }

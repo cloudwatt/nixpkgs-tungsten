@@ -23,10 +23,9 @@ in
           collectors = 127.0.0.1:8086
           api_server_port = 8082
           api_server_ip = 127.0.0.1
-
-          [SCHEDULER]
-          aaa_mode = no-auth
-          analytics_server_list = 127.0.0.1:8081
+          disc_server_port = 5998
+          disc_server_ip = 127.0.0.1
+          sandesh_send_rate_limit = 1000
         '';
       };
       discovery = pkgs.writeTextFile {
@@ -112,7 +111,7 @@ in
       collector = if isContrail32 then collector32 else collectorMaster;
 
       api = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
-      schema = import ../test/configuration/R3.2/api.nix { inherit pkgs; };
+      schema = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs; };
 
     in {
       options = {

@@ -143,7 +143,7 @@ in {
         # contrail-vrouter-agent: controller/src/base/task.cc:293: virtual tbb::task* TaskImpl::execute(): Assertion `0' failed.
         # !!!! ERROR !!!! Task caught fatal exception: locale::facet::_S_create_c_locale name not valid TaskImpl: 0x2418e40
         environment = { "LC_ALL" = "C"; };
-        path = [ pkgs.netcat ];
+        path = [ pkgs.netcat contrailPkgs.tools.contrailApiCliWithExtra ];
         preStart = ''
           mkdir -p /var/log/contrail/
           while ! nc -vz ${cfg.discoveryHost} 5998; do
@@ -157,8 +157,10 @@ in {
           while ! nc -vz ${cfg.apiHost} 8082; do
             sleep 2
           done
-          ${contrailPkgs.configUtils}/bin/provision_vrouter.py --api_server_ip ${cfg.apiHost} \
-            --api_server_port 8082 --oper add --host_name $HOSTNAME --host_ip ${cfg.vhostIP}
+          # creates global-vrouter-config
+          contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} set-encaps MPLSoGRE MPLSoUDP VXLAN
+          # adds virtual-router
+          contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} add-vrouter --vrouter-ip ${cfg.vhostIP} $HOSTNAME
         '';
       };
 
