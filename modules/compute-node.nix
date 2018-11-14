@@ -142,7 +142,7 @@ in {
         # contrail-vrouter-agent: controller/src/base/task.cc:293: virtual tbb::task* TaskImpl::execute(): Assertion `0' failed.
         # !!!! ERROR !!!! Task caught fatal exception: locale::facet::_S_create_c_locale name not valid TaskImpl: 0x2418e40
         environment = { "LC_ALL" = "C"; };
-        path = [ pkgs.netcat contrailPkgs.tools.contrailApiCliWithExtra ];
+        path = [ pkgs.netcat pkgs.contrailApiCliWithExtra ];
         preStart = ''
           mkdir -p /var/log/contrail/
           while ! nc -vz ${cfg.discoveryHost} 5998; do
