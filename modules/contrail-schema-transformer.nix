@@ -21,7 +21,7 @@ in {
   config = mkIf cfg.enable {
     systemd.services.contrail-schema-transformer = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" ];
+      after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service" ];
       preStart = "mkdir -p /var/log/contrail/";
       script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${cfg.configFile}";
     };

@@ -181,7 +181,7 @@ in
 
         systemd.services.contrail-query-engine = {
           wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service" "redis.service" ];
+          after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service" "redis.service" ];
           preStart = "mkdir -p /var/log/contrail/";
           script = "${contrailPkgs.queryEngine}/bin/qed --conf_file ${query-engine}";
         };

@@ -22,7 +22,7 @@ in {
   config = mkIf cfg.enable {
     systemd.services.contrail-discovery = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "cassandra.service" "rabbitmq.servive" "zookeeper.service"
+      after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service"
                 # Keyspaces are created by the contrail-api...
                 "contrail-api.service" ];
       preStart = "mkdir -p /var/log/contrail/";
