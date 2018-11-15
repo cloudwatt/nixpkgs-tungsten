@@ -3,17 +3,17 @@
 with lib;
 
 let
-  cfg = config.contrail.schemaTransformer;
+  cfg = config.contrail.svcMonitor;
 in {
   options = {
-    contrail.schemaTransformer = {
+    contrail.svcMonitor = {
       enable = mkOption {
         type = types.bool;
         default = false;
       };
       configFile = mkOption {
         type = types.path;
-        description = "schema transformer configuration file";
+        description = "contrail svc-monitor configuration file";
       };
       autoStart = mkOption {
         type = types.bool;
@@ -23,16 +23,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.contrail-schema-transformer = mkMerge [
+    systemd.services.contrail-svc-monitor = mkMerge [
       {
         after = [ "network.target" "cassandra.service" "rabbitmq.service"
                   "zookeeper.service" "contrail-api.service" ];
-        requires = [ "contrail-api.service" ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${cfg.configFile}";
+        script = "${contrailPkgs.svcMonitor}/bin/contrail-svc-monitor --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];
   };
 }
-

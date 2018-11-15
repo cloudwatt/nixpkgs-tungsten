@@ -4,7 +4,7 @@ with import (pkgs.path + "/nixos/lib/testing.nix") { system = builtins.currentSy
 
 let
   config = { lib, config, ... }: {
-    imports = [ ../modules/compute-node.nix ];
+    imports = [ ../modules/contrail-vrouter-agent.nix ];
     config = {
       _module.args = { inherit pkgs contrailPkgs; };
 

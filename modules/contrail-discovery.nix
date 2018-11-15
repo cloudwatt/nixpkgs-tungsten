@@ -16,6 +16,13 @@ in {
         type = types.path;
         description = "The contrail discovery file path";
       };
+      waitFor = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether to wait for the discovery port in the post start phase
+        '';
+      };
     };
   };
 
@@ -25,10 +32,11 @@ in {
       after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service"
                 # Keyspaces are created by the contrail-api...
                 "contrail-api.service" ];
+      requires = [ "contrail-api.service" ];
       preStart = "mkdir -p /var/log/contrail/";
       script = "${contrailPkgs.discovery}/bin/contrail-discovery --conf_file ${cfg.configFile}";
       path = [ pkgs.netcat ];
-      postStart = ''
+      postStart = optionalString cfg.waitFor ''
         sleep 2
         while ! nc -vz localhost 5998; do
           sleep 2

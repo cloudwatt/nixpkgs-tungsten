@@ -30,13 +30,30 @@ in {
     cassandra = {
       enable = true;
       postStart = ''
-        set -e
         cat ${cfg.cassandraDumpPath}/schema.cql | grep -v caching | sed "s|'replication_factor': '3'|'replication_factor': '1'|" | cqlsh
-        for t in obj_uuid_table obj_fq_name_table; do
-           # A bigger batch size fails on big Contrail databases
-           echo "COPY config_db_uuid.$t FROM '${cfg.cassandraDumpPath}/config_db_uuid.$t.csv' WITH MAXBATCHSIZE = 2;" | cqlsh --cqlshrc=${cqlshrc}
+
+        load_table() {
+          k=$1
+          t=$2
+          if [ -f ${cfg.cassandraDumpPath}/$k.$t.csv ]; then
+            echo "COPY $k.$t FROM '${cfg.cassandraDumpPath}/$k.$t.csv' WITH MAXBATCHSIZE = 2;" | cqlsh --cqlshrc=${cqlshrc}
+          fi
+        }
+
+        declare -A keyspaces
+        keyspaces[config_db_uuid]="obj_uuid_table obj_fq_name_table"
+        keyspaces[to_bgp_keyspace]="service_chain_uuid_table service_chain_ip_address_table service_chain_table route_target_table"
+        keyspaces[svc_monitor_keyspace]="service_instance_table pool_table"
+        keyspaces[useragent]="useragent_keyval_table"
+
+        for k in ''${!keyspaces[@]}
+        do
+          for t in ''${keyspaces[$k]}
+          do
+            load_table $k $t
+          done
         done
       '';
-      };
+    };
   };
 }

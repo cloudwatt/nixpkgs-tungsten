@@ -14,12 +14,8 @@ let
     config = {
       # include pkgs to have access to tools overlay
       _module.args = { inherit pkgs contrailPkgs; };
-      virtualisation = { memorySize = 4096; cores = 2; };
 
-      services.openssh.enable = true;
-      services.openssh.permitRootLogin = "yes";
-      services.openssh.extraConfig = "PermitEmptyPasswords yes";
-      users.extraUsers.root.password = "";
+      virtualisation = { memorySize = 4096; cores = 2; };
 
       environment.systemPackages = with pkgs; [
         # Used by the test suite

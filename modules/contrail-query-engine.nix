@@ -3,17 +3,17 @@
 with lib;
 
 let
-  cfg = config.contrail.schemaTransformer;
+  cfg = config.contrail.queryEngine;
 in {
   options = {
-    contrail.schemaTransformer = {
+    contrail.queryEngine = {
       enable = mkOption {
         type = types.bool;
         default = false;
       };
       configFile = mkOption {
         type = types.path;
-        description = "schema transformer configuration file";
+        description = "contrail query-engine configuration file";
       };
       autoStart = mkOption {
         type = types.bool;
@@ -23,16 +23,16 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.contrail-schema-transformer = mkMerge [
+    services.redis.enable = true;
+    systemd.services.contrail-query-engine = mkMerge [
       {
-        after = [ "network.target" "cassandra.service" "rabbitmq.service"
-                  "zookeeper.service" "contrail-api.service" ];
-        requires = [ "contrail-api.service" ];
+        after = [ "network.target" "cassandra.service" "contrail-discovery.service"
+                  "rabbitmq.service" "zookeeper.service" "redis.service" ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${cfg.configFile}";
+        script = "${contrailPkgs.queryEngine}/bin/qed --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];
   };
-}
 
+}

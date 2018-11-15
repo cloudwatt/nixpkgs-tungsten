@@ -17,6 +17,7 @@ let
     mkdir -p $out
     cat ${cassandraPkg}/conf/cassandra.yaml > $out/cassandra.yaml
     sed -i 's/^rpc_address.*/rpc_address: ${cfg.rpcAddress}/' $out/cassandra.yaml
+    sed -i 's/^# broadcast_rpc_address.*/broadcast_rpc_address: ${cfg.broadcastRpcAddress}/' $out/cassandra.yaml
     cat >> $out/cassandra.yaml << EOF
     data_file_directories:
         - /tmp/cassandra-data/data
@@ -75,7 +76,12 @@ in {
       };
       rpcAddress = mkOption {
         description = "rpc listener address";
-        default = "localhost";
+        default = "0.0.0.0";
+        type = types.str;
+      };
+      broadcastRpcAddress = mkOption {
+        description = "broadcast rpc address";
+        default = "127.0.0.1";
         type = types.str;
       };
       postStart = mkOption {
@@ -85,12 +91,24 @@ in {
     };
   };
   config = mkIf cfg.enable {
+
+    # to have cqlsh easily accessible in the VM
+    environment.systemPackages = with pkgs; [
+      cassandraPkg
+    ];
+
+    boot.kernel.sysctl = {
+      "vm.max_map_count" = "1048575";
+      "fs.file-max" = "100000";
+    };
+
     systemd.services.cassandra = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       path = [ cassandraPkg ];
-      serviceConfig= {
-        TimeoutSec="infinity";
+      serviceConfig = {
+        TimeoutSec = "infinity";
+        LimitNOFILE = 100000;
       };
       environment = {
         CASSANDRA_CONFIG = cassandraConfigDir;
@@ -99,9 +117,9 @@ in {
         mkdir -p /tmp/cassandra-data/
         chmod a+w /tmp/cassandra-data
         export CASSANDRA_CONF=${cassandraConfigDir}
-        export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
-        export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
-        export JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+        export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.port=7199"
+        export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.ssl=false"
+        export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.authenticate=false"
         ${cassandraPkg}/bin/cassandra -f -R
       '';
       postStart = ''
@@ -113,5 +131,6 @@ in {
         ${cfg.postStart}
       '';
     };
+
   };
 }

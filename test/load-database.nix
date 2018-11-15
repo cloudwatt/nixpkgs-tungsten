@@ -42,7 +42,6 @@ let
       contrail.api = {
         enable = true;
         configFile = apiConf;
-        waitFor = false;
       };
 
       contrail.schemaTransformer = {
