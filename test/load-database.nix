@@ -56,6 +56,9 @@ let
   testScript = ''
     $machine->waitForOpenPort(8082);
     $machine->waitUntilSucceeds("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l virtual-network | grep -q vn1");
+    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli --ns contrail_api_cli.provision add-vn --project-fqname default-domain:default-project testvn2");
+    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l routing-instance | grep -q default-domain:default-project:testvn2:testvn2");
+    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli cat routing-instance/default-domain:default-project:testvn2:testvn2 | grep -q route-target");
   '';
 
 in
