@@ -8,6 +8,10 @@ let
 
   vgwOptions = {
     options = {
+      projectName = mkOption {
+        type = types.str;
+        default = "service";
+      };
       networkName = mkOption {
         type = types.str;
       };
@@ -201,12 +205,13 @@ in {
       ];
 
     } // listToAttrs (map (gw:
-      nameValuePair "add-${gw.networkName}-vgw"
+      nameValuePair "add-${gw.projectName}-${gw.networkName}-vgw"
       (mkMerge [
         {
           serviceConfig.Type = "oneshot";
           serviceConfig.RemainAfterExit = true;
           after = [ "contrail-vrouter-agent.service" ];
+          requires = [ "contrail-vrouter-agent.service" ];
           path = [ pkgs.netcat ];
           script = ''
             while ! nc -vz localhost 9091; do
@@ -214,7 +219,7 @@ in {
             done
             ${contrailPkgs.configUtils}/bin/provision_vgw_interface.py --oper create \
                 --interface vgw --subnets ${gw.networkCIDR} --routes ${gw.routes} \
-                --vrf "default-domain:service:${gw.networkName}:${gw.networkName}"
+                --vrf "default-domain:${gw.projectName}:${gw.networkName}:${gw.networkName}"
           '';
         }
         (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
