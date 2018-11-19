@@ -42,7 +42,7 @@ in {
     systemd.services.contrail-api = mkMerge [
       {
         after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service" ];
-        requires = [ "cassandra.service" ];
+        requires = [ "cassandra.service" "zookeeper.service" ];
         preStart = "mkdir -p /var/log/contrail/";
         script = "${contrailPkgs.apiServer}/bin/contrail-api --conf_file  ${cfg.configFile}";
         path = [ pkgs.netcat ];

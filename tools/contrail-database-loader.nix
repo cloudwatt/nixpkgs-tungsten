@@ -14,6 +14,7 @@ with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 
 let
   cassandraDumpPath = "/tmp/shared/cassandra-dump/";
+  zookeeperDumpPath = "/tmp/shared/zookeeper-dump/";
 
   machine = { config, ...}: {
     imports = [
@@ -32,7 +33,7 @@ let
 
         databaseLoader = {
           enable = true;
-          inherit cassandraDumpPath;
+          inherit cassandraDumpPath zookeeperDumpPath;
         };
 
         api.waitFor = false;
@@ -53,14 +54,15 @@ let
   vm = (makeTest { name = "contrail-database-loader"; nodes = { inherit machine; }; testScript = ""; }).driver;
 in
 pkgs.writeScript "contrail-database-loader-start" ''
-  if [ ! -d  /tmp/xchg-shared/cassandra-dump ]
+  if [ ! -d /tmp/xchg-shared/cassandra-dump ] || [ ! -d /tmp/xchg-shared/zookeeper-dump ]
   then
     CASSANDRA_IP=$1
     cat <<EOF
-You must first create a dump directory /tmp/xchg-shared/cassandra-dump
-that contains all required dump files
+You need to create dump directories that contains dump files for cassandra, zookeeper:
+  - /tmp/xchg-shared/cassandra-dump
+  - /tmp/xchg-shared/zookeeper-dump
 
-To create theses files:
+To make cassandra dump:
 
   mkdir -p /tmp/cassandra-dump
   cqlsh $CASSANDRA_IP -e "DESC SCHEMA" > /tmp/cassandra-dump/schema.cql
@@ -82,7 +84,15 @@ Optional tables:
     echo "COPY to_bgp_keyspace.\$t TO '/tmp/cassandra-dump/to_bgp_keyspace.\$t.csv';" | cqlsh $CASSANDRA_IP
   done
 
-Then move /tmp/cassandra-dump to /tmp/xchg-shared/cassandra-dump
+Then move dump files to /tmp/xchg-shared/cassandra-dump
+
+To make zookeeper dump (optional):
+
+  mkdir -p /tmp/zookeeper-dump
+  cp $(find /var/lib/zookeeper/version-2/ -mtime 0 -name '*snapshot*') /tmp/zookeeper-dump/
+
+Then move dump files to /tmp/xchg-shared/zookeeper-dump
+
 And replay this script
 EOF
     exit 1

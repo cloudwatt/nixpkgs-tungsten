@@ -22,6 +22,11 @@ in {
         type = types.path;
         description = "The path of the database dump folder";
       };
+      zookeeperDumpPath = mkOption {
+        type = types.nullOr types.path;
+        description = "The path of the snapshot dump folder";
+        default = null;
+      };
     };
   };
 
@@ -53,6 +58,17 @@ in {
             load_table $k $t
           done
         done
+      '';
+    };
+    services.zookeeper = {
+      enable = true;
+      dataDir = "/var/lib/zookeeper";
+    };
+    systemd.services.zookeeper = {
+      preStart = optionalString (cfg.zookeeperDumpPath != null) ''
+        mkdir -p /var/lib/zookeeper/version-2/
+        cp ${cfg.zookeeperDumpPath}/* /var/lib/zookeeper/version-2/
+        chown -R zookeeper:nogroup /var/lib/zookeeper/version-2/
       '';
     };
   };
