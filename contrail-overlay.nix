@@ -147,7 +147,7 @@ in {
     contrailVersion = "3.2";
     contrailSources = callPackage ./sources-R3.2.nix { };
     contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
-      { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
+      { outputHash = "1x0kgr2skq17lh5anwimlfjy1yzc8vhz5cmyraxg4hqig1g599sf"; });
     tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; };
   });
 
