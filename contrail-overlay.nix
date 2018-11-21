@@ -7,6 +7,16 @@ let
   inherit (super) callPackage callPackages;
   inherit (super.lib) filterAttrs;
 
+  minimalDump = super.stdenv.mkDerivation {
+    name = "minimal-cassandra-dump";
+    src = ./test/minimal-cassandra-dump.tgz;
+    setSourceRoot = "sourceRoot=`pwd`";
+    installPhase = ''
+      mkdir -p $out
+      cp -r * $out/
+    '';
+  };
+
   stdenv_gcc5 = super.overrideCC self.stdenv self.gcc5;
   stdenv_gcc49 = super.overrideCC self.stdenv self.gcc49;
   stdenv_gcc6 = super.overrideCC self.stdenv self.gcc6;
@@ -132,8 +142,14 @@ let
 
     test = {
       allInOne = callPackage ./test/all-in-one.nix { contrailPkgs = lself; };
-      loadDatabase = callPackage ./test/load-database.nix { contrailPkgs = lself; };
-      gremlinDump = callPackage ./test/gremlin-dump.nix { contrailPkgs = lself; };
+      loadDatabase = callPackage ./test/load-database.nix {
+        contrailPkgs = lself;
+        cassandraDumpPath = minimalDump;
+        extraTestScript = ''
+          $machine->waitUntilSucceeds("contrail-api-cli ls -l virtual-network | grep -q vn1");
+        '';
+      };
+      gremlinDump = callPackage ./test/gremlin-dump.nix { contrailPkgs = lself; cassandraDumpPath = minimalDump; };
     };
 
   });

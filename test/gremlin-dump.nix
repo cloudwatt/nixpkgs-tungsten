@@ -1,18 +1,8 @@
-{ pkgs, stdenv, contrailPkgs }:
+{ pkgs, stdenv, contrailPkgs, cassandraDumpPath }:
 
 with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
-
-  dump = stdenv.mkDerivation {
-    name = "cassandra-dump";
-    src = ./cassandra-dump.tgz;
-    setSourceRoot = "sourceRoot=`pwd`";
-    installPhase = ''
-      mkdir -p $out
-      cp -r * $out/
-    '';
-  };
 
   machine = { config, ... }: {
     imports = [
@@ -29,7 +19,7 @@ let
 
       contrail.databaseLoader = {
         enable = true;
-        cassandraDumpPath = dump;
+        inherit cassandraDumpPath;
       };
 
       gremlin.server.enable = true;

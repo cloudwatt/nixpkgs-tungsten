@@ -1,21 +1,13 @@
 { pkgs
 , stdenv
 , contrailPkgs
+, cassandraDumpPath
+, extraTestScript ? ""
 }:
 
 with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
-
-  dump = stdenv.mkDerivation {
-    name = "cassandra-dump";
-    src = ./cassandra-dump.tgz;
-    setSourceRoot = "sourceRoot=`pwd`";
-    installPhase = ''
-      mkdir -p $out
-      cp -r * $out/
-    '';
-  };
 
   machine = { config, ... }: {
     imports = [
@@ -31,9 +23,13 @@ let
       services.openssh.extraConfig = "PermitEmptyPasswords yes";
       users.extraUsers.root.password = "";
 
+      environment.systemPackages = with pkgs; [
+        contrailApiCliWithExtra
+      ];
+
       contrail.databaseLoader = {
         enable = true;
-        cassandraDumpPath = dump;
+        inherit cassandraDumpPath;
       };
 
       contrail.api.enable = true;
@@ -43,12 +39,12 @@ let
   };
 
   testScript = ''
-    $machine->waitForOpenPort(8082);
-    $machine->waitUntilSucceeds("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l virtual-network | grep -q vn1");
-    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli --ns contrail_api_cli.provision add-vn --project-fqname default-domain:default-project testvn2");
-    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli ls -l routing-instance | grep -q default-domain:default-project:testvn2:testvn2");
-    $machine->succeed("${pkgs.contrailApiCliWithExtra}/bin/contrail-api-cli cat routing-instance/default-domain:default-project:testvn2:testvn2 | grep -q route-target");
-  '';
+    $machine->waitForUnit("cassandra.service");
+    $machine->waitForUnit("contrail-api.service");
+    $machine->succeed("contrail-api-cli --ns contrail_api_cli.provision add-vn --project-fqname default-domain:default-project vn2");
+    $machine->succeed("contrail-api-cli ls -l routing-instance | grep -q default-domain:default-project:vn2:vn2");
+    $machine->waitUntilSucceeds("contrail-api-cli cat routing-instance/default-domain:default-project:vn2:vn2 | grep -q route-target");
+  '' + extraTestScript;
 
 in
   makeTest { name = "contrail-database-loader"; nodes = { inherit machine; }; inherit testScript; }
