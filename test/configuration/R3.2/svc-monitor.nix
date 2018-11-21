@@ -4,12 +4,13 @@ pkgs.writeTextFile {
   name = "contrail-svc-monitor.conf";
   text = ''
     [DEFAULTS]
+    log_level = SYS_DEBUG
+    log_local = 0
+    log_file = /var/log/contrail/svc-monitor.log
+    use_syslog = 1
+
     rabbit_port = 5672
     rabbit_server = localhost
-
-    log_file = /var/log/contrail/svc-monitor.log
-    log_level = SYS_DEBUG
-    log_local = 1
 
     zk_server_port = 2181
     zk_server_ip = 127.0.0.1

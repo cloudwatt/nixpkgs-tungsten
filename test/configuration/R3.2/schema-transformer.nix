@@ -4,9 +4,10 @@ pkgs.writeTextFile {
   name = "contrail-schema-transformer.conf";
   text = ''
     [DEFAULTS]
-    log_file = /var/log/contrail/schema.log
-    log_local = 1
     log_level = SYS_DEBUG
+    log_local = 0
+    log_file = /var/log/contrail/schema-transformer.log
+    use_syslog = 1
 
     rabbit_port = 5672
     rabbit_server = localhost

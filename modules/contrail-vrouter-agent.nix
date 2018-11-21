@@ -28,10 +28,12 @@ let
     name = "contrail-agent.conf";
     text = ''
       [DEFAULT]
-      ble_flow_collection = 1
-      log_file = /var/log/contrail/vrouter.log
       log_level = SYS_DEBUG
-      log_local = 1
+      log_file = /var/log/contrail/vrouter-agent.log
+      log_local = 0
+      use_syslog = 1
+
+      disable_flow_collection = 1
 
       [DISCOVERY]
       port = 5998

@@ -4,9 +4,11 @@ pkgs.writeTextFile {
   name = "contrail-api.conf";
   text = ''
     [DEFAULTS]
-    log_file = /var/log/contrail/api.log
     log_level = SYS_DEBUG
-    log_local = 1
+    log_local = 0
+    log_file = /var/log/contrail/api.log
+    use_syslog = 1
+
     cassandra_server_list = localhost:9160
     disc_server_ip = localhost
     disc_server_port = 5998

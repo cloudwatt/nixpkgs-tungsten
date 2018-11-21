@@ -4,9 +4,11 @@ pkgs.writeTextFile {
   name = "contrail-collector.conf";
   text = ''
     [DEFAULT]
-    log_local = 1
-    log_level = SYS_DEBUG
-    log_file = /var/log/contrail/contrail-collector.log
+    log_level = SYS_INFO
+    log_local = 0
+    log_file = /var/log/contrail/collector.log
+    use_syslog = 1
+
     cassandra_server_list = 127.0.0.1:9042
 
     [COLLECTOR]
