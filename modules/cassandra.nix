@@ -57,7 +57,7 @@ let
         </encoder>
       </appender>
 
-      <root level="INFO">
+      <root level="WARN">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
       </root>
