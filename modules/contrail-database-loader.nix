@@ -41,7 +41,7 @@ in {
           k=$1
           t=$2
           if [ -f ${cfg.cassandraDumpPath}/$k.$t.csv ]; then
-            echo "COPY $k.$t FROM '${cfg.cassandraDumpPath}/$k.$t.csv' WITH MAXBATCHSIZE = 2;" | cqlsh --cqlshrc=${cqlshrc}
+            echo "COPY $k.$t FROM '${cfg.cassandraDumpPath}/$k.$t.csv' WITH MAXBATCHSIZE = 50;" | cqlsh --cqlshrc=${cqlshrc}
           fi
         }
 

@@ -28,6 +28,8 @@ let
     hints_directory:
         - /tmp/cassandra-data/hints
     start_rpc: true
+    batch_size_warn_threshold_in_kb: 500
+    batch_size_fail_threshold_in_kb: 2000
     EOF
 
     cat >> $out/logback.xml << EOF

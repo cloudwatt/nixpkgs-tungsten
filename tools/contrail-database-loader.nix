@@ -89,7 +89,7 @@ Then move dump files to /tmp/xchg-shared/cassandra-dump
 To make zookeeper dump (optional):
 
   mkdir -p /tmp/zookeeper-dump
-  cp $(find /var/lib/zookeeper/version-2/ -mtime 0 -name '*snapshot*') /tmp/zookeeper-dump/
+  cp \$(find /var/lib/zookeeper/version-2/ -mtime 0 -name '*snapshot*') /tmp/zookeeper-dump/
 
 Then move dump files to /tmp/xchg-shared/zookeeper-dump
 
