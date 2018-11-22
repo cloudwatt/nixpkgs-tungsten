@@ -7,8 +7,12 @@
 with lib;
 
 let
+
   cfg = config.contrail.api;
+  confFile = import ../test/configuration/R3.2/api.nix { inherit pkgs cfg; };
+
 in {
+
   options = {
     contrail.api = {
       enable = mkOption {
@@ -18,6 +22,7 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "contrail-api configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
@@ -30,14 +35,23 @@ in {
           Whether to wait for the API port in the post start phase
         '';
       };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_INFO";
+      };
     };
   };
 
   config = mkIf cfg.enable {
+    cassandra.enable = true;
     services.zookeeper.enable = true;
     services.rabbitmq = {
       enable = true;
       listenAddress = "0.0.0.0";
+      # allow to connect from outside the VM
+      config = ''
+        [{rabbit, [{loopback_users, []}]}].
+      '';
     };
     systemd.services.contrail-api = mkMerge [
       {

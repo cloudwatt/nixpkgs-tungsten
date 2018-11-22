@@ -3,8 +3,12 @@
 with lib;
 
 let
+
   cfg = config.contrail.queryEngine;
+  confFile = import ../test/configuration/R3.2/query-engine.nix { inherit pkgs cfg; };
+
 in {
+
   options = {
     contrail.queryEngine = {
       enable = mkOption {
@@ -14,10 +18,15 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "contrail query-engine configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_WARN";
       };
     };
   };

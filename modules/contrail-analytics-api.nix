@@ -3,8 +3,12 @@
 with lib;
 
 let
+
   cfg = config.contrail.analyticsApi;
+  confFile = import ../test/configuration/R3.2/analytics-api.nix { inherit pkgs cfg; };
+
 in {
+
   options = {
     contrail.analyticsApi = {
       enable = mkOption {
@@ -14,10 +18,15 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "contrail analytics-api configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_WARN";
       };
     };
   };

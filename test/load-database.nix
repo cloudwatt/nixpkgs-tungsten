@@ -7,9 +7,6 @@ with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSyst
 
 let
 
-  apiConf = import ./configuration/R3.2/api.nix { inherit pkgs; };
-  schemaTransformerConf = import ./configuration/R3.2/schema-transformer.nix { inherit pkgs; };
-
   dump = stdenv.mkDerivation {
     name = "cassandra-dump";
     src = ./cassandra-dump.tgz;
@@ -39,15 +36,8 @@ let
         cassandraDumpPath = dump;
       };
 
-      contrail.api = {
-        enable = true;
-        configFile = apiConf;
-      };
-
-      contrail.schemaTransformer = {
-        enable = true;
-        configFile = schemaTransformerConf;
-      };
+      contrail.api.enable = true;
+      contrail.schemaTransformer.enable = true;
 
     };
   };

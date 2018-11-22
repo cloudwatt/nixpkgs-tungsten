@@ -1,12 +1,13 @@
-{pkgs}:
+{ pkgs, cfg }:
 
 pkgs.writeTextFile {
   name = "contrail-collector.conf";
   text = ''
     [DEFAULT]
-    log_local = 1
-    log_level = SYS_DEBUG
-    log_file = /var/log/contrail/contrail-collector.log
+    log_level = ${cfg.logLevel}
+    log_local = 0
+    log_file = /var/log/contrail/collector.log
+    use_syslog = 1
 
     cassandra_server_list = localhost:9042
     zookeeper_server_list = localhost:5672

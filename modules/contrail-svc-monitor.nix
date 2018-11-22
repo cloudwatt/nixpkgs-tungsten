@@ -3,7 +3,10 @@
 with lib;
 
 let
+
   cfg = config.contrail.svcMonitor;
+  confFile = import ../test/configuration/R3.2/svc-monitor.nix { inherit pkgs cfg; };
+
 in {
   options = {
     contrail.svcMonitor = {
@@ -14,10 +17,15 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "contrail svc-monitor configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_INFO";
       };
     };
   };

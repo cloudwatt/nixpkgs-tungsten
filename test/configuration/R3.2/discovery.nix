@@ -1,10 +1,10 @@
-{ pkgs }:
+{ pkgs, cfg }:
 
 pkgs.writeTextFile {
   name = "contrail-discovery.conf";
   text = ''
     [DEFAULTS]
-    log_level = SYS_INFO
+    log_level = ${cfg.logLevel}
     log_local = 0
     log_file = /var/log/contrail/discovery.log
     use_syslog = 1

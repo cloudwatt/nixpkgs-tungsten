@@ -28,7 +28,7 @@ let
     name = "contrail-agent.conf";
     text = ''
       [DEFAULT]
-      log_level = SYS_DEBUG
+      log_level = ${cfg.logLevel}
       log_file = /var/log/contrail/vrouter-agent.log
       log_local = 0
       use_syslog = 1
@@ -117,6 +117,10 @@ in {
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_INFO";
       };
     };
   };

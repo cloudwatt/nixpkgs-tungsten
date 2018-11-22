@@ -3,8 +3,16 @@
 with lib;
 
 let
+
   cfg = config.contrail.collector;
+  confFile =
+    if contrailPkgs.isContrail32 then
+      import ../test/configuration/R3.2/collector.nix { inherit pkgs cfg; }
+    else
+      import ../test/configuration/master/collector.nix { inherit pkgs cfg; };
+
 in {
+
   options = {
     contrail.collector = {
       enable = mkOption {
@@ -13,11 +21,16 @@ in {
       };
       configFile = mkOption {
         type = types.path;
-        description = "contrail query-engine configuration file";
+        description = "contrail collector configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_WARN";
       };
     };
   };

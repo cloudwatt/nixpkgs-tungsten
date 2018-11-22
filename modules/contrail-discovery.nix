@@ -3,9 +3,12 @@
 with lib;
 
 let
-  # We should try a nixpkgs overlay to avoid this explicit import
+
   cfg = config.contrail.discovery;
+  confFile = import ../test/configuration/R3.2/discovery.nix { inherit pkgs cfg; };
+
 in {
+
   options = {
     contrail.discovery = {
       enable = mkOption {
@@ -15,6 +18,7 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "The contrail discovery file path";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
@@ -26,6 +30,10 @@ in {
         description = ''
           Whether to wait for the discovery port in the post start phase
         '';
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_WARN";
       };
     };
   };

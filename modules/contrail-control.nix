@@ -3,7 +3,14 @@
 with lib;
 
 let
+
   cfg = config.contrail.control;
+  confFile =
+    if contrailPkgs.isContrail32 then
+      import ../test/configuration/R3.2/control.nix { inherit pkgs cfg; }
+    else
+      import ../test/configuration/master/control.nix { inherit pkgs cfg; };
+
 in {
   options = {
     contrail.control = {
@@ -14,10 +21,15 @@ in {
       configFile = mkOption {
         type = types.path;
         description = "contrail control configuration file";
+        default = confFile;
       };
       autoStart = mkOption {
         type = types.bool;
         default = true;
+      };
+      logLevel = mkOption {
+        type = types.enum [ "SYS_DEBUG" "SYS_INFO" "SYS_WARN" "SYS_ERROR" ];
+        default = "SYS_INFO";
       };
     };
   };

@@ -1,10 +1,10 @@
-{ pkgs }:
+{ pkgs, cfg }:
 
 pkgs.writeTextFile {
   name = "contrail-api.conf";
   text = ''
     [DEFAULTS]
-    log_level = SYS_DEBUG
+    log_level = ${cfg.logLevel}
     log_local = 0
     log_file = /var/log/contrail/api.log
     use_syslog = 1
