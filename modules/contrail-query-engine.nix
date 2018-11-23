@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.queryEngine;
-  confFile = import ../test/configuration/R3.2/query-engine.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/query-engine.nix { inherit pkgs cfg; };
 
 in {
 

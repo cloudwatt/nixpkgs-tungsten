@@ -9,7 +9,7 @@ with lib;
 let
 
   cfg = config.contrail.api;
-  confFile = import ../test/configuration/R3.2/api.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/api.nix { inherit pkgs cfg; };
 
 in {
 

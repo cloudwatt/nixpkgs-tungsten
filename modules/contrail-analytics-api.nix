@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.analyticsApi;
-  confFile = import ../test/configuration/R3.2/analytics-api.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/analytics-api.nix { inherit pkgs cfg; };
 
 in {
 

@@ -7,9 +7,9 @@ let
   cfg = config.contrail.collector;
   confFile =
     if contrailPkgs.isContrail32 then
-      import ../test/configuration/R3.2/collector.nix { inherit pkgs cfg; }
+      import ./configuration/R3.2/collector.nix { inherit pkgs cfg; }
     else
-      import ../test/configuration/master/collector.nix { inherit pkgs cfg; };
+      import ./configuration/master/collector.nix { inherit pkgs cfg; };
 
 in {
 

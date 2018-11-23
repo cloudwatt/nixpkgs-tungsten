@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.schemaTransformer;
-  confFile = import ../test/configuration/R3.2/schema-transformer.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/schema-transformer.nix { inherit pkgs cfg; };
 
 in {
 

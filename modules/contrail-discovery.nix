@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.discovery;
-  confFile = import ../test/configuration/R3.2/discovery.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/discovery.nix { inherit pkgs cfg; };
 
 in {
 

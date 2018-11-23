@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.svcMonitor;
-  confFile = import ../test/configuration/R3.2/svc-monitor.nix { inherit pkgs cfg; };
+  confFile = import ./configuration/R3.2/svc-monitor.nix { inherit pkgs cfg; };
 
 in {
   options = {
