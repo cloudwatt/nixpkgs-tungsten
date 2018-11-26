@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.queryEngine;
-  confFile = import ./configuration/R3.2/query-engine.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/query-engine.nix") { inherit pkgs cfg; };
 
 in {
 
@@ -35,10 +35,14 @@ in {
     services.redis.enable = true;
     systemd.services.contrail-query-engine = mkMerge [
       {
-        after = [ "network.target" "cassandra.service" "contrail-discovery.service"
-                  "rabbitmq.service" "zookeeper.service" "redis.service" ];
+        after = [
+          "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service" "redis.service"
+        ] ++ optionals contrailPkgs.isContrail32 [
+          "contrail-discovery.service"
+        ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.queryEngine}/bin/qed --conf_file ${cfg.configFile}";
+        serviceConfig.ExecStart =
+          "${contrailPkgs.queryEngine}/bin/contrail-query-engine --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];

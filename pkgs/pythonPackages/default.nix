@@ -3,13 +3,18 @@
 , contrailVersion
 , contrailWorkspace
 , contrailPythonBuild
+, isContrail32
+, isContrail41
 }:
+
+with pkgs.lib;
 
 let
   contrailPythonPackages = self: super:
     let
       callPackage = pkgs.lib.callPackageWith
-        (self // { inherit pkgs contrailVersion contrailWorkspace contrailPythonBuild pythonPackages; });
+        (self // { inherit pkgs contrailVersion contrailWorkspace
+                           contrailPythonBuild pythonPackages isContrail41; });
     in {
       gevent = super.gevent.overridePythonAttrs(old: rec {
         version = "1.2.2";
@@ -26,9 +31,12 @@ let
       # sseclient = callPackage ./sseclient.nix { };
       # jsonpickle = callPackage ./jsonpickle.nix { };
       bitarray = callPackage ./bitarray.nix { };
+      flexmock = callPackage ./flexmock.nix { };
+      junitxml = callPackage ./junitxml.nix { };
       keystonemiddleware = callPackage ./keystonemiddleware { };
       neutron_constants = callPackage ./neutron_constants { };
       python-neutronclient = callPackage ./python-neutronclient { };
+      python-novaclient = callPackage ./python-novaclient { };
       contrail_neutron_plugin = callPackage ./contrail-neutron-plugin.nix { };
       contrail_vrouter_api = callPackage ./vrouter-api.nix { };
       vnc_api = callPackage ./vnc-api.nix { };
@@ -36,6 +44,7 @@ let
       vnc_openstack = callPackage ./vnc-openstack.nix { };
       sandesh_common = callPackage ./sandesh-common.nix { };
       pysandesh = callPackage ./pysandesh.nix { };
+    } // optionalAttrs isContrail32 {
       discovery_client = callPackage ./discovery-client.nix { };
     };
 in

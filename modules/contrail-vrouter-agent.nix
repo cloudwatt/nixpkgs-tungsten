@@ -21,43 +21,14 @@ let
       routes = mkOption {
         type = types.str;
       };
+      masquerade = mkOption {
+        type = types.bool;
+        default = true;
+      };
     };
   };
 
-  agentConf = pkgs.writeTextFile {
-    name = "contrail-agent.conf";
-    text = ''
-      [DEFAULT]
-      log_level = ${cfg.logLevel}
-      log_file = /var/log/contrail/vrouter-agent.log
-      log_local = 0
-      use_syslog = 1
-
-      disable_flow_collection = 1
-
-      [DISCOVERY]
-      port = 5998
-      server = ${cfg.discoveryHost}
-
-      [VIRTUAL-HOST-INTERFACE]
-      name = vhost0
-      ip = ${cfg.vhostIP}/24
-      gateway = ${cfg.vhostGateway}
-      physical_interface = ${cfg.vhostInterface}
-
-      [FLOWS]
-      max_vm_flows = 20
-
-      [METADATA]
-      metadata_proxy_secret = t96a4skwwl63ddk6
-
-      [TASK]
-      tbb_keepawake_timeout = 25
-
-      [SERVICE-INSTANCE]
-      netns_command = ${contrailPkgs.vrouterNetNs}/bin/opencontrail-vrouter-netns
-    '';
-  };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/vrouter-agent.nix") { inherit pkgs contrailPkgs cfg; };
 
 in {
 
@@ -68,9 +39,9 @@ in {
         type = types.bool;
         default = false;
       };
-      configurationFilepath = mkOption {
-        type = types.str;
-        default = "";
+      configFile = mkOption {
+        type = types.path;
+        default = confFile;
         description = ''
           To specify a alternative configuration filepath.
           The generated configuration file is no longer used.
@@ -84,6 +55,13 @@ in {
           contrailApi and register itself as active vrouter.
           Note this currently only works if the Vrouter is collocated
           with the Contrail API.
+        '';
+      };
+      debug = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Make debug symbols available for debugging with gdb
         '';
       };
       discoveryHost = mkOption {
@@ -134,6 +112,8 @@ in {
       vrouterPortControl vrouterUtils vrouterNetNs
     ];
 
+    users.users.root.packages = mkIf cfg.debug [ contrailPkgs.vrouterAgent.debug ];
+
     networking.usePredictableInterfaceNames = false;
 
     # This is to prevent the netns-daemon-start to update resolv.conf
@@ -151,7 +131,8 @@ in {
       {
         contrail-vrouter-agent = mkMerge [
           {
-            after = [ "network.target" ];
+            after = [ "network.target" ] ++ optional contrailPkgs.isContrail32 "contrail-discovery.service";
+            requires = mkIf contrailPkgs.isContrail32 [ "contrail-discovery.service" ];
             # To avoid error
             # contrail-vrouter-agent: controller/src/base/task.cc:293: virtual tbb::task* TaskImpl::execute(): Assertion `0' failed.
             # !!!! ERROR !!!! Task caught fatal exception: locale::facet::_S_create_c_locale name not valid TaskImpl: 0x2418e40
@@ -159,13 +140,13 @@ in {
             path = [ pkgs.netcat ];
             preStart = ''
               mkdir -p /var/log/contrail/
+            '' + optionalString contrailPkgs.isContrail32 ''
               while ! nc -vz ${cfg.discoveryHost} 5998; do
                 sleep 2
               done
             '';
-            script = if cfg.configurationFilepath == ""
-              then "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agentConf}"
-              else "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configurationFilepath}";
+            serviceConfig.ExecStart =
+              "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configFile}";
           }
           (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
         ];
@@ -182,9 +163,11 @@ in {
                 sleep 2
               done
               # creates global-vrouter-config
-              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} set-encaps MPLSoGRE MPLSoUDP VXLAN
+              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} \
+                set-encaps MPLSoGRE MPLSoUDP VXLAN
               # adds virtual-router
-              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} add-vrouter --vrouter-ip ${cfg.vhostIP} $HOSTNAME
+              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} \
+                add-vrouter --vrouter-ip ${cfg.vhostIP} $HOSTNAME
             '';
           }
           (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
@@ -231,7 +214,7 @@ in {
             serviceConfig.RemainAfterExit = true;
             after = [ "contrail-vrouter-agent.service" ];
             requires = [ "contrail-vrouter-agent.service" ];
-            path = [ pkgs.netcat ];
+            path = with pkgs; [ netcat iptables ];
             script = ''
               while ! nc -vz localhost 9091; do
                 sleep 2
@@ -239,6 +222,8 @@ in {
               ${contrailPkgs.configUtils}/bin/provision_vgw_interface.py --oper create \
                   --interface vgw --subnets ${gw.networkCIDR} --routes ${gw.routes} \
                   --vrf "default-domain:${gw.projectName}:${gw.networkName}:${gw.networkName}"
+            '' + optionalString gw.masquerade ''
+              iptables -t nat -A POSTROUTING -s ${gw.networkCIDR} -j MASQUERADE
             '';
           }
           (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })

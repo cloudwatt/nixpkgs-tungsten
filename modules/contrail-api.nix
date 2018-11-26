@@ -2,14 +2,15 @@
 , lib
 , pkgs
 , contrailPkgs
-, ... }:
+, ...
+}:
 
 with lib;
 
 let
 
   cfg = config.contrail.api;
-  confFile = import ./configuration/R3.2/api.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/api.nix") { inherit pkgs cfg; };
 
 in {
 
@@ -57,9 +58,9 @@ in {
       {
         after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service" ];
         requires = [ "cassandra.service" "zookeeper.service" ];
-        preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.apiServer}/bin/contrail-api --conf_file  ${cfg.configFile}";
         path = [ pkgs.netcat ];
+        preStart = "mkdir -p /var/log/contrail/";
+        serviceConfig.ExecStart = "${contrailPkgs.apiServer}/bin/contrail-api --conf_file ${cfg.configFile}";
         postStart = lib.optionalString cfg.waitFor ''
           sleep 2
           while ! nc -vz localhost 8082; do

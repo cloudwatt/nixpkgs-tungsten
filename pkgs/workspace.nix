@@ -1,17 +1,18 @@
 { pkgs
-, isContrail32
+, stdenv
 , contrailVersion
 , contrailSources
 , contrailThirdParty
 , contrailController
 }:
 
-pkgs.stdenv.mkDerivation rec {
+with pkgs.lib;
+
+stdenv.mkDerivation rec {
   name = "contrail-workspace";
   version = contrailVersion;
   srcs = with contrailSources;
-    [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ]
-    ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon ];
+    [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ];
   sourceRoot = "./";
   # Add python to fix shebang in fixup phase
   buildInputs = with pkgs; [ python ];
@@ -33,10 +34,6 @@ pkgs.stdenv.mkDerivation rec {
 
     mkdir openstack
     mv ${neutronPlugin.name} openstack/neutron_plugin
-  '' +
-  pkgs.lib.optionalString (!isContrail32) ''
-    mkdir src
-    mv ${contrailCommon.name} src/contrail-common
   '';
   prePatch = ''
     # Should be moved in build drv

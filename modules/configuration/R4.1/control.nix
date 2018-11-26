@@ -9,10 +9,8 @@ pkgs.writeTextFile {
     log_file = /var/log/contrail/control.log
     use_syslog = 1
 
-    collectors = 127.0.0.1:8086
-
-    [CONFIGDB]
-    rabbitmq_server_list = localhost:5672
-    config_db_server_list = localhost:9042
+    hostip = 0.0.0.0
+    # FIXME: when 127.0.0.1:8086 it will not connect to collector :s
+    collectors = 192.168.1.1:8086
   '';
 }

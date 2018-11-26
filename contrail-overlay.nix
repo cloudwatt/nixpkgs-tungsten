@@ -65,8 +65,8 @@ let
     contrailSources = null;
     contrailVersion = null;
 
-    isContrailMaster = lself.contrailVersion == "master";
     isContrail32 = lself.contrailVersion == "3.2";
+    isContrail41 = lself.contrailVersion == "4.1";
 
     modules = ./modules;
     path = ./.;
@@ -79,6 +79,7 @@ let
     contrailPythonBuild = addCacheOutput (callPackage ./pkgs/python-build.nix { stdenv = stdenv_gcc5; });
 
     lib = {
+      # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
       # used for exposing to hydra
       sanitizeOutputs = contrailAttrs:
@@ -93,7 +94,7 @@ let
             "contrailWorkspace"
             "contrailPythonBuild"
             "isContrail32"
-            "isContrailMaster"
+            "isContrail41"
             "pythonPackages"
             "lib"
             "modules"
@@ -156,7 +157,6 @@ let
     vrouterModuleNixos_4_9 = addCacheOutput (lself.lib.buildVrouter self.linuxPackages_4_9.kernel.dev);
 
     # config
-    discovery = callPackage ./pkgs/discovery.nix { };
     apiServer = callPackage ./pkgs/api-server.nix { };
     svcMonitor = callPackage ./pkgs/svc-monitor.nix { };
     schemaTransformer = callPackage ./pkgs/schema-transformer.nix { };
@@ -196,16 +196,28 @@ let
       gremlinDump = callPackage ./test/gremlin-dump.nix { contrailPkgs = lself; cassandraDumpPath = minimalDump; };
     };
 
+    tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = lself; };
+
   });
 
 in {
 
-  contrail32 = contrail.overrideScope' (self: super: {
+  contrail32 = contrail.overrideScope' (lself: lsuper: {
     contrailVersion = "3.2";
     contrailSources = callPackage ./sources-R3.2.nix { };
-    contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
+    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
       { outputHash = "1x0kgr2skq17lh5anwimlfjy1yzc8vhz5cmyraxg4hqig1g599sf"; });
-    tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; };
+    discovery = lself.callPackage ./pkgs/discovery.nix { };
+  });
+
+  contrail41 = contrail.overrideScope' (lself: lsuper: {
+    contrailVersion = "4.1";
+    contrailSources = callPackage ./sources-R4.1.nix { };
+    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
+      { outputHash = "0wnwz787mwhfabqnwckp1y00sqma6f86r9p107bqgqldyn2xxz0v"; });
+    deps = lsuper.deps // {
+      simpleAmqpClient = lself.callPackage ./pkgs/simple-ampq-client.nix { stdenv = stdenv_gcc5; };
+    };
   });
 
 }

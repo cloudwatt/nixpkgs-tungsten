@@ -5,11 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.collector;
-  confFile =
-    if contrailPkgs.isContrail32 then
-      import ./configuration/R3.2/collector.nix { inherit pkgs cfg; }
-    else
-      import ./configuration/master/collector.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/collector.nix") { inherit pkgs cfg; };
 
 in {
 
@@ -39,9 +35,14 @@ in {
     services.redis.enable = true;
     systemd.services.contrail-collector = mkMerge [
       {
-        after = [ "network.target" ] ++ (optional contrailPkgs.isContrail32 "contrail-discovery.service");
+        after = if contrailPkgs.isContrail32
+          then [ "network.target" "cassandra.service" "contrail-discovery.service" ]
+          else [ "network.target" "cassandra.service" "zookeeper.service" "rabbitmq.service" "redis.service" ];
+        requires = if contrailPkgs.isContrail32
+          then [ "cassandra.service" "contrail-discovery.service" ]
+          else [ "cassandra.service" "zookeeper.service" "rabbitmq.service" "redis.service" ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.collector}/bin/contrail-collector --conf_file ${cfg.configFile}";
+        serviceConfig.ExecStart = "${contrailPkgs.collector}/bin/contrail-collector --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];

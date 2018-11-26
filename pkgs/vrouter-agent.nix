@@ -1,9 +1,9 @@
 { pkgs
 , stdenv
+, deps
 , contrailVersion
 , contrailWorkspace
-, isContrailMaster
-, deps
+, isContrail41
 }:
 
 with pkgs.lib;
@@ -13,8 +13,6 @@ stdenv.mkDerivation rec {
   version = contrailVersion;
   src = contrailWorkspace;
   USER = "contrail";
-  # Only required on master
-  dontUseCmakeConfigure = true;
   NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable -isystem ${deps.thrift}/include/thrift";
   buildInputs = with pkgs; [
     scons libipfix libxml2 libtool flex_2_5_35 bison curl
@@ -22,9 +20,10 @@ stdenv.mkDerivation rec {
     pythonPackages.lxml
     deps.boost deps.thrift deps.log4cplus deps.bind deps.tbb
     makeWrapper
-  ] ++ (optional isContrailMaster [
-    pkgs.cmake pkgs.rabbitmq-c pkgs.gperftools
+  ] ++ (optional isContrail41 [
+    gperftools deps.simpleAmqpClient deps.cassandraCppDriver
   ]);
+  separateDebugInfo = true;
   buildPhase = ''
     scons -j4 --optimization=production contrail-vrouter-agent
   '';

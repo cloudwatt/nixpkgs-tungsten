@@ -3,7 +3,7 @@
 , deps
 , contrailVersion
 , contrailWorkspace
-, isContrailMaster
+, isContrail41
 }:
 
 with pkgs.lib;
@@ -14,7 +14,7 @@ kernelHeaders: stdenv.mkDerivation rec {
   src = contrailWorkspace;
   hardeningDisable = [ "pic" ];
   USER = "contrail";
-  KERNEL_VERSION = pkgs.lib.getVersion kernelHeaders;
+  KERNEL_VERSION = getVersion kernelHeaders;
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
   buildInputs = with pkgs; [
     scons libxml2 flex_2_5_35 bison

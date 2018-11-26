@@ -37,7 +37,9 @@ let
     $machine->waitForUnit("zookeeper.service");
     $machine->waitForUnit("redis.service");
 
+  '' + optionalString contrailPkgs.isContrail32 ''
     $machine->waitForUnit("contrail-discovery.service");
+  '' + ''
     $machine->waitForUnit("contrail-api.service");
     $machine->waitForUnit("contrail-svc-monitor.service");
     $machine->waitForUnit("contrail-schema-transformer.service");
@@ -46,12 +48,14 @@ let
     $machine->waitForUnit("contrail-collector.service");
     $machine->waitForUnit("contrail-control.service");
 
+  '' + optionalString contrailPkgs.isContrail32 ''
     # check services state
     my @services = qw(ApiServer IfmapServer Collector OpServer xmpp-server);
     foreach my $service (@services)
     {
       $machine->waitUntilSucceeds(sprintf("curl -s localhost:5998/services.json | jq -e '.services[] | select(.service_type == \"%s\" and .oper_state == \"up\")'", $service));
     }
+  '' + ''
 
     $machine->succeed("lsmod | grep -q vrouter");
     $machine->waitForUnit("contrail-vrouter-agent.service");

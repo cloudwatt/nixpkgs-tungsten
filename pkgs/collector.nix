@@ -4,7 +4,7 @@
 , contrailVersion
 , contrailWorkspace
 , isContrail32
-, isContrailMaster
+, isContrail41
 }:
 
 with pkgs.lib;
@@ -21,17 +21,16 @@ stdenv.mkDerivation rec {
     coreutils cyrus_sasl.dev gperftools lz4.dev pcre.dev
     tokyocabinet libevent.dev libipfix protobuf2_5
     rdkafka zookeeper_mt
-  ] ++ (optional isContrailMaster [
-    cmake rabbitmq-c
+  ] ++ (optionals isContrail41 [
+    deps.simpleAmqpClient pythonPackages.lxml rabbitmq-c
   ]);
-  # Only required on master
-  dontUseCmakeConfigure = true;
   USER = "contrail";
   # To export pyconfig.h. This should be patched into the python derivation instead.
   NIX_CFLAGS_COMPILE = "-isystem ${deps.thrift}/include/thrift -isystem ${pkgs.python}/include/python2.7";
   # To fix a scons cycle on buildinfo
   patches = optional isContrail32 [ ./patches/analytics.patch ];
   patchFlags = "-p0";
+  separateDebugInfo = true;
   buildPhase = ''
     scons -j2 --optimization=production contrail-collector
   '';
@@ -39,5 +38,6 @@ stdenv.mkDerivation rec {
     mkdir -p $out/{bin,etc/contrail}
     cp build/production/analytics/vizd $out/bin/contrail-collector
     cp ${contrailWorkspace}/controller/src/analytics/contrail-collector.conf $out/etc/contrail/
+    cp -r build/lib $out/
   '';
 }

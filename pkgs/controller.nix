@@ -1,4 +1,11 @@
-{ pkgs, stdenv, contrailSources, isContrailMaster, isContrail32 }:
+{ pkgs
+, stdenv
+, contrailSources
+, isContrail41
+, isContrail32
+}:
+
+with pkgs.lib;
 
 stdenv.mkDerivation {
   name = "controller";
@@ -10,7 +17,7 @@ stdenv.mkDerivation {
     #	distro. To avoid this, we fix them.
     substituteInPlace lib/SConscript --replace \
       'for dir in subdirs:' \
-      'for dir in ["gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "openvswitch" ${pkgs.lib.optionalString isContrailMaster '', "SimpleAmqpClient" ''}]:'
+      'for dir in ["gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "openvswitch"]:'
 
     substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
       'AgentEnv.Clone()' \
@@ -35,7 +42,7 @@ stdenv.mkDerivation {
     substituteInPlace src/database/cassandra/cql/SConscript \
       --replace "CqlIfEnv.Append(CPPPATH = ['/usr/include'])" ""
     '' +
-    pkgs.lib.optionalString isContrail32 ''
+    optionalString isContrail32 ''
       # This has to be backported to 3.2
       # https://bugs.launchpad.net/juniperopenstack/+bug/1638636
       # and commit
@@ -47,7 +54,15 @@ stdenv.mkDerivation {
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
     '' +
-    pkgs.lib.optionalString isContrailMaster ''
+    optionalString isContrail41 ''
+      # Workaround
+      # build/include/sandesh/sandesh_uve.h:211:50: warning: variable ‘dit’ set but not used [-Wunused-but-set-variable]
+      # typename uve_table_map::iterator dit = a->second.end();
+
+      substituteInPlace src/SConscript \
+        --replace "-DRAPIDJSON_NAMESPACE=contrail_rapidjson'" \
+                  "-DRAPIDJSON_NAMESPACE=contrail_rapidjson', '-Wno-error=unused-but-set-variable'"
+
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc']" "[]"
 

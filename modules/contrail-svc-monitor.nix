@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.svcMonitor;
-  confFile = import ./configuration/R3.2/svc-monitor.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/svc-monitor.nix") { inherit pkgs cfg; };
 
 in {
   options = {
@@ -36,7 +36,8 @@ in {
         after = [ "network.target" "cassandra.service" "rabbitmq.service"
                   "zookeeper.service" "contrail-api.service" ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.svcMonitor}/bin/contrail-svc-monitor --conf_file ${cfg.configFile}";
+        serviceConfig.ExecStart =
+          "${contrailPkgs.svcMonitor}/bin/contrail-svc-monitor --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];

@@ -6,6 +6,15 @@ let
 
   cfg = config.contrail.allInOne;
 
+  gdbConfig = pkgs.writeTextFile {
+    name = "gdbinit";
+    text = ''
+      set history save on
+      set debug-file-directory /etc/profiles/per-user/root/lib/debug
+      set auto-load safe-path /
+    '';
+  };
+
 in {
 
     options = {
@@ -22,6 +31,14 @@ in {
         vhostIP = mkOption {
           type = types.str;
           default = "192.168.1.1";
+        };
+        debug = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Make debug symbols available for contrail services
+            and configure gdb.
+          '';
         };
       };
     };
@@ -46,7 +63,17 @@ in {
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";
       services.openssh.extraConfig = "PermitEmptyPasswords yes";
-      users.extraUsers.root.password = "";
+
+      users.users.root = {
+        password = "";
+      } // optionalAttrs cfg.debug {
+        packages = with pkgs; [ gdb ];
+      };
+
+      boot.postBootCommands = mkIf cfg.debug (mkAfter ''
+        cat ${gdbConfig} > /root/.gdbinit
+        ln -s ${contrailPkgs.contrailController} /root/controller
+      '');
 
       environment.systemPackages = with pkgs; [
         contrailApiCliWithExtra
@@ -57,6 +84,7 @@ in {
           enable = true;
           vhostInterface = cfg.vhostInterface;
           vhostIP = cfg.vhostIP;
+          debug = cfg.debug;
         };
         discovery.enable = contrailPkgs.isContrail32;
         api.enable = true;
@@ -65,7 +93,11 @@ in {
         analyticsApi.enable = true;
         queryEngine.enable = true;
         collector.enable = true;
-        control.enable = true;
+        control = {
+          enable = true;
+          debug = cfg.debug;
+        };
+
       };
 
    };

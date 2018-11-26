@@ -1,0 +1,13 @@
+appdirs==1.4.3
+certifi==2018.10.15
+chardet==3.0.4
+idna==2.7
+iso8601==0.1.12
+packaging==16.8
+prettytable==0.7.2
+pyparsing==2.2.0
+python-novaclient==2.13.0
+requests==2.20.1
+simplejson==3.16.0
+six==1.10.0
+urllib3==1.24.1

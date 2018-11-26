@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.schemaTransformer;
-  confFile = import ./configuration/R3.2/schema-transformer.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/schema-transformer.nix") { inherit pkgs cfg; };
 
 in {
 
@@ -38,7 +38,8 @@ in {
                   "zookeeper.service" "contrail-api.service" ];
         requires = [ "contrail-api.service" ];
         preStart = "mkdir -p /var/log/contrail/";
-        script = "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${cfg.configFile}";
+        serviceConfig.ExecStart =
+          "${contrailPkgs.schemaTransformer}/bin/contrail-schema --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
     ];

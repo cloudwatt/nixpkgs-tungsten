@@ -1,0 +1,7 @@
+build Juniper contrail-build R4.1
+controller Juniper contrail-controller R4.1
+generateds Juniper contrail-generateds R4.1
+neutronPlugin Juniper contrail-neutron-plugin R4.1
+sandesh Juniper contrail-sandesh R4.1
+thirdParty Juniper contrail-third-party R4.1
+vrouter Juniper contrail-vrouter R4.1
