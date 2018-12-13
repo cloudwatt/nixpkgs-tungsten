@@ -126,7 +126,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    boot.extraModulePackages = [ (contrailPkgs.lib.buildVrouter pkgs.linuxPackages_4_9.kernel.dev) ];
+    boot.extraModulePackages = [ contrailPkgs.vrouterModuleNixos_4_9 ];
     boot.kernelModules = [ "vrouter" ];
     boot.kernelPackages = pkgs.linuxPackages_4_9;
 

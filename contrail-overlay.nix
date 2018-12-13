@@ -122,6 +122,7 @@ let
     vrouterUtils = callPackage ./pkgs/vrouter-utils.nix { };
     vrouterPortControl = callPackage ./pkgs/vrouter-port-control.nix { };
     vrouterNetNs = callPackage ./pkgs/vrouter-netns.nix { };
+    vrouterModuleNixos_4_9 = lself.lib.buildVrouter self.linuxPackages_4_9.kernel.dev;
 
     # config
     discovery = callPackage ./pkgs/discovery.nix { };
