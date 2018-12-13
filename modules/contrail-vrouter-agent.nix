@@ -147,90 +147,104 @@ in {
       mode = "0555";
     };
 
-    systemd.services = {
-
-      contrail-vrouter-agent = mkMerge [
-        {
-          after = [ "network.target" ];
-          # To avoid error
-          # contrail-vrouter-agent: controller/src/base/task.cc:293: virtual tbb::task* TaskImpl::execute(): Assertion `0' failed.
-          # !!!! ERROR !!!! Task caught fatal exception: locale::facet::_S_create_c_locale name not valid TaskImpl: 0x2418e40
-          environment = { "LC_ALL" = "C"; };
-          path = [ pkgs.netcat pkgs.contrailApiCliWithExtra ];
-          preStart = ''
-            mkdir -p /var/log/contrail/
-            while ! nc -vz ${cfg.discoveryHost} 5998; do
+    systemd.services = mkMerge ([
+      {
+        contrail-vrouter-agent = mkMerge [
+          {
+            after = [ "network.target" ];
+            # To avoid error
+            # contrail-vrouter-agent: controller/src/base/task.cc:293: virtual tbb::task* TaskImpl::execute(): Assertion `0' failed.
+            # !!!! ERROR !!!! Task caught fatal exception: locale::facet::_S_create_c_locale name not valid TaskImpl: 0x2418e40
+            environment = { "LC_ALL" = "C"; };
+            path = [ pkgs.netcat ];
+            preStart = ''
+              mkdir -p /var/log/contrail/
+              while ! nc -vz ${cfg.discoveryHost} 5998; do
+                sleep 2
+              done
+            '';
+            script = if cfg.configurationFilepath == ""
+              then "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agentConf}"
+              else "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configurationFilepath}";
+          }
+          (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
+        ];
+      }
+      (mkIf cfg.provisionning {
+        provision-vrouter-agent = mkMerge [
+          {
+            serviceConfig.Type = "oneshot";
+            serviceConfig.RemainAfterExit = true;
+            after = [ "contrail-vrouter-agent.service" ];
+            path = [ pkgs.netcat pkgs.contrailApiCliWithExtra ];
+            script = ''
+              while ! nc -vz ${cfg.apiHost} 8082; do
+                sleep 2
+              done
+              # creates global-vrouter-config
+              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} set-encaps MPLSoGRE MPLSoUDP VXLAN
+              # adds virtual-router
+              contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} add-vrouter --vrouter-ip ${cfg.vhostIP} $HOSTNAME
+            '';
+          }
+          (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
+        ];
+      })
+      {
+        configure-vhost-interface = mkMerge [
+          {
+            serviceConfig.Type = "oneshot";
+            serviceConfig.RemainAfterExit = true;
+            after = [ "network-online.target" ];
+            before = [ "contrail-vrouter-agent.service" ];
+            path = [ pkgs.iproute contrailPkgs.vrouterUtils ];
+            script = ''
+              set -x
               sleep 2
-            done
-          '';
-          script = if cfg.configurationFilepath == ""
-            then "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agentConf}"
-            else "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configurationFilepath}";
-          postStart = mkIf cfg.provisionning ''
-            while ! nc -vz ${cfg.apiHost} 8082; do
-              sleep 2
-            done
-            # creates global-vrouter-config
-            contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} set-encaps MPLSoGRE MPLSoUDP VXLAN
-            # adds virtual-router
-            contrail-api-cli --ns contrail_api_cli.provision -H ${cfg.apiHost} add-vrouter --vrouter-ip ${cfg.vhostIP} $HOSTNAME
-          '';
-        }
-        (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
-      ];
+              CONTRAIL_INTERFACE=${cfg.vhostInterface}
+              vif --create vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address)
+              vif --add $CONTRAIL_INTERFACE --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) \
+                --vrf 0 --vhost-phys --type physical
+              vif --add vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) \
+                --vrf 0 --xconnect $CONTRAIL_INTERFACE --type vhost
+              ip link set vhost0 up
+              # Warning, this doesn't work if a default route is installed
+              # on the CONTRAIL_INTERFACE.
+              ROUTE=$(ip r | grep $CONTRAIL_INTERFACE | sed 's/\(.*\) dev.*/\1/')
+              IP=$(ip a show $CONTRAIL_INTERFACE | grep "inet "| sed 's/.*inet \(.*\) scope.*/\1/')
+              ip a del $IP dev $CONTRAIL_INTERFACE
+              ip a add $IP dev vhost0
+              ip r del $ROUTE dev $CONTRAIL_INTERFACE || true
+              ip r add $ROUTE dev vhost0 || true
+              sleep 1
+            '';
+          }
+          (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
+        ];
 
-      configure-vhost-interface = mkMerge [
-        {
-          serviceConfig.Type = "oneshot";
-          serviceConfig.RemainAfterExit = true;
-          after = [ "network-online.target" ];
-          before = [ "contrail-vrouter-agent.service" ];
-          path = [ pkgs.iproute contrailPkgs.vrouterUtils ];
-          script = ''
-            set -x
-            sleep 2
-            CONTRAIL_INTERFACE=${cfg.vhostInterface}
-            vif --create vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address)
-            vif --add $CONTRAIL_INTERFACE --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) \
-              --vrf 0 --vhost-phys --type physical
-            vif --add vhost0 --mac $(cat /sys/class/net/$CONTRAIL_INTERFACE/address) \
-              --vrf 0 --xconnect $CONTRAIL_INTERFACE --type vhost
-            ip link set vhost0 up
-            # Warning, this doesn't work if a default route is installed
-            # on the CONTRAIL_INTERFACE.
-            ROUTE=$(ip r | grep $CONTRAIL_INTERFACE | sed 's/\(.*\) dev.*/\1/')
-            IP=$(ip a show $CONTRAIL_INTERFACE | grep "inet "| sed 's/.*inet \(.*\) scope.*/\1/')
-            ip a del $IP dev $CONTRAIL_INTERFACE
-            ip a add $IP dev vhost0
-            ip r del $ROUTE dev $CONTRAIL_INTERFACE || true
-            ip r add $ROUTE dev vhost0 || true
-            sleep 1
-          '';
-        }
-        (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
-      ];
-
-    } // listToAttrs (map (gw:
-      nameValuePair "add-${gw.projectName}-${gw.networkName}-vgw"
-      (mkMerge [
-        {
-          serviceConfig.Type = "oneshot";
-          serviceConfig.RemainAfterExit = true;
-          after = [ "contrail-vrouter-agent.service" ];
-          requires = [ "contrail-vrouter-agent.service" ];
-          path = [ pkgs.netcat ];
-          script = ''
-            while ! nc -vz localhost 9091; do
-              sleep 2
-            done
-            ${contrailPkgs.configUtils}/bin/provision_vgw_interface.py --oper create \
-                --interface vgw --subnets ${gw.networkCIDR} --routes ${gw.routes} \
-                --vrf "default-domain:${gw.projectName}:${gw.networkName}:${gw.networkName}"
-          '';
-        }
-        (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
-      ])
-    ) cfg.virtualGateways);
+      }
+    ] ++ (map (gw:
+      {
+        "add-${gw.projectName}-${gw.networkName}-vgw" = mkMerge [
+          {
+            serviceConfig.Type = "oneshot";
+            serviceConfig.RemainAfterExit = true;
+            after = [ "contrail-vrouter-agent.service" ];
+            requires = [ "contrail-vrouter-agent.service" ];
+            path = [ pkgs.netcat ];
+            script = ''
+              while ! nc -vz localhost 9091; do
+                sleep 2
+              done
+              ${contrailPkgs.configUtils}/bin/provision_vgw_interface.py --oper create \
+                  --interface vgw --subnets ${gw.networkCIDR} --routes ${gw.routes} \
+                  --vrf "default-domain:${gw.projectName}:${gw.networkName}:${gw.networkName}"
+            '';
+          }
+          (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
+        ];
+      }
+    ) cfg.virtualGateways));
 
   };
 
