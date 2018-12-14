@@ -35,6 +35,8 @@
     '';
   };
 
+  services.haveged.enable = true;
+
   nix = {
     distributedBuilds = true;
     extraOptions = ''
