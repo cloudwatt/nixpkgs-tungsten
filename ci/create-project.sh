@@ -101,7 +101,7 @@ cat >data.json <<EOF
       "type": "git"
     },
     "nixpkgs": {
-      "value": "https://github.com/NixOS/nixpkgs-channels nixos-17.09",
+      "value": "https://github.com/NixOS/nixpkgs-channels nixos-18.09",
       "type": "git"
     },
     "bootstrap_pkgs": {
