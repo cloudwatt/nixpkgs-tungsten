@@ -136,8 +136,6 @@ let
       gremlinDump = callPackage ./test/gremlin-dump.nix { contrailPkgs = lself; };
     };
 
-    vms = callPackages ./tools/build-vms.nix { contrailPkgs = lself; };
-
   });
 
 in {
