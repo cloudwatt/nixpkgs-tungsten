@@ -1,9 +1,13 @@
 # This configuration has been used to deploy hydra
 # Use it with nixops or paste it to /etc/nixos/configuration.nix
 
-{pkgs, ...}:
+{ pkgs, config, ... }:
+
 {
+
   imports = [ <nixpkgs/nixos/modules/virtualisation/nova-config.nix> ];
+
+  time.timeZone = "Europe/Paris";
 
   # Be careful since this has to be commented for the first
   # boot... The store has to be manually first copyied to this
