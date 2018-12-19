@@ -143,6 +143,7 @@ let
 
     test = {
       allInOne = callPackage ./test/all-in-one.nix { contrailPkgs = lself; };
+      tcpFlows = callPackage ./test/tcp-flows.nix { contrailPkgs = lself; };
       loadDatabase = callPackage ./test/load-database.nix {
         contrailPkgs = lself;
         cassandraDumpPath = minimalDump;
