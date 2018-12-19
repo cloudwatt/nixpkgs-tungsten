@@ -27,10 +27,8 @@ let
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
       libkrb5 openssl libxml2 perl curl
-      # This overriding should be avoided by patching log4cplus to
-      # support older compilers.
+      lself.log4cplus
       (tbb.override{stdenv = stdenv_gcc5;})
-      (log4cplus.override{stdenv = stdenv_gcc5;})
       (boost155.override{
         buildPackages.stdenv.cc = gcc5;
         stdenv = stdenv_gcc5;
@@ -107,6 +105,7 @@ let
     # deps
     cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
     libgrok = callPackage ./pkgs/libgrok.nix { };
+    log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
 
     # vrouter
     vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { stdenv = stdenv_gcc5; };
