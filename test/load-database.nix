@@ -35,6 +35,8 @@ let
       contrail.api.enable = true;
       contrail.schemaTransformer.enable = true;
 
+      # Don't timeout when loading big DBs
+      systemd.services.contrail-api.serviceConfig.TimeoutStartSec = "infinity";
     };
   };
 
