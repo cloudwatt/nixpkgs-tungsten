@@ -6,13 +6,11 @@ stdenv.mkDerivation {
   phases = [ "unpackPhase" "patchPhase" "installPhase" ];
   src = contrailSources.controller;
   patchPhase = ''
-    sed -i "s|config_opts = |config_opts = ' --with-openssl=${pkgs.openssl.dev} ' + |" lib/bind/SConscript
-
     # Third party lib to be used are defined by discovering the
     #	distro. To avoid this, we fix them.
     substituteInPlace lib/SConscript --replace \
       'for dir in subdirs:' \
-      'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ${pkgs.lib.optionalString isContrailMaster '', "SimpleAmqpClient" ''}]:'
+      'for dir in ["gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "openvswitch" ${pkgs.lib.optionalString isContrailMaster '', "SimpleAmqpClient" ''}]:'
 
     substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
       'AgentEnv.Clone()' \

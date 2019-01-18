@@ -15,7 +15,7 @@ pkgs.stdenv.mkDerivation {
 
   installPhase = ''
     # Remove these useless libraries that increase the closure size
-    rm -rf boost_1_48_0 icu
+    rm -rf boost* icu curl* libxml2* log4cplus*
 
     mkdir $out
     cp -ra * $out/

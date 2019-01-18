@@ -37,13 +37,10 @@ let
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
       # Global build deps
       libkrb5 openssl libxml2 perl curl
-      lself.log4cplus
-      (tbb.override{stdenv = stdenv_gcc5;})
-      (boost155.override{
-        buildPackages.stdenv.cc = gcc5;
-        stdenv = stdenv_gcc5;
-        enablePython = true;
-      })
+      lself.deps.log4cplus
+      lself.deps.tbb
+      lself.deps.thrift
+      lself.deps.boost
       # api-server
       pythonPackages.lxml pythonPackages.pip
       # To get xxd binary required by sandesh
@@ -51,7 +48,7 @@ let
       # vrouter-agent
       libipfix
       # analytics
-      protobuf2_5 lself.cassandraCppDriver
+      protobuf2_5 lself.deps.cassandraCppDriver
       rdkafka # should be > 0.9
       python zookeeper_mt pythonPackages.sphinx
     ];
@@ -86,6 +83,7 @@ let
             "lib"
             "modules"
             "path"
+            "deps"
             # added by makeScope
             "overrideScope'"
             "overrideScope"
@@ -113,9 +111,26 @@ let
     };
 
     # deps
-    cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
-    libgrok = callPackage ./pkgs/libgrok.nix { };
-    log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
+    deps = {
+      cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
+      libgrok = callPackage ./pkgs/libgrok.nix { };
+      log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
+      thrift = callPackage ./pkgs/thrift.nix { stdenv = stdenv_gcc5; };
+      bind = callPackage ./pkgs/bind.nix { stdenv = stdenv_gcc5; };
+      boost = self.boost155.override{
+        buildPackages.stdenv.cc = self.gcc5;
+        stdenv = stdenv_gcc5;
+        enablePython = true;
+      };
+      tbb = (self.tbb.overrideAttrs(old: rec {
+        name = "tbb-${version}";
+        version = "2018_U5";
+        src = lself.contrailThirdParty;
+        sourceRoot = "./contrail-third-party/${name}";
+      })).override {
+        stdenv = stdenv_gcc5;
+      };
+    };
 
     # vrouter
     vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { stdenv = stdenv_gcc5; };

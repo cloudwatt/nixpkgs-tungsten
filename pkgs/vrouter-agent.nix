@@ -1,10 +1,12 @@
 { pkgs
 , stdenv
 , contrailVersion
-, contrailBuildInputs
 , contrailWorkspace
 , isContrailMaster
+, deps
 }:
+
+with pkgs.lib;
 
 stdenv.mkDerivation rec {
   name = "contrail-vrouter-agent-${version}";
@@ -13,13 +15,18 @@ stdenv.mkDerivation rec {
   USER = "contrail";
   # Only required on master
   dontUseCmakeConfigure = true;
-  NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable";
-  buildInputs =
-    contrailBuildInputs ++
-    [ pkgs.makeWrapper ] ++
-    (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
+  NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable -isystem ${deps.thrift}/include/thrift";
+  buildInputs = with pkgs; [
+    scons libipfix libxml2 libtool flex_2_5_35 bison curl
+    vim # to get xxd binary required by sandesh
+    pythonPackages.lxml
+    deps.boost deps.thrift deps.log4cplus deps.bind deps.tbb
+    makeWrapper
+  ] ++ (optional isContrailMaster [
+    pkgs.cmake pkgs.rabbitmq-c pkgs.gperftools
+  ]);
   buildPhase = ''
-    scons -j2 --optimization=production contrail-vrouter-agent
+    scons -j4 --optimization=production contrail-vrouter-agent
   '';
   installPhase = ''
     mkdir -p $out/{bin,etc/contrail}
@@ -31,4 +38,3 @@ stdenv.mkDerivation rec {
     wrapProgram "$out/bin/contrail-vrouter-agent" --prefix PATH ":" "${pkgs.procps}/bin"
   '';
 }
-

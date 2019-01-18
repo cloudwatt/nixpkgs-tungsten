@@ -1,5 +1,6 @@
 { pkgs
 , stdenv
+, deps
 , contrailVersion
 , contrailBuildInputs
 , contrailWorkspace
@@ -12,6 +13,8 @@ stdenv.mkDerivation rec {
   USER = "contrail";
   # Only required on master
   dontUseCmakeConfigure = true;
+
+  NIX_CFLAGS_COMPILE = "-isystem ${deps.thrift}/include/thrift";
 
   buildInputs = with pkgs;
     contrailBuildInputs ++

@@ -1,6 +1,6 @@
 { pkgs
 , stdenv
-, libgrok
+, deps
 , contrailVersion
 , contrailWorkspace
 , contrailBuildInputs
@@ -15,9 +15,12 @@ stdenv.mkDerivation rec {
 
   # Only required on master
   dontUseCmakeConfigure = true;
+
+  NIX_CFLAGS_COMPILE = "-isystem ${deps.thrift}/include/thrift";
+
   buildInputs = with pkgs;
-    contrailBuildInputs ++
-    [ coreutils cyrus_sasl.dev gperftools lz4.dev libgrok pcre.dev tokyocabinet libevent.dev ] ++
+    contrailBuildInputs ++ [ coreutils cyrus_sasl.dev gperftools lz4.dev deps.libgrok pcre.dev
+      tokyocabinet libevent.dev ] ++
     (pkgs.lib.optional (!isContrail32) [ cmake rabbitmq-c ]);
 
   # To fix a scons cycle on buildinfo

@@ -1,4 +1,5 @@
 { stdenv
+, deps
 , contrailVersion
 , contrailBuildInputs
 , contrailWorkspace
@@ -10,6 +11,7 @@ stdenv.mkDerivation rec {
   buildInputs = contrailBuildInputs;
   src = contrailWorkspace;
   USER = "contrail";
+  NIX_CFLAGS_COMPILE = "-isystem ${deps.thrift}/include/thrift";
   buildPhase = ''
     scons -j1 --optimization=production contrail-query-engine
   '';
