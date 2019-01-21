@@ -40,7 +40,6 @@ kernelHeaders: stdenv.mkDerivation rec {
   shellHook = ''
     kernelSrc=$(echo ${kernelHeaders}/lib/modules/*/build/)
   '';
-
   meta = {
     description = "Contrail vrouter kernel module for kernel ${kernelHeaders.name}";
   };

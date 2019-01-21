@@ -15,7 +15,9 @@ stdenv.mkDerivation rec {
     libpcap libnl
   ];
   USER = "contrail";
-  NIX_CFLAGS_COMPILE = "-I ${pkgs.libxml2.dev}/include/libxml2/";
+  prePatch = ''
+    sed -i "s!'/usr/include/libxml2',!'${pkgs.libxml2.dev}/include/libxml2',!" vrouter/utils/vtest/SConscript
+  '';
   buildPhase = ''
     scons --optimization=production --root=./ vrouter/utils
   '';

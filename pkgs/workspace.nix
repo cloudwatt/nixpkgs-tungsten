@@ -47,6 +47,10 @@ pkgs.stdenv.mkDerivation rec {
     # GenerateDS crashes woth python 2.7.14 while it works with python 2.7.13
     # See https://bugs.launchpad.net/opencontrail/+bug/1721039
     sed -i 's/        parser.parse(infile)/        parser.parse(StringIO.StringIO(infile.getvalue()))/' tools/generateds/generateDS.py
+
+    # setup scons cache
+    sed -i "/rules.SetupBuildEnvironment/a env.CacheDir(\"cache\")" SConstruct
+    mkdir -p cache
   '';
   installPhase = ''
     mkdir $out

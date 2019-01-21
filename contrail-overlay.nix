@@ -7,6 +7,41 @@ let
   inherit (super) callPackage callPackages;
   inherit (super.lib) filterAttrs;
 
+  addCacheOutput = drv: drv.overrideAttrs (old:
+    let
+      oldOutputs = if old ? "outputs" then old.outputs else [ "out" ];
+    in {
+      outputs = oldOutputs ++ [ "cache" ];
+      installPhase = old.installPhase + ''
+        mkdir -p $cache
+        cp cache/config $cache/
+        # keep only .o files from the cache
+        find cache \
+          -type f \
+          -exec sh -c "${self.file}/bin/file {} | grep -v -q 'ELF 64-bit LSB relocatable'" \; \
+          -delete
+        cp -r cache/* $cache
+      '';
+    }
+  );
+
+  addShellHook = drv: drv.overrideAttrs (old:
+    let
+      oldShellHook = if old ? "shellHook" then old.shellHook else "";
+    in {
+      shellHook = oldShellHook + ''
+        unpackPhase
+        cd $sourceRoot
+        rmdir cache
+        ln -s ${drv.cache} cache
+        alias scons="scons --cache-readonly"
+        patchPhase
+        echo "All set! To build run:"
+        echo $buildPhase
+      '';
+    }
+  );
+
   minimalDump = super.stdenv.mkDerivation {
     name = "minimal-cassandra-dump";
     src = ./test/minimal-cassandra-dump.tgz;
@@ -41,7 +76,7 @@ let
     contrailThirdParty = callPackage ./pkgs/third-party.nix { };
     contrailController = callPackage ./pkgs/controller.nix { };
     contrailWorkspace = callPackage ./pkgs/workspace.nix { };
-    contrailPythonBuild = callPackage ./pkgs/python-build.nix { stdenv = stdenv_gcc5; };
+    contrailPythonBuild = addCacheOutput (callPackage ./pkgs/python-build.nix { stdenv = stdenv_gcc5; });
 
     lib = {
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
@@ -64,6 +99,7 @@ let
             "modules"
             "path"
             "deps"
+            "dev"
             # added by makeScope
             "overrideScope'"
             "overrideScope"
@@ -113,11 +149,11 @@ let
     };
 
     # vrouter
-    vrouterAgent = callPackage ./pkgs/vrouter-agent.nix { stdenv = stdenv_gcc5; };
-    vrouterUtils = callPackage ./pkgs/vrouter-utils.nix { };
+    vrouterAgent = addCacheOutput (callPackage ./pkgs/vrouter-agent.nix { stdenv = stdenv_gcc5; });
+    vrouterUtils = addCacheOutput (callPackage ./pkgs/vrouter-utils.nix { });
     vrouterPortControl = callPackage ./pkgs/vrouter-port-control.nix { };
     vrouterNetNs = callPackage ./pkgs/vrouter-netns.nix { };
-    vrouterModuleNixos_4_9 = lself.lib.buildVrouter self.linuxPackages_4_9.kernel.dev;
+    vrouterModuleNixos_4_9 = addCacheOutput (lself.lib.buildVrouter self.linuxPackages_4_9.kernel.dev);
 
     # config
     discovery = callPackage ./pkgs/discovery.nix { };
@@ -127,14 +163,24 @@ let
     configUtils = callPackage ./pkgs/config-utils.nix { };
 
     # control
-    control = callPackage ./pkgs/control.nix { stdenv = stdenv_gcc5; };
+    control = addCacheOutput (callPackage ./pkgs/control.nix { stdenv = stdenv_gcc5; });
 
     # analytics
     analyticsApi = callPackage ./pkgs/analytics-api.nix { };
-    collector = callPackage ./pkgs/collector.nix { stdenv = stdenv_gcc5; };
-    queryEngine = callPackage ./pkgs/query-engine.nix { stdenv = stdenv_gcc5; };
+    collector = addCacheOutput (callPackage ./pkgs/collector.nix { stdenv = stdenv_gcc5; });
+    queryEngine = addCacheOutput (callPackage ./pkgs/query-engine.nix { stdenv = stdenv_gcc5; });
 
     pythonPackages = callPackage ./pkgs/pythonPackages { };
+
+    dev = {
+      vrouterUtils = addShellHook lself.vrouterUtils;
+      vrouterAgent = addShellHook lself.vrouterAgent;
+      queryEngine = addShellHook lself.queryEngine;
+      collector = addShellHook lself.collector;
+      control = addShellHook lself.control;
+      vrouterModuleNixos_4_9 = addShellHook lself.vrouterModuleNixos_4_9;
+      contrailPythonBuild = addShellHook lself.contrailPythonBuild;
+    };
 
     test = {
       allInOne = callPackage ./test/all-in-one.nix { contrailPkgs = lself; };

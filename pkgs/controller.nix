@@ -20,14 +20,20 @@ stdenv.mkDerivation {
     # This is because we are using glibc2.25. No warning before glibc2.24
     substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript --replace \
       'env = AgentEnv.Clone()' \
-    'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
+      'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
 
     substituteInPlace src/dns/cmn/SConscript \
-      --replace "buildinfo_dep_libs +  cmn_sources +" "buildinfo_dep_libs +"
+      --replace "buildinfo_dep_libs +  cmn_sources +" \
+                "buildinfo_dep_libs +"
 
     # To break scons cycle on buildinfo
     substituteInPlace src/query_engine/SConscript \
-      --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" "source = buildinfo_dep_libs + SandeshGenSrcs +"
+      --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" \
+                "source = buildinfo_dep_libs + SandeshGenSrcs +"
+
+    # Remove system includes for nix-shell compat
+    substituteInPlace src/database/cassandra/cql/SConscript \
+      --replace "CqlIfEnv.Append(CPPPATH = ['/usr/include'])" ""
     '' +
     pkgs.lib.optionalString isContrail32 ''
       # This has to be backported to 3.2
