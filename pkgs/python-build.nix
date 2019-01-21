@@ -1,9 +1,9 @@
 { pkgs
 , stdenv
+, deps
 , pythonPackages
 , contrailWorkspace
 , contrailVersion
-, contrailBuildInputs
 , isContrailMaster
 , isContrail32 }:
 
@@ -17,11 +17,17 @@ stdenv.mkDerivation rec {
   # Only required on master
   dontUseCmakeConfigure = true;
 
-  buildInputs = with pythonPackages; with pkgs;
-    contrailBuildInputs ++
-    # Used by python unit tests
-    [ bitarray pbr funcsigs mock bottle ] ++
-    (optional isContrailMaster [ cmake rabbitmq-c gperftools ]);
+  buildInputs =
+    (with pkgs; [
+      scons libxml2 flex_2_5_35 bison curl
+      vim # to get xxd binary required by sandesh
+      deps.boost deps.tbb deps.log4cplus
+      breakpointHook
+    ]) ++
+    (with pythonPackages; [
+      lxml
+      bitarray pbr funcsigs mock bottle requests # for tests
+    ]);
 
   propagatedBuildInputs = with pythonPackages; [
     psutil geventhttpclient

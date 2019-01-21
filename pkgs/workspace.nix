@@ -1,24 +1,23 @@
 { pkgs
 , isContrail32
 , contrailVersion
-, contrailBuildInputs
 , contrailSources
 , contrailThirdParty
-, contrailController }:
+, contrailController
+}:
 
 pkgs.stdenv.mkDerivation rec {
   name = "contrail-workspace";
   version = contrailVersion;
-  buildInputs = contrailBuildInputs;
-
-  phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" "fixupPhase" ];
-
-  # We don't override the patchPhase to be nix-shell compliant
-  preUnpack = ''mkdir workspace || exit; cd workspace'';
   srcs = with contrailSources;
     [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ]
     ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon ];
-  sourceRoot = ''./'';
+  sourceRoot = "./";
+  # Add python to fix shebang in fixup phase
+  buildInputs = with pkgs; [ python ];
+  phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" "fixupPhase" ];
+  # We don't override the patchPhase to be nix-shell compliant
+  preUnpack = ''mkdir workspace || exit; cd workspace'';
   postUnpack = with contrailSources; ''
     cp ${build.out}/SConstruct .
 
@@ -39,7 +38,6 @@ pkgs.stdenv.mkDerivation rec {
     mkdir src
     mv ${contrailCommon.name} src/contrail-common
   '';
-
   prePatch = ''
     # Should be moved in build drv
     sed -i 's|def UseSystemBoost(env):|def UseSystemBoost(env):\n    return True|' -i tools/build/rules.py
@@ -49,7 +47,9 @@ pkgs.stdenv.mkDerivation rec {
     # GenerateDS crashes woth python 2.7.14 while it works with python 2.7.13
     # See https://bugs.launchpad.net/opencontrail/+bug/1721039
     sed -i 's/        parser.parse(infile)/        parser.parse(StringIO.StringIO(infile.getvalue()))/' tools/generateds/generateDS.py
-      
   '';
-  installPhase = "mkdir $out; cp -r ./ $out";
+  installPhase = ''
+    mkdir $out
+    cp -r ./ $out
+  '';
 }
