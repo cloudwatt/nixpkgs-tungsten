@@ -1,10 +1,12 @@
 { pkgs
 , stdenv
+, deps
 , contrailVersion
 , contrailWorkspace
-, contrailBuildInputs
 , isContrailMaster
 }:
+
+with pkgs.lib;
 
 kernelHeaders: stdenv.mkDerivation rec {
   name = "contrail-vrouter-${kernelHeaders.name}";
@@ -13,10 +15,11 @@ kernelHeaders: stdenv.mkDerivation rec {
   hardeningDisable = [ "pic" ];
   USER = "contrail";
   KERNEL_VERSION = pkgs.lib.getVersion kernelHeaders;
-  # Remove it when https://review.opencontrail.org/#/c/38139/ is merged on all branches we are using
-  patchPhase = pkgs.lib.optionalString isContrailMaster "cd vrouter; patch -p1 < ${../patches/0001-Fix-build-for-kernels-4.9.patch}; cd ..";
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
-  buildInputs = pkgs.lib.remove pkgs.gcc contrailBuildInputs ++ [ pkgs.gcc49 pkgs.libelf ];
+  buildInputs = with pkgs; [
+    scons libxml2 flex_2_5_35 bison
+    libelf deps.boost
+  ];
   buildPhase = ''
     # We patch the kernel Makefile ONLY to reduce the closure
     # size of the vrouter kernel module. Without this patch, the
