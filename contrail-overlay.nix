@@ -33,26 +33,6 @@ let
     isContrailMaster = lself.contrailVersion == "master";
     isContrail32 = lself.contrailVersion == "3.2";
 
-    contrailBuildInputs = with self; [
-      scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
-      # Global build deps
-      libkrb5 openssl libxml2 perl curl
-      lself.deps.log4cplus
-      lself.deps.tbb
-      lself.deps.thrift
-      lself.deps.boost
-      # api-server
-      pythonPackages.lxml pythonPackages.pip
-      # To get xxd binary required by sandesh
-      vim
-      # vrouter-agent
-      libipfix
-      # analytics
-      protobuf2_5 lself.deps.cassandraCppDriver
-      rdkafka # should be > 0.9
-      python zookeeper_mt pythonPackages.sphinx
-    ];
-
     modules = ./modules;
     path = ./.;
 
