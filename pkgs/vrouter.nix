@@ -1,9 +1,9 @@
 { pkgs
 , stdenv
-, deps
 , contrailVersion
 , contrailWorkspace
 , isContrailMaster
+, boost
 }:
 
 with pkgs.lib;
@@ -18,7 +18,7 @@ kernelHeaders: stdenv.mkDerivation rec {
   # We switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
   buildInputs = with pkgs; [
     scons libxml2 flex_2_5_35 bison
-    libelf deps.boost
+    libelf boost
   ];
   buildPhase = ''
     # We patch the kernel Makefile ONLY to reduce the closure

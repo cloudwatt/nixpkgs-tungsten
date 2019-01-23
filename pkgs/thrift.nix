@@ -1,7 +1,7 @@
 { stdenv
+, pkgs
 , contrailThirdParty
-, deps
-, openssl
+, boost
 }:
 
 with builtins;
@@ -9,7 +9,7 @@ with builtins;
 stdenv.mkDerivation rec {
   name = "thrift-${version}";
   version = "0.8.0";
-  buildInputs = [ deps.boost openssl ];
+  buildInputs = with pkgs; [ boost openssl ];
   src = contrailThirdParty;
   sourceRoot = "./contrail-third-party/${name}";
   configureFlags = [
