@@ -3,11 +3,7 @@
 , contrailVersion
 , contrailWorkspace
 , isContrailMaster
-, boost
-, thrift
-, log4cplus
-, bind
-, tbb
+, deps
 }:
 
 with pkgs.lib;
@@ -19,12 +15,12 @@ stdenv.mkDerivation rec {
   USER = "contrail";
   # Only required on master
   dontUseCmakeConfigure = true;
-  NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable -isystem ${thrift}/include/thrift";
+  NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable -isystem ${deps.thrift}/include/thrift";
   buildInputs = with pkgs; [
     scons libipfix libxml2 libtool flex_2_5_35 bison curl
     vim # to get xxd binary required by sandesh
     pythonPackages.lxml
-    boost thrift log4cplus bind tbb
+    deps.boost deps.thrift deps.log4cplus deps.bind deps.tbb
     makeWrapper
   ] ++ (optional isContrailMaster [
     pkgs.cmake pkgs.rabbitmq-c pkgs.gperftools

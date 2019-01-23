@@ -1,8 +1,8 @@
 { pkgs
 , stdenv
+, deps
 , contrailVersion
 , contrailWorkspace
-, boost
 }:
 
 stdenv.mkDerivation rec {
@@ -11,7 +11,8 @@ stdenv.mkDerivation rec {
   src = contrailWorkspace;
   buildInputs = with pkgs; [
     scons libxml2 flex_2_5_35 bison
-    boost libpcap libnl
+    deps.boost
+    libpcap libnl
   ];
   USER = "contrail";
   prePatch = ''

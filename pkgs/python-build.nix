@@ -1,14 +1,11 @@
 { pkgs
 , stdenv
+, deps
 , pythonPackages
 , contrailWorkspace
 , contrailVersion
 , isContrailMaster
-, isContrail32
-, boost
-, tbb
-, log4cplus
-}:
+, isContrail32 }:
 
 with pkgs.lib;
 
@@ -21,7 +18,7 @@ stdenv.mkDerivation rec {
     (with pkgs; [
       scons libxml2 flex_2_5_35 bison curl
       vim # to get xxd binary required by sandesh
-      boost tbb log4cplus
+      deps.boost deps.tbb deps.log4cplus
     ]) ++
     (with pythonPackages; [
       lxml

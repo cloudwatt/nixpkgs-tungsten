@@ -98,6 +98,7 @@ let
             "lib"
             "modules"
             "path"
+            "deps"
             "dev"
             # added by makeScope
             "overrideScope'"
@@ -126,23 +127,25 @@ let
     };
 
     # deps
-    cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
-    libgrok = callPackage ./pkgs/libgrok.nix { };
-    log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
-    thrift = callPackage ./pkgs/thrift.nix { stdenv = stdenv_gcc5; };
-    bind = callPackage ./pkgs/bind.nix { stdenv = stdenv_gcc5; };
-    boost = self.boost155.override{
-      buildPackages.stdenv.cc = self.gcc5;
-      stdenv = stdenv_gcc5;
-      enablePython = true;
-    };
-    tbb = (self.tbb.overrideAttrs(old: rec {
-      name = "tbb-${version}";
-      version = "2018_U5";
-      src = lself.contrailThirdParty;
-      sourceRoot = "./contrail-third-party/${name}";
-    })).override {
-      stdenv = stdenv_gcc5;
+    deps = {
+      cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
+      libgrok = callPackage ./pkgs/libgrok.nix { };
+      log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
+      thrift = callPackage ./pkgs/thrift.nix { stdenv = stdenv_gcc5; };
+      bind = callPackage ./pkgs/bind.nix { stdenv = stdenv_gcc5; };
+      boost = self.boost155.override{
+        buildPackages.stdenv.cc = self.gcc5;
+        stdenv = stdenv_gcc5;
+        enablePython = true;
+      };
+      tbb = (self.tbb.overrideAttrs(old: rec {
+        name = "tbb-${version}";
+        version = "2018_U5";
+        src = lself.contrailThirdParty;
+        sourceRoot = "./contrail-third-party/${name}";
+      })).override {
+        stdenv = stdenv_gcc5;
+      };
     };
 
     # vrouter
