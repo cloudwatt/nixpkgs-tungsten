@@ -41,6 +41,10 @@
 
   services.haveged.enable = true;
 
+  environment.systemPackages = with pkgs; [
+    vim htop tmux
+  ];
+
   nix = {
     distributedBuilds = true;
     extraOptions = ''
@@ -51,6 +55,14 @@
         hostName = "localhost";
         systems = [ "x86_64-linux" "builtin" ];
         maxJobs = 8;
+        supportedFeatures = [ "kvm" "nixos-test" "big-parallel" ];
+      }
+      {
+        hostName = "192.168.1.5";
+        sshUser = "root";
+        sshKey = "/var/lib/hydra/queue-runner/.ssh/id_rsa";
+        systems = [ "x86_64-linux" "builtin" ];
+        maxJobs = 16;
         supportedFeatures = [ "kvm" "nixos-test" "big-parallel" ];
       }
     ];
