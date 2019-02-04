@@ -52,30 +52,6 @@ let
         };
       };
     };
-    testing = {
-      description = "Build testing branch of nixpkgs-contrail";
-      checkinterval = 60;
-      enabled = 1;
-      nixexprinput = "contrail";
-      nixexprpath = "jobset.nix";
-      schedulingshares = 100;
-      enableemail = false;
-      emailoverride = "";
-      keepnr = 1;
-      hidden = false;
-      inputs = {
-        contrail = {
-          value = "https://github.com/nlewo/nixpkgs-contrail testing";
-          type = "git";
-          emailresponsible = false;
-        };
-        bootstrap_pkgs = {
-          value = "https://github.com/NixOS/nixpkgs acd89daabcb47cb882bc72ffc2d01281ed1fecb8";
-          type = "git";
-          emailresponsible = false;
-        };
-      };
-    };
     staging = {
       description = "Build master of nixpkgs-contrail and follow nixpkgs stable";
       checkinterval = 86400;
