@@ -1,4 +1,4 @@
-{ pkgs, stdenv, contrailPkgs, cassandraDumpPath }:
+{ pkgs, stdenv, cassandraDumpPath }:
 
 with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
@@ -10,7 +10,7 @@ let
       ../modules/gremlin-server.nix
     ];
     config = {
-      _module.args = { inherit pkgs contrailPkgs; };
+      _module.args = { inherit pkgs; };
 
       services.openssh.enable = true;
       services.openssh.permitRootLogin = "yes";

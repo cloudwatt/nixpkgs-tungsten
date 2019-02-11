@@ -1,0 +1,34 @@
+diff --git a/sandesh/library/python/pysandesh/test/SConscript b/sandesh/library/python/pysandesh/test/SConscript
+index 7324457..eb966cb 100644
+--- a/sandesh/library/python/pysandesh/test/SConscript
++++ b/sandesh/library/python/pysandesh/test/SConscript
+@@ -49,28 +49,11 @@ gen_test_pkg += env.SandeshGenPy('#src/contrail-common/base/sandesh/process_info
+ gen_test_pkg += env.SandeshGenPy('#src/contrail-common/base/sandesh/cpuinfo.sandesh', 'gen_py/nodeinfo/', False)
+ env.Depends(test_modules_rules, gen_test_pkg)
+ 
+-venv = env.setup_venv('pysandesh_test', 'pysandesh_test')
+-env['env_venv'] = venv
+-pip_pkgs = ['greenlet==0.4.1', 'gevent==1.1a2', 'eventlet==0.9.17',
+-        'testtools==0.9.21', 'geventhttpclient==1.0a', 'bottle==0.11.6',
+-        'mock==1.0.1']
+-
+ sandesh_pkgs = [
+                  env['TOP']+'/sandesh/common',
+                  env['TOP']+'/tools/sandesh/library/python'
+                ]
+-env.Requires(env['pysandesh_test'],
+-             env['TOP']+'/tools/sandesh/library/python/dist/sandesh-0.1dev.tar.gz')
+-env.Requires(env['pysandesh_test'],
+-             env['TOP']+'/sandesh/common/dist/sandesh-common-0.1dev.tar.gz')
+-
+-_deps = []
+-_deps += env.venv_add_pip_pkg(venv, pip_pkgs)
+-_deps += env.venv_add_build_pkg(venv, [Dir(x).abspath for x in sandesh_pkgs])
+-
+-pysandesh_ut = env.PyTestSuite('sandesh-py-test', test_modules, venv=env['env_venv'])
+-for d in _deps:
+-    env.Requires(pysandesh_ut, d.name)
++pysandesh_ut = env.PyTestSuite('sandesh-py-test', test_modules)
+ env.Depends(pysandesh_ut, test_depend_modules_rules)
+ env.Depends(pysandesh_ut, test_modules_rules)
+ env.Depends(pysandesh_ut, gen_test_pkg)

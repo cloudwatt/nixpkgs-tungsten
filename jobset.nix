@@ -15,4 +15,5 @@ in with pkgs; {
   inherit gremlinFsck;
   contrail32 = contrail32.lib.sanitizeOutputs contrail32;
   contrail41 = contrail41.lib.sanitizeOutputs contrail41;
+  contrail50 = contrail50.lib.sanitizeOutputs contrail50;
 }

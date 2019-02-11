@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
   ];
   USER = "contrail";
   prePatch = ''
-    sed -i "s!'/usr/include/libxml2',!'${pkgs.libxml2.dev}/include/libxml2',!" vrouter/utils/vtest/SConscript
+    sed -i "s!/usr/include/libxml2!${pkgs.libxml2.dev}/include/libxml2!" vrouter/utils/vtest/SConscript
   '';
   buildPhase = ''
     scons --optimization=production --root=./ vrouter/utils

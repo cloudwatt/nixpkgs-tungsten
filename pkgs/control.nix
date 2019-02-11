@@ -1,9 +1,9 @@
 { pkgs
+, lib
 , stdenv
 , deps
 , contrailVersion
 , contrailWorkspace
-, isContrail41
 }:
 
 with pkgs.lib;
@@ -17,12 +17,15 @@ stdenv.mkDerivation rec {
     vim # to get xxd binary required by sandesh
     deps.thrift deps.boost deps.log4cplus deps.tbb
     pythonPackages.lxml
-  ] ++ (optional isContrail41 [
+  ] ++ (optional lib.versionAtLeast41 [
     gperftools deps.cassandraCppDriver deps.simpleAmqpClient
     rabbitmq-c
   ]);
   USER = "contrail";
-  NIX_CFLAGS_COMPILE = "-isystem ${deps.thrift}/include/thrift";
+  NIX_CFLAGS_COMPILE = [
+    "-Wno-unused-but-set-variable"
+    "-isystem ${deps.thrift}/include/thrift"
+  ];
   separateDebugInfo = true;
   buildPhase = ''
     scons -j2 --optimization=production contrail-control
@@ -34,4 +37,3 @@ stdenv.mkDerivation rec {
     cp -r build/lib $out/
   '';
 }
-

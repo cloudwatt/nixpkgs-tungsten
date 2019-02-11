@@ -1,8 +1,10 @@
 { pkgs
+, lib
 , stdenv
 , contrailSources
-, isContrail41
 , isContrail32
+, isContrail41
+, isContrail50
 }:
 
 with pkgs.lib;
@@ -23,26 +25,26 @@ stdenv.mkDerivation {
       'AgentEnv.Clone()' \
       'AgentEnv.Clone(); cflags = env["CCFLAGS"]; cflags.append("-Wno-error=maybe-uninitialized"); env.Replace(CCFLAGS = cflags)'
 
-    # Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
-    # This is because we are using glibc2.25. No warning before glibc2.24
-    substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript --replace \
-      'env = AgentEnv.Clone()' \
-      'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
-
     substituteInPlace src/dns/cmn/SConscript \
       --replace "buildinfo_dep_libs +  cmn_sources +" \
                 "buildinfo_dep_libs +"
 
-    # To break scons cycle on buildinfo
-    substituteInPlace src/query_engine/SConscript \
-      --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" \
-                "source = buildinfo_dep_libs + SandeshGenSrcs +"
+    '' + optionalString lib.versionOlderThan50 ''
+      # Should be only applied on file controller/src/vnsw/agent/vrouter/ksync/ksync_flow_memory.cc
+      # This is because we are using glibc2.25. No warning before glibc2.24
+      substituteInPlace src/vnsw/agent/vrouter/ksync/SConscript --replace \
+        'env = AgentEnv.Clone()' \
+        'env = AgentEnv.Clone(); env.Replace(CFFLAGS = env["CCFLAGS"].remove("-Werror"))'
 
-    # Remove system includes for nix-shell compat
-    substituteInPlace src/database/cassandra/cql/SConscript \
-      --replace "CqlIfEnv.Append(CPPPATH = ['/usr/include'])" ""
-    '' +
-    optionalString isContrail32 ''
+      # Remove system includes for nix-shell compat
+      substituteInPlace src/database/cassandra/cql/SConscript \
+        --replace "CqlIfEnv.Append(CPPPATH = ['/usr/include'])" ""
+
+      # To break scons cycle on buildinfo
+      substituteInPlace src/query_engine/SConscript \
+        --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" \
+                  "source = buildinfo_dep_libs + SandeshGenSrcs +"
+    '' + optionalString isContrail32 ''
       # This has to be backported to 3.2
       # https://bugs.launchpad.net/juniperopenstack/+bug/1638636
       # and commit
@@ -55,14 +57,6 @@ stdenv.mkDerivation {
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
     '' +
     optionalString isContrail41 ''
-      # Workaround
-      # build/include/sandesh/sandesh_uve.h:211:50: warning: variable ‘dit’ set but not used [-Wunused-but-set-variable]
-      # typename uve_table_map::iterator dit = a->second.end();
-
-      substituteInPlace src/SConscript \
-        --replace "-DRAPIDJSON_NAMESPACE=contrail_rapidjson'" \
-                  "-DRAPIDJSON_NAMESPACE=contrail_rapidjson', '-Wno-error=unused-but-set-variable'"
-
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc']" "[]"
 

@@ -1,6 +1,11 @@
-{ pkgs, python }:
+{ pkgs
+, python
+}:
 
-self: super: {
+self: super: with pkgs.pythonPackages; {
+  # We use python libraries from nixpkgs in order ot avoid collision
+  # with contrail python dependencies.
+  inherit certifi urllib3 chardet requests idna;
 
   "setuptools-git" = python.mkDerivation {
     name = "setuptools-git-1.2";

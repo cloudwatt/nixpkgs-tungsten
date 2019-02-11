@@ -3,7 +3,6 @@
 , deps
 , contrailVersion
 , contrailWorkspace
-, isContrail41
 }:
 
 with pkgs.lib;

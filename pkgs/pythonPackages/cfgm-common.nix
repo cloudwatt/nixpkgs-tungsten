@@ -1,4 +1,5 @@
 { pkgs
+, lib
 , buildPythonPackage
 , psutil
 , geventhttpclient
@@ -7,7 +8,6 @@
 , sqlalchemy
 , contrailPythonBuild
 , contrailVersion
-, isContrail41
 }:
 
 with pkgs.lib;
@@ -18,5 +18,5 @@ buildPythonPackage {
   src = "${contrailPythonBuild}/production/config/common";
   doCheck = false;
   propagatedBuildInputs = [ psutil geventhttpclient bottle bitarray ]
-    ++ optionals isContrail41 [ sqlalchemy ];
+    ++ optionals lib.versionAtLeast41 [ sqlalchemy ];
 }

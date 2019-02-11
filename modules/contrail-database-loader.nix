@@ -1,4 +1,4 @@
-{ config, lib, pkgs, contrailPkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 with lib;
 

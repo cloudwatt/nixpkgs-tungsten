@@ -5,7 +5,7 @@ with builtins;
 let
 
   inherit (super) callPackage callPackages;
-  inherit (super.lib) filterAttrs;
+  inherit (super.lib) filterAttrs foldl concatStrings splitString;
 
   addCacheOutput = drv: drv.overrideAttrs (old:
     let
@@ -56,6 +56,9 @@ let
   stdenv_gcc49 = super.overrideCC self.stdenv self.gcc49;
   stdenv_gcc6 = super.overrideCC self.stdenv self.gcc6;
 
+  # list of supported versions
+  versions = [ "3.2" "4.1" "5.0" ];
+
   contrail = super.lib.makeScope super.newScope (lself: let
 
     callPackage = lself.callPackage;
@@ -67,6 +70,7 @@ let
 
     isContrail32 = lself.contrailVersion == "3.2";
     isContrail41 = lself.contrailVersion == "4.1";
+    isContrail50 = lself.contrailVersion == "5.0";
 
     modules = ./modules;
     path = ./.;
@@ -95,6 +99,7 @@ let
             "contrailPythonBuild"
             "isContrail32"
             "isContrail41"
+            "isContrail50"
             "pythonPackages"
             "lib"
             "modules"
@@ -125,7 +130,15 @@ let
           (filterAttrs (k: _: ! elem k exclude) contrailAttrs) // {
             pythonPackages = filterAttrs (k: _: elem k pythonPackages) contrailAttrs.pythonPackages;
           };
-    };
+    } // (foldl (a: v:
+      let
+        version = concatStrings (splitString "." v);
+      in
+        a // {
+          "versionAtLeast${version}" = super.lib.versionAtLeast lself.contrailVersion v;
+          "versionOlderThan${version}" = super.lib.versionOlder lself.contrailVersion v;
+        }
+    ) {} versions);
 
     # deps
     deps = {
@@ -193,14 +206,14 @@ let
           $machine->waitUntilSucceeds("contrail-api-cli ls -l virtual-network | grep -q vn1");
         '';
       };
-      gremlinDump = callPackage ./test/gremlin-dump.nix { contrailPkgs = lself; cassandraDumpPath = minimalDump; };
+      gremlinDump = callPackage ./test/gremlin-dump.nix { cassandraDumpPath = minimalDump; };
     };
 
     tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = lself; };
 
   });
 
-in {
+in rec {
 
   contrail32 = contrail.overrideScope' (lself: lsuper: {
     contrailVersion = "3.2";
@@ -218,6 +231,13 @@ in {
     deps = lsuper.deps // {
       simpleAmqpClient = lself.callPackage ./pkgs/simple-ampq-client.nix { stdenv = stdenv_gcc5; };
     };
+  });
+
+  contrail50 = contrail41.overrideScope' (lself: lsuper: {
+    contrailVersion = "5.0";
+    contrailSources = callPackage ./sources-R5.0.nix { };
+    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
+      { outputHash = "0h39vwdsi4b0xi4pcqnmfkfkcldf52bby3rnnbz6flmcapb5pxfd"; });
   });
 
 }
