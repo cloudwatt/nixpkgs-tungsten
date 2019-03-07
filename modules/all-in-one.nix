@@ -12,6 +12,7 @@ let
       set history save on
       set debug-file-directory /etc/profiles/per-user/root/lib/debug
       set auto-load safe-path /
+      directory ${contrailPkgs.contrailWorkspace}
     '';
   };
 
@@ -76,7 +77,6 @@ in {
 
       boot.postBootCommands = mkIf cfg.debug (mkAfter ''
         cat ${gdbConfig} > /root/.gdbinit
-        ln -s ${contrailPkgs.contrailController} /root/controller
       '');
 
       environment.systemPackages = with pkgs; [
