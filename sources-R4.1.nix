@@ -4,7 +4,7 @@
 
 {pkgs}:
 {
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-build at 2018-12-20 16:43:57
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-build at 2019-03-07 16:00:18
   build = pkgs.fetchFromGitHub {
     name = "build";
     owner = "Juniper";
@@ -12,23 +12,23 @@
     rev = "b3e213e479619978b033b2006bb1be55e268e216";
     sha256 = "0cr3wc8s1yf2827nwmlc8jw4wdi4hw0nchq43rnpgpkmw04j9abh";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-controller at 2018-12-20 16:43:58
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-controller at 2019-03-07 16:00:20
   controller = pkgs.fetchFromGitHub {
     name = "controller";
     owner = "Juniper";
     repo = "contrail-controller";
-    rev = "c31b7b6fb76d2748f172beb9e12218095aed0b5d";
-    sha256 = "1v8h2hk1pbasli84nlsfkrs01v59dypfl7lbrjsz6inc96l09y6x";
+    rev = "2b9acc589b826edee00d4cc1b65e37066d779d33";
+    sha256 = "1dfyj7c4s4c4s4k0rlz1xv0726wjn69spd90jjlnnc0lmd52f5x4";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-generateds at 2018-12-20 16:44:08
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-generateds at 2019-03-07 16:00:34
   generateds = pkgs.fetchFromGitHub {
     name = "generateds";
     owner = "Juniper";
     repo = "contrail-generateds";
-    rev = "661a579cedd0ec6de8cb8e55e9f15c8d90195837";
-    sha256 = "1hmi5164r8j00r5s4q5b4yi69vnbxvy58176aw10h0pf9n8y04yk";
+    rev = "1ea401a49f5eff118ece742282c290063de98ec2";
+    sha256 = "1zxr29s82vgfmf9zw22p094vnxb5vfh1ahwn4vjgmjlsfmycm476";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-neutron-plugin at 2018-12-20 16:44:10
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-neutron-plugin at 2019-03-07 16:00:37
   neutronPlugin = pkgs.fetchFromGitHub {
     name = "neutronPlugin";
     owner = "Juniper";
@@ -36,7 +36,7 @@
     rev = "40ad78c635a28f24ef0fcf1a89f5817a59507ded";
     sha256 = "1f8hi1z860b95jcdjj2ylnn41sd76cz44v7bhjwh2nfmi09kqryf";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-sandesh at 2018-12-20 16:44:12
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-sandesh at 2019-03-07 16:00:38
   sandesh = pkgs.fetchFromGitHub {
     name = "sandesh";
     owner = "Juniper";
@@ -44,7 +44,7 @@
     rev = "daf2174b2126f5c065e4b17202ddf2e080de69ae";
     sha256 = "1ggfx9avmj460s7a09ip2whzy8aphapiy87m9bxwb5spim0ifp6y";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-third-party at 2018-12-20 16:44:13
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-third-party at 2019-03-07 16:00:41
   thirdParty = pkgs.fetchFromGitHub {
     name = "thirdParty";
     owner = "Juniper";
@@ -52,12 +52,12 @@
     rev = "ddc576e9c037e1ccc0e297a64ce92e4bedf95d63";
     sha256 = "07vq2gcqj3l450jj8fvz5zzslj8dxqpiyb3fs4ncqb2ayjaqxzlc";
   };
-  # Head of branch R4.1 of repository github.com/Juniper/contrail-vrouter at 2018-12-20 16:44:15
+  # Head of branch R4.1 of repository github.com/Juniper/contrail-vrouter at 2019-03-07 16:00:43
   vrouter = pkgs.fetchFromGitHub {
     name = "vrouter";
     owner = "Juniper";
     repo = "contrail-vrouter";
-    rev = "cb137a30c5d2ca66eb93afd137d06fa174f134dc";
-    sha256 = "1lc9n5rhnbnn0jxv66cvvpvmfwn9c1hfify806cmn8cx8mc2b00d";
+    rev = "65e3ecf65f8859b03506bc842c119f59dbb8b456";
+    sha256 = "0c5cal89j3s7xi5df86pqcvzzb41l02rlhavfjm8cf14qpmvnfkd";
   };
 }
