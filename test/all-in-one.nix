@@ -27,6 +27,7 @@ let
       contrail.allInOne = {
         enable = true;
         vhostInterface = "eth1";
+        vhostGateway = "10.0.2.2";
       };
     };
   };

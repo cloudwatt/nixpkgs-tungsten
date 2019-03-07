@@ -32,6 +32,10 @@ in {
           type = types.str;
           default = "192.168.1.1";
         };
+        vhostGateway = mkOption {
+          type = types.str;
+          default = "192.168.1.1";
+        };
         debug = mkOption {
           type = types.bool;
           default = false;
@@ -84,6 +88,7 @@ in {
           enable = true;
           vhostInterface = cfg.vhostInterface;
           vhostIP = cfg.vhostIP;
+          vhostGateway = cfg.vhostGateway;
           debug = cfg.debug;
         };
         discovery.enable = contrailPkgs.isContrail32;
