@@ -116,6 +116,11 @@ in {
 
     networking.usePredictableInterfaceNames = false;
 
+    networking.firewall.extraCommands = concatStringsSep "\n"
+      (map (gw: optionalString gw.masquerade ''
+        iptables -t nat -A POSTROUTING -s ${gw.networkCIDR} -j MASQUERADE
+      '') cfg.virtualGateways);
+
     # This is to prevent the netns-daemon-start to update resolv.conf
     # (since it is using dhclient).
     environment.etc.dhclient-enter-hooks = {
@@ -222,8 +227,6 @@ in {
               ${contrailPkgs.configUtils}/bin/provision_vgw_interface.py --oper create \
                   --interface vgw --subnets ${gw.networkCIDR} --routes ${gw.routes} \
                   --vrf "default-domain:${gw.projectName}:${gw.networkName}:${gw.networkName}"
-            '' + optionalString gw.masquerade ''
-              iptables -t nat -A POSTROUTING -s ${gw.networkCIDR} -j MASQUERADE
             '';
           }
           (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
