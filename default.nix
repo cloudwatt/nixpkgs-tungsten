@@ -5,5 +5,7 @@
 let
   tools = import ./tools-overlay.nix;
   contrail = import ./contrail-overlay.nix;
+  pkgs = import nixpkgs { overlays = [ tools contrail ]; };
+  dockerImages = pkgs.callPackages ./pkgs/docker-images/default.nix { };
 
-in import nixpkgs { overlays = [ tools contrail ]; }
+in pkgs // { inherit dockerImages; }
