@@ -44,7 +44,6 @@ Note: for the rest of this README, it is not mandatory to subscribe to
 To build all OpenContrail components
 ```
 $ nix-build -A contrail32
-$ nix-build -A contrailMaster
 ```
 
 Since they have been already built by the CI, they are only
@@ -53,7 +52,7 @@ argument.
 
 To build specific ones
 ```
-$ nix-build -A contrail32.api
+$ nix-build -A contrail32.apiServer
 $ nix-build -A contrail32.control
 ```
 
@@ -87,31 +86,6 @@ $ ./result/bin/nixos-run-vms
 ```
 
 
-### Build a compute node VM
-
-```
-$ nix-build -A contrail32.vms.computeNode
-```
-builds a script to run a compute node with QEMU.
-
-Once built, the VM can be run
-```
-$ QEMU_NET_OPTS="hostfwd=tcp::2222-:22,guestfwd=tcp:10.0.2.201:5998-tcp:127.0.0.1:5998" ./result/bin/nixos-run-vms
-```
-
-and reached with
-
-```
-$ ssh -p 2222 root@localhost
-Password: root
-```
-
-A default configuration file is generated. By default, the agent
-tryies to contact the controller, discovery and collector by using
-the IP `10.0.2.200` which could be overriden at build time in
-`tools/build-vms.nix`.
-
-
 ### Using `nix-shell` to locally compile `contrail-control`
 
 ```
@@ -132,7 +106,7 @@ $ scons contrail-control
 ### Load a Cassandra database dump and start the contrail api and schema transformer
 
 ```
-$ nix-build -A tools.contrail32DatabaseLoader
+$ nix-build -A contrail32.tools.databaseLoader
 ```
 
 This builds a script that runs a VM. This VM loads a database dump
