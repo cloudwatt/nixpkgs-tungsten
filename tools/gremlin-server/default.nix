@@ -4,7 +4,7 @@ stdenv.mkDerivation rec {
   name = "gremlin-server-${version}";
   version = "3.3.2";
   src = fetchzip {
-    url = "http://www-eu.apache.org/dist/tinkerpop/${version}/apache-tinkerpop-gremlin-server-${version}-bin.zip";
+    url = "http://archive.apache.org/dist/tinkerpop/${version}/apache-tinkerpop-gremlin-server-${version}-bin.zip";
     sha256 = "0plx7m51av0kjr6x4rbsmsz5p03j980gh56czj3rfin10565v5kr";
   };
   buildInputs = [ makeWrapper openjdk ];
