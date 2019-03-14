@@ -25,6 +25,23 @@ let
           sha256 = "0bbbjvi423y9k9xagrcsimnayaqymg6f2dj76m9z3mjpkjpci4a7";
         };
       });
+      kombu = super.kombu.overridePythonAttrs(old: rec {
+        version = "3.0.34";
+        src = self.fetchPypi {
+          inherit version;
+          pname = old.pname;
+          sha256 = "1nkm03cfv83rc2b79ngbyig12w1x2vms7942jrlb51lxn0czyy48";
+        };
+        propagatedBuildInputs = old.propagatedBuildInputs ++ [ super.anyjson super.redis ];
+      });
+      amqp = super.amqp.overridePythonAttrs(old: rec {
+        version = "1.4.9";
+        src = self.fetchPypi {
+          inherit version;
+          pname = old.pname;
+          sha256 = "06n6q0kxhjnbfz3vn8x9yz09lwmn1xi9d6wxp31h5jbks0b4vsid";
+        };
+      });
       bottle = callPackage ./bottle.nix { };
       pycassa = callPackage ./pycassa.nix { };
       kafka = callPackage ./kafka.nix { };
