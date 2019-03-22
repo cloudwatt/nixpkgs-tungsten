@@ -11,7 +11,7 @@
     * [Running OpenContrail in a VM](#running-opencontrail-in-a-vm)
     * [Building OpenContrail from sources](#building-opencontrail-from-sources)
     * [Working on a single component](#working-on-a-single-component)
-    * [Start a Contrail VM with an existing config database](#running-a-vm-with-an-existing-configuration)
+    * [Start a Contrail VM with an existing configuration database](#running-a-vm-with-an-existing-configuration-database)
     * [Installing OpenContrail related tools](#installing-opencontrail-related-tools)
 * [Testing](#testing)
 * [How to contribute](#how-to-contribute) <!-- hydra does PR testing, your test needs to pass.. -->
@@ -167,7 +167,7 @@ $ scons contrail-control
 
 This approach also makes it easy to test patches or upstream to single components locally.
 
-### Running a VM with an existing configuration
+### Running a VM with an existing configuration database
 
 Instead of just running a generic setup it can be desirable to replicate an existing configuration.
 This can be achieved by providing a cassandra database dump to the `allInOne` VM.
