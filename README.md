@@ -102,7 +102,7 @@ $ ./result/bin/nixos-run-vms            # starts the VM in qemu
 ```
 
 The example above starts a VM with OpenContrail 3.2, the same will
-also work with `contrail42` or `contrail50`. It is also possible to 
+also work with `contrail41` or `contrail50`. It is also possible to 
 start the VM with ssh access enabled:
 
 ```
