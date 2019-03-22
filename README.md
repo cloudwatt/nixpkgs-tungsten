@@ -83,7 +83,7 @@ to obtain the binaries that these expressions create. Edit (or create if it does
 # ~/.config/nix/nix.conf
 substituters = https://cache.nixos.org http://84.39.63.212
 trusted-substituters = http://84.39.63.212
-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra:dUe+CfbBeef0GlMXllmA0D5Mv3yR7wtUwZ6Oy/+0zOo= cache.opencontrail.org:u/UFsj0N3c/Ycell/q81MiPRo0Zz6ZlVqu3wB2SY340= opencontrail.cachix.org-1:QCsZCHATxFVRRHdilxc1qiV2QmiPV02NTs10oVkf+UQ=
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.opencontrail.org:u/UFsj0N3c/Ycell/q81MiPRo0Zz6ZlVqu3wB2SY340=
 ```
 
 ## Usage Scenarios
