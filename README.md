@@ -24,7 +24,7 @@
 OpenContrail is a widely adopted and powerful Open Source SDN solution. OpenContrail is 
 powerful but also complex and as such not trivial to build and test. 
 
-The purpose of **nixpkgs-contrail** is to improve these workflows and make it much 
+The goal of **nixpkgs-contrail** is to improve these workflows and make it much 
 easier to develop features and test them in virtual environments.
 
 The only prerequisite and hard dependency of **nixpkgs-contrail** is 
