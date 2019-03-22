@@ -196,7 +196,7 @@ Execute `./result` again after following the given instructions.
 - gremlinChecks
 - [gremlinConsole](https://tinkerpop.apache.org/docs/current/tutorials/the-gremlin-console/)
 - [gremlinServer](https://docs.janusgraph.org/latest/server.html)
-- gremlinFsck
+- [gremlinFsck](https://github.com/eonpatapon/contrail-gremlin/tree/master/gremlin-fsck)
 
 All tools can be installed using `nix-env`:
 
