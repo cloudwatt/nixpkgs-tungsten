@@ -204,6 +204,13 @@ All tools can be installed using `nix-env`:
 $ nix-env -iA contrailIntrospectCli -f default.nix
 ```
 
+There is also a nix-shell environment which provides all the tools above without the need to
+install them permanently. The shell can be entered from the root of the project tree using `nix-shell`:
+
+```
+$ nix-shell
+```
+
 ## Testing
 
 The tests are implemented using the [NixOS testing framework](https://nixos.org/nixos/manual/index.html#sec-nixos-tests). 
