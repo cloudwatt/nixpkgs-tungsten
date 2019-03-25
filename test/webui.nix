@@ -1,32 +1,54 @@
 { pkgs
-# I didn't find a better way to run test by using the test framework
-# of the bootstrapped nixpkgs. In fact, this is to avoid the user to
-# set a specific NIX_PATH env var.
-, pkgs_path ? <nixpkgs>
 , contrailPkgs
 }:
 
-with import (pkgs_path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
 
 let
-  machine = {pkgs, config, ...}: {
-    imports = [ ../modules/webui.nix ];
+  machine = { config, ...}: {
+    imports = [ ../modules/webui.nix
+                ../modules/all-in-one.nix
+              ];
     config = rec {
-      _module.args = { inherit contrailPkgs; };
+      _module.args = { inherit pkgs contrailPkgs; };
 
-      services.openssh.enable = true;
-      services.openssh.permitRootLogin = "yes";
-      users.extraUsers.root.password = "root";
-
-      virtualisation = { memorySize = 1024; cores = 1; };
+      virtualisation = { memorySize = 4096; diskSize = 2048; cores = 2; };
 
       contrail.webui.enable = true;
+
+      environment.systemPackages = with pkgs; [
+        curl
+        gnugrep
+        jq
+      ];
+      environment.variables = {
+        CONTRAIL_API_VERSION = contrailPkgs.contrailVersion;
+      };
+
+      networking.enableIPv6 = false;
+
+      contrail.allInOne = {
+        enable = true;
+        vhostInterface = "eth1";
+        vhostGateway = "10.0.2.2";
+      };
     };
   };
   testScript =
     ''
-    $machine->waitForUnit("contrailWebServer.service");
-    $machine->waitForUnit("contrailJobServer.service");
+    # wait for services
+    $machine->waitForUnit("contrail-web-server.service");
+    $machine->waitForUnit("contrail-job-server.service");
+
+    # check for the login page
+    $machine->waitUntilSucceeds("curl -k https://localhost:8143 | grep 'Sign in using your registered account'");
+
+    # try to log in
+    $machine->succeed("curl -k -X POST -H \"Content-Type: application/json\" --data '{\"username\": \"admin\", \"password\": \"contrail123\"}' https://localhost:8143/authenticate | jq '.isAuthenticated' | grep true");
   '';
 in
-  makeTest { name = "webui"; nodes = { inherit machine; }; testScript = testScript; }
+  makeTest {
+    name = "webui";
+    nodes = { inherit machine; };
+    testScript = testScript;
+  }

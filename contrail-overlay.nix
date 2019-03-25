@@ -95,6 +95,7 @@ let
 
     lib = {
       fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
+      buildWebuiDeps = callPackage ./pkgs/build-webui-deps.nix {};
 
       # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
@@ -155,6 +156,7 @@ let
 
     # deps
     deps = {
+      nodejs-4_x = callPackage ./pkgs/nodejs.nix { };
       cassandraCppDriver = callPackage ./pkgs/cassandra-cpp-driver.nix { stdenv = stdenv_gcc6; };
       libgrok = callPackage ./pkgs/libgrok.nix { };
       log4cplus = callPackage ./pkgs/log4cplus.nix { stdenv = stdenv_gcc5; };
@@ -253,9 +255,13 @@ in rec {
     };
   });
 
-  contrail50 = contrail41.overrideScope' (lself: lsuper: {
+  contrail50 = contrail41.overrideScope' (lself: lsuper: rec {
     contrailVersion = "5.0";
     contrailSources = callPackage ./sources-R5.0.nix { };
+    webui = callPackages ./pkgs/webui.nix { sources = contrailSources; inherit (lsuper) deps; };
+    test = lsuper.test // {
+      webui = callPackages ./test/webui.nix { contrailPkgs = lself; };
+    };
     contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
       { outputHash = "0h39vwdsi4b0xi4pcqnmfkfkcldf52bby3rnnbz6flmcapb5pxfd"; });
   });
