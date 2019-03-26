@@ -1,7 +1,7 @@
 {
   "enabled": 1,
   "hidden": false,
-  "description": "Build of nixpkgs-contrail",
+  "description": "Build of nixpkgs-tungsten",
   "nixexprinput": "contrail",
   "nixexprpath": "ci/jobsets-declarative.nix",
   "checkinterval": 60,
@@ -11,7 +11,7 @@
   "keepnr": 3,
   "inputs": {
     "contrail": {
-      "value": "https://github.com/nlewo/nixpkgs-contrail ci-declarative keepDotGit",
+      "value": "https://github.com/cloudwatt/nixpkgs-tungsten master keepDotGit",
       "type": "git",
       "emailresponsible": false
     },
@@ -22,7 +22,7 @@
     },
     "pulls": {
       "type": "githubpulls",
-      "value": "nlewo nixpkgs-contrail",
+      "value": "cloudwatt nixpkgs-tungsten",
       "emailresponsible": false
     }
   }

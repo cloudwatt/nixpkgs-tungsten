@@ -29,7 +29,7 @@ let
   ) prs;
   desc = prJobsets // {
     trunk = {
-      description = "Build master of nixpkgs-contrail";
+      description = "Build master of nixpkgs-tungsten";
       checkinterval = 60;
       enabled = 1;
       nixexprinput = "contrail";
@@ -41,7 +41,7 @@ let
       hidden = false;
       inputs = {
         contrail = {
-          value = "https://github.com/nlewo/nixpkgs-contrail master";
+          value = "https://github.com/cloudwatt/nixpkgs-tungsten master";
           type = "git";
           emailresponsible = false;
         };
@@ -53,7 +53,7 @@ let
       };
     };
     staging = {
-      description = "Build master of nixpkgs-contrail and follow nixpkgs stable";
+      description = "Build master of nixpkgs-tungsten and follow nixpkgs stable";
       checkinterval = 86400;
       enabled = 1;
       nixexprinput = "contrail";
@@ -70,7 +70,7 @@ let
           emailresponsible = false;
         };
         contrail = {
-          value = "https://github.com/nlewo/nixpkgs-contrail master";
+          value = "https://github.com/cloudwatt/nixpkgs-tungsten master";
           type = "git";
           emailresponsible = false;
         };
@@ -82,7 +82,7 @@ let
       };
     };
     unstable = {
-      description = "Build master of nixpkgs-contrail and follow nixpkgs unstable";
+      description = "Build master of nixpkgs-tungsten and follow nixpkgs unstable";
       checkinterval = 86400;
       enabled = 1;
       nixexprinput = "contrail";
@@ -99,7 +99,7 @@ let
           emailresponsible = false;
         };
         contrail = {
-          value = "https://github.com/nlewo/nixpkgs-contrail master";
+          value = "https://github.com/cloudwatt/nixpkgs-tungsten master";
           type = "git";
           emailresponsible = false;
         };
