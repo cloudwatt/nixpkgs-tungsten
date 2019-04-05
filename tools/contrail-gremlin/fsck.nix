@@ -1,4 +1,4 @@
-{ pkgs, fetchFromGitHub }:
+{ pkgs, lib, fetchFromGitHub }:
 
 let
 
@@ -14,6 +14,24 @@ let
 
     doCheck = false;
     propagatedBuildInputs = [ six aenum futures tornado_4 pytestrunner ];
+  };
+
+  prometheusClient = with pkgs.python27Packages; buildPythonPackage rec {
+    pname = "prometheus_client";
+    version = "0.6.0";
+
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "1474rr7p4ihzpix1z0wwhpc99jf06fk95ayrph4g4rhgfmcbjf0v";
+    };
+
+    doCheck = false;
+
+    meta = with lib; {
+      description = "Prometheus instrumentation library for Python applications";
+      homepage = https://github.com/prometheus/client_python;
+      license = licenses.asl20;
+    };
   };
 
 in
@@ -33,5 +51,6 @@ in
     propagatedBuildInputs = [
       futures
       gremlinPython
+      prometheusClient
     ];
   }
