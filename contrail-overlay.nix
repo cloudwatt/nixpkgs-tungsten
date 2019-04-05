@@ -5,7 +5,18 @@ with builtins;
 let
 
   inherit (super) callPackage callPackages;
-  inherit (super.lib) filterAttrs foldl concatStrings splitString;
+  inherit (super.lib) filterAttrs foldl concatStrings splitString mapAttrsToList genList;
+
+  # Repeat the kvm feature to match the number of cores used by a test
+  # Note one kvm feature is already added by Nix.
+  addKvmFeaturesOnTest = drv: let
+    cores = mapAttrsToList (_: v: v.config.virtualisation.cores) drv.nodes;
+    sum = foldl (a: b: a + b) 0 cores;
+    kvms =  genList (_: "kvm") (sum - 1);
+  in
+  drv.overrideAttrs (
+    old: { requiredSystemFeatures = old.requiredSystemFeatures ++ kvms ;}
+  );
 
   addCacheOutput = drv: drv.overrideAttrs (old:
     let
@@ -195,7 +206,7 @@ let
       contrailPythonBuild = addShellHook lself.contrailPythonBuild;
     };
 
-    test = {
+    test = super.lib.mapAttrs (_: v: addKvmFeaturesOnTest v) {
       allInOne = callPackage ./test/all-in-one.nix { contrailPkgs = lself; };
       tcpFlows = callPackage ./test/flows.nix { contrailPkgs = lself; mode = "tcp"; };
       udpFlows = callPackage ./test/flows.nix { contrailPkgs = lself; mode = "udp"; };
