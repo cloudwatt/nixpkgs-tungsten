@@ -93,13 +93,13 @@ let
 
 
     "PyYAML" = python.mkDerivation {
-      name = "PyYAML-3.13";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/9e/a3/1d13970c3f36777c583f136c136f804d70f500168edc1edea6daa7200769/PyYAML-3.13.tar.gz"; sha256 = "3ef3092145e9b70e3ddd2c7ad59bdd0252a94dfe3949721633e41344de00a6bf"; };
+      name = "PyYAML-5.1";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/9f/2c/9417b5c774792634834e730932745bc09a7d36754ca00acf1ccd1ac2594d/PyYAML-5.1.tar.gz"; sha256 = "436bc774ecf7c103814098159fbb84c2715d25980175292c648f2da143909f95"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];
       meta = with pkgs.stdenv.lib; {
-        homepage = "http://pyyaml.org/wiki/PyYAML";
+        homepage = "https://github.com/yaml/pyyaml";
         license = licenses.mit;
         description = "YAML parser and emitter for Python";
       };
@@ -123,8 +123,8 @@ let
 
 
     "certifi" = python.mkDerivation {
-      name = "certifi-2018.11.29";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/55/54/3ce77783acba5979ce16674fc98b1920d00b01d337cfaaf5db22543505ed/certifi-2018.11.29.tar.gz"; sha256 = "47f9c83ef4c0c621eaef743f133f09fa8a74a9b75f037e8624f83bd1b6626cb7"; };
+      name = "certifi-2019.3.9";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/06/b8/d1ea38513c22e8c906275d135818fee16ad8495985956a9b7e2bb21942a1/certifi-2019.3.9.tar.gz"; sha256 = "b26104d6835d1f5e49452a26eb2ff87fe7090b89dfcaee5ea2212697e1e1d7ae"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];
@@ -153,8 +153,8 @@ let
 
 
     "contrail-api-cli" = python.mkDerivation {
-      name = "contrail-api-cli-0.3.0";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/4a/34/0aa04f707d88b5f5d0f97eefd530a6ea6c8a62d154c7971d0849d121dfbf/contrail-api-cli-0.3.0.tar.gz"; sha256 = "5eaa2a1620e45f60781106abc73f5098001ebd4d47cf49065439c8c5455df930"; };
+      name = "contrail-api-cli-0.4.0rc1";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/43/a7/42bbd52d575307fbc064efb9a4f32c4152a06257f7c964c6a276dcca5691/contrail-api-cli-0.4.0rc1.tar.gz"; sha256 = "a609fa49ad6c8ee77fb92d10d52a3241a148cdfa3c913d066f5c8d4b4b479c29"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -176,8 +176,8 @@ let
 
 
     "contrail-api-cli-extra" = python.mkDerivation {
-      name = "contrail-api-cli-extra-0.5.8";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/8b/73/0565a9a05ef5ddc90a2949e4bbc07da2c9515d2f402f6094a98c8dc0c5c2/contrail-api-cli-extra-0.5.8.tar.gz"; sha256 = "ee41dc9bf0f613d6a419f661c5ba16cfc7015c3f73b4e92efacfd313f86844e7"; };
+      name = "contrail-api-cli-extra-0.5.9";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/64/94/6ce8e23672489c70541acc0a1408ca58894bd8d27587d8563a4918f159c2/contrail-api-cli-extra-0.5.9.tar.gz"; sha256 = "d674e6e58645c47e3bbf7a946bc6281cba7de101cba12c4df6cd627da1ce46d7"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [
@@ -234,8 +234,8 @@ let
 
 
     "decorator" = python.mkDerivation {
-      name = "decorator-4.3.2";
-      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/c4/26/b48aaa231644bc875bb348e162d156edb18b994da900a10f4493ea995a2f/decorator-4.3.2.tar.gz"; sha256 = "33cd704aea07b4c28b3eb2c97d288a06918275dac0ecebdaf1bc8a48d98adb9e"; };
+      name = "decorator-4.4.0";
+      src = pkgs.fetchurl { url = "https://files.pythonhosted.org/packages/ba/19/1119fe7b1e49b9c8a9f154c930060f37074ea2e8f9f6558efc2eeaa417a2/decorator-4.4.0.tar.gz"; sha256 = "86156361c50488b84a3f148056ea716ca587df2f0de1d34750d35c21312725de"; };
       doCheck = commonDoCheck;
       buildInputs = commonBuildInputs;
       propagatedBuildInputs = [ ];

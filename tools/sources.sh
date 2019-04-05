@@ -16,14 +16,17 @@ echo "{pkgs}:"
 echo "{"
 
 while read -r ATTRIBUTE OWNER REPOS BRANCH; do
+    tmpfile=$(mktemp)
+    tmpdir=$(mktemp -d)
     echo "  # Head of branch $BRANCH of repository github.com/$OWNER/$REPOS at $(date +'%F %T')"
     COMMITID=$(curl --silent https://api.github.com/repos/$OWNER/$REPOS/branches/$BRANCH | jq -r '.commit.sha')
-    curl --silent -L https://github.com/$OWNER/$REPOS/archive/$COMMITID.tar.gz > /tmp/tmp.tgz
+    curl --silent -L https://github.com/$OWNER/$REPOS/archive/$COMMITID.tar.gz > $tmpfile
 
-    rm -rf /tmp/untar.tmp/
-    mkdir /tmp/untar.tmp
-    tar -C /tmp/untar.tmp/ -xf /tmp/tmp.tgz
-    SHA256=$(find /tmp/untar.tmp/ -maxdepth 1 -mindepth 1 -exec nix-hash --type sha256 --base32 '{}' \;)
+    tar -C $tmpdir/ -xf $tmpfile
+    SHA256=$(find $tmpdir/ -maxdepth 1 -mindepth 1 -exec nix-hash --type sha256 --base32 '{}' \;)
+
+    rm -f $tmpfile
+    rm -rf $tmpdir
 
     echo "  $ATTRIBUTE = pkgs.fetchFromGitHub {"
     echo "    name = \"$ATTRIBUTE\";";
@@ -35,6 +38,3 @@ while read -r ATTRIBUTE OWNER REPOS BRANCH; do
 done < $1
 
 echo "}"
-
-rm -f /tmp/tmp.tgz
-rm -rf /tmp/untar.tmp
