@@ -75,7 +75,7 @@ let
           emailresponsible = false;
         };
         nixpkgs = {
-          value = "https://github.com/NixOS/nixpkgs-channels nixos-18.09";
+          value = "https://github.com/NixOS/nixpkgs-channels nixos-19.03";
           type = "git";
           emailresponsible = false;
         };

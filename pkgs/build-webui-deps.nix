@@ -50,7 +50,7 @@ let
 
   webui-deps-rev = "${contrailSources.webuiThirdParty.rev}";
   webui-deps-file = "webui-deps-${webui-deps-rev}.tar.xz";
-  webui-deps-url = "https://storage.fr1.cloudwatt.com/v1/AUTH_e1cd9b90abb840798055d37b29f1a7d2/nixpkgs-tungsten-webui/${webui-deps-file}";
+  webui-deps-url = "https://storage.fr1.cloudwatt.com/v1/AUTH_71d599f49405486e8bbb672e52a1d4d1/nixpkgs-tungsten-webui/${webui-deps-file}";
 
   in
 

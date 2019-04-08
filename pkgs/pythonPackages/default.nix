@@ -43,7 +43,6 @@ let
         };
       });
       bottle = callPackage ./bottle.nix { };
-      pycassa = callPackage ./pycassa.nix { };
       kafka = callPackage ./kafka.nix { };
       # Theses weren't used before
       # sseclient = callPackage ./sseclient.nix { };
