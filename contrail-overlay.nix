@@ -15,8 +15,8 @@ let
     kvms =  genList (_: "kvm") (sum - 1);
   in
   drv.overrideAttrs (
-    old: { requiredSystemFeatures = old.requiredSystemFeatures ++ kvms ;}
-  );
+    old: { requiredSystemFeatures = old.requiredSystemFeatures ++ kvms; }
+  ) // { inherit (drv) nodes test driver; };
 
   addCacheOutput = drv: drv.overrideAttrs (old:
     let
