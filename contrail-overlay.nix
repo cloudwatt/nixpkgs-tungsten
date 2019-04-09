@@ -86,6 +86,9 @@ let
     modules = ./modules;
     path = ./.;
 
+    # helpers
+    fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
+
     # build
     contrailThirdPartyCache = callPackage ./pkgs/third-party-cache.nix { };
     contrailThirdParty = callPackage ./pkgs/third-party.nix { };
