@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/lib/modules/${kernelVersion}
     mv src/kernels/${kernelVersion} $out/lib/modules/${kernelVersion}/build
 
-    for i in recordmcount basic/fixdep mod/modpost ; do
+    for i in recordmcount basic/fixdep mod/modpost genksyms/genksyms; do
       ${patchelf}/bin/patchelf \
         --set-interpreter ${stdenv.glibc}/lib/ld-linux-x86-64.so.2 \
         --set-rpath ${stdenv.glibc}/lib \
