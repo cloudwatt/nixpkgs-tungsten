@@ -94,6 +94,8 @@ let
     contrailPythonBuild = addCacheOutput (callPackage ./pkgs/python-build.nix { stdenv = stdenv_gcc5; });
 
     lib = {
+      fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
+
       # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
       # used for exposing to hydra
@@ -179,6 +181,13 @@ let
     vrouterPortControl = callPackage ./pkgs/vrouter-port-control.nix { };
     vrouterNetNs = callPackage ./pkgs/vrouter-netns.nix { };
     vrouterModuleNixos_4_9 = addCacheOutput (lself.lib.buildVrouter self.linuxPackages_4_9.kernel.dev);
+    vrouterModuleCentos7_3_10 = let
+      kernel = lself.lib.fetchCentosKernel {
+        centosVersion = "7";
+        kernelVersion = "3.10.0-957.el7.x86_64";
+        sha256 = "0j75sd0m9jq4bq6h58kia1ibwyrbh65vdsijfgy6ifl9qxifzq9l";
+      };
+    in lself.lib.buildVrouter kernel;
 
     # config
     apiServer = callPackage ./pkgs/api-server.nix { };
