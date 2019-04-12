@@ -59,6 +59,7 @@ in {
       ./contrail-query-engine.nix
       ./contrail-collector.nix
       ./contrail-control.nix
+      ./contrail-alarm-gen.nix
     ];
 
     config = rec {
@@ -98,6 +99,7 @@ in {
         analyticsApi.enable = true;
         queryEngine.enable = true;
         collector.enable = true;
+        alarmGen.enable = true;
         control = {
           enable = true;
           debug = cfg.debug;

@@ -3,11 +3,12 @@
 }:
 
 buildPythonPackage rec {
-  pname = "jsonpickle";
-  version = "0.9.4";
+  pname = "consistent_hash";
+  version = "1.0";
   name = "${pname}-${version}";
   src = fetchPypi {
     inherit pname version;
-    sha256 = "0f7rs3v30xhwdmnqhqn9mnm8nxjq3yhp6gdzkg3z8m8lynhr968x";
+    sha256 = "d9f88eff086680918b458b62994fbf07ef97736771f1e9f3b05855547636a7ac";
   };
+  doCheck = false;
 }

@@ -31,15 +31,18 @@ let
         CONTRAIL_API_VERSION = contrailPkgs.contrailVersion;
       };
 
-      contrail.allInOne = {
-        enable = true;
-        vhostInterface = "eth1";
-        vhostGateway = "10.0.2.2";
+      contrail = {
+        allInOne = {
+          enable = true;
+          vhostInterface = "eth1";
+          vhostGateway = "10.0.2.2";
+        };
+        analyticsApi.autoStart = false;
+        collector.autoStart = false;
+        queryEngine.autoStart = false;
+        svcMonitor.autoStart = false;
+        alarmGen.enable = mkForce false;
       };
-      contrail.analyticsApi.autoStart = false;
-      contrail.collector.autoStart = false;
-      contrail.queryEngine.autoStart = false;
-      contrail.svcMonitor.autoStart = false;
     };
   };
 

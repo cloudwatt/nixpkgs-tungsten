@@ -81,6 +81,7 @@ stdenv.mkDerivation rec {
 
     scons -j1 --optimization=production controller/src/config
     scons -j1 --optimization=production contrail-analytics-api
+    scons -j1 --optimization=production contrail:libpartition
   '' + optionalString isContrail32 ''
     scons -j1 --optimization=production contrail-discovery
   '' + optionalString lib.versionAtLeast50 ''

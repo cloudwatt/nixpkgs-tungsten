@@ -17,6 +17,7 @@ pythonPackages.buildPythonApplication rec {
    lxml geventhttpclient psutil redis bottle xmltodict sseclient pycassa requests prettytable
    # Not in requirements.txt...
    pysandesh cassandra-driver sandesh_common cfgm_common stevedore kafka vnc_api
+   libpartition kombu
   ] ++ (optional isContrail32  [ discovery_client ])
     ++ (optional (!isContrail32)  [ kazoo ]);
 }

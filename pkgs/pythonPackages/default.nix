@@ -45,9 +45,6 @@ let
       bottle = callPackage ./bottle.nix { };
       pycassa = callPackage ./pycassa.nix { };
       kafka = callPackage ./kafka.nix { };
-      # Theses weren't used before
-      # sseclient = callPackage ./sseclient.nix { };
-      # jsonpickle = callPackage ./jsonpickle.nix { };
       bitarray = callPackage ./bitarray.nix { };
       flexmock = callPackage ./flexmock.nix { };
       junitxml = callPackage ./junitxml.nix { };
@@ -62,6 +59,8 @@ let
       vnc_openstack = callPackage ./vnc-openstack.nix { };
       sandesh_common = callPackage ./sandesh-common.nix { };
       pysandesh = callPackage ./pysandesh.nix { };
+      consistent_hash = callPackage ./consistent_hash.nix { };
+      libpartition = callPackage ./libpartition.nix { };
     } // optionalAttrs isContrail32 {
       discovery_client = callPackage ./discovery-client.nix { };
     };

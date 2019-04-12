@@ -11,6 +11,7 @@
 { pkgs, contrailPkgs }:
 
 with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with pkgs.lib;
 
 let
   cassandraDumpPath = "/tmp/shared/cassandra-dump/";
@@ -46,6 +47,8 @@ let
         collector.autoStart = false;
         queryEngine.autoStart = false;
         control.autoStart = false;
+
+        alarmGen.enable = mkForce false;
 
       };
 
