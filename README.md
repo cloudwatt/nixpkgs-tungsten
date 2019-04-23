@@ -53,7 +53,7 @@ configurations for making your workflow more convenient.
 
 #### Using the OpenContrail Nix channel
 
-The [Hydra CI](http://84.39.42.112/) server provides binaries of this project and its
+The [Hydra CI](https://hydra.nix.corp.cloudwatt.com) server provides binaries of this project and its
 dependencies through a [nix channel](https://nixos.org/nix/manual/#sec-channels). If you configure your
 local nix setup to use this channel you won't have to build binaries that have previously been generated
 by the CI server. Follow the instructions below to make use of the CI server:
@@ -61,7 +61,7 @@ by the CI server. Follow the instructions below to make use of the CI server:
 **1. Adding the contrail channel**
 
 ```
-$ nix-channel --add http://84.39.42.112/jobset/opencontrail/trunk/channel/latest contrail
+$ nix-channel --add https://hydra.nix.corp.cloudwatt.com/jobset/nixpkgs-tungsten/trunk/channel/latest contrail
 $ nix-channel --update
 ```
 
@@ -81,8 +81,8 @@ to obtain the binaries that these expressions create. Edit (or create if it does
 
 ```
 # ~/.config/nix/nix.conf
-substituters = https://cache.nixos.org http://84.39.42.112
-trusted-substituters = http://84.39.42.112
+substituters = https://cache.nixos.org https://cache.nix.corp.cloudwatt.com
+trusted-substituters = https://cache.nix.corp.cloudwatt.com
 trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.nix.cloudwatt.com:ApPt6XtZeOQ3hNRTSBQx+m6rd8p04G0DQwz0bZfVPL8=
 ```
 
@@ -250,4 +250,4 @@ For installation and usage instructions please refer to the projet website.
 ### Contributing
 
 Contributions to **nixpkgs-contrail** through PRs are always welcome. All PRs will be automatically tested by the
-[Hydra CI](http://84.39.42.112/) server.
+[Hydra CI](https://hydra.nix.corp.cloudwatt.com) server.
