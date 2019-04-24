@@ -45,7 +45,7 @@ kernelHeaders: stdenv.mkDerivation rec {
     echo ""
     echo "1. Unpack the Tungsten workspace (containing all Tungsten source trees)"
     echo ""
-    echo "   $ unpack"
+    echo "   $ unpackPhase"
     echo "   $ cd contrail-workspace"
     echo ""
     echo "2. Run scons to build the Vrouter module"
