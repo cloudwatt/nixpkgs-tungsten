@@ -7,6 +7,9 @@
 
 with pkgs.lib;
 
+let
+  sconsCmd = "scons --optimization=production --kernel-dir=$kernelSrc vrouter/vrouter.ko";
+in
 kernelHeaders: stdenv.mkDerivation rec {
   name = "contrail-vrouter-${kernelHeaders.name}";
   version = contrailVersion;
@@ -30,7 +33,7 @@ kernelHeaders: stdenv.mkDerivation rec {
     sed -i "s|MAKEARGS := -C /nix/store/.*-linux-${KERNEL_VERSION}-dev/lib/modules/${KERNEL_VERSION}/source|MAKEARGS := -C $PWD/kernel-headers/lib/modules/${KERNEL_VERSION}/source|" kernel-headers/lib/modules/${KERNEL_VERSION}/build/Makefile || true
 
     kernelSrc=$(echo $PWD/kernel-headers/lib/modules/*/build/)
-    scons --optimization=production --kernel-dir=$kernelSrc vrouter/vrouter.ko
+    ${sconsCmd}
   '';
   installPhase = ''
     mkdir -p $out/lib/modules/$KERNEL_VERSION/extra/net/vrouter/
@@ -38,6 +41,16 @@ kernelHeaders: stdenv.mkDerivation rec {
   '';
   shellHook = ''
     kernelSrc=$(echo ${kernelHeaders}/lib/modules/*/build/)
+    echo "Follow these steps to build the Vrouter module for the kernel '${kernelHeaders.name}'"
+    echo ""
+    echo "1. Unpack the Tungsten workspace (containing all Tungsten source trees)"
+    echo ""
+    echo "   $ unpack"
+    echo "   $ cd contrail-workspace"
+    echo ""
+    echo "2. Run scons to build the Vrouter module"
+    echo ""
+    echo '  $ ${sconsCmd}'
   '';
   meta = {
     description = "Contrail vrouter kernel module for kernel ${kernelHeaders.name}";
