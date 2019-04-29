@@ -1,6 +1,4 @@
-{ fetched ? import ./nixpkgs-fetch.nix {}
-, nixpkgs ? fetched.pkgs
-}:
+{ nixpkgs ? import ./nixpkgs-fetch.nix {} }:
 
 let
   tools = import ./tools-overlay.nix;
