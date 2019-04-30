@@ -1,126 +1,140 @@
-{ pkgs, sources }:
+{ pkgs, sources, deps }:
 
 with pkgs;
 
-rec {
-  webuiThirdPartyCommon = {
-    version = "3.2";
-    src = sources.webuiThirdParty;
-    phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" ];
-    buildInputs = [ python pythonPackages.lxml unzip wget nodejs-4_x ];
-    # https://www.reddit.com/r/NixOS/comments/6eit9b/request_for_assistance_in_creating_a_derivation/
-    HOME=".";
-    postPatch = ''
-      substituteInPlace fetch_packages.py --replace \
-        "_PACKAGE_CACHE='/tmp/cache/' + os.environ['USER'] + '/webui_third_party" \
-        "_PACKAGE_CACHE='$(pwd)/cache/"
-    '';
+let
+  inherit (deps) nodejs-4_x;
+
+  webui-deps-rev = "${sources.webuiThirdParty.rev}";
+  webui-deps-file = "webui-deps-${webui-deps-rev}.tar.xz";
+  webui-deps-url = "https://storage.fr1.cloudwatt.com/v1/AUTH_e1cd9b90abb840798055d37b29f1a7d2/nixpkgs-tungsten-webui/${webui-deps-file}";
+
+  pythonWithXml = pkgs.python.withPackages (ps: with ps; [ lxml ]);
+
+  # check ./pkgs/build-webui-deps.nix for information on
+  # how to build these dependencies.
+  webui-thirdparty-deps = pkgs.fetchzip {
+      url = webui-deps-url;
+      sha256 = "1rw5q085y2g0zs9fzywjafa38d1ga662hf7fvdaw7ajz02v0yh43";
   };
 
-  nodeHeaders = pkgs.fetchzip {
-    url = https://nodejs.org/download/release/v4.8.4/node-v4.8.4-headers.tar.gz;
-    sha256="1w8bj7y9fgpbz3177l57584rlf0ark12igjq1zrn9bjlppkhqv6h";
-  };
+  webui-build = stdenv.mkDerivation {
 
-  webuiThirdPartyCache = stdenv.mkDerivation (webuiThirdPartyCommon // {
-    name = "contrail-webui-third-party-cache";
-    impureEnvVars = pkgs.stdenv.lib.fetchers.proxyImpureEnvVars;
-    outputHashMode = "recursive";
-    outputHashAlgo = "sha256";
-    outputHash = "1k5pmzx0gvpr015xy0463df9j38kzdmv74cpzx148m3is3zdd9w7";
-    postPatch = webuiThirdPartyCommon.postPatch + ''
-      substituteInPlace fetch_packages.py --replace \
-        "os.remove(ccfile)" \
-        "pass"
-    '';
-    buildPhase = "python fetch_packages.py -f packages.xml";
-    installPhase = ''
-      mkdir -p $out/{cache,node_modules}
+    name = "contrail-webui-build";
+    sourceRoot = "./.";
+    buildInputs = [ rsync bash pythonWithXml openssl nodejs-4_x ];
 
-      # We remove some generated files and keep the npm cache
-      rm -rf node_modules/webworker-threads/
-      rm -rf cache/node_modules/webworker-threads/
-      cp -ra .npm $out/.npm/
-
-      cp -ra cache/* $out/cache/
-      cp -ra node_modules/*.tar.gz $out/node_modules/
-    '';
-  });
-
-  webuiThirdParty = stdenv.mkDerivation (webuiThirdPartyCommon // {
-    name = "contrail-webui-third-party";
-    buildPhase = ''
-      cp -r ${webuiThirdPartyCache}/cache ./
-      cp -r ${webuiThirdPartyCache}/node_modules ./
-      cp -r ${webuiThirdPartyCache}/.npm ./
-      chmod -R u+w cache node_modules .npm
-      python fetch_packages.py -f packages.xml
-    '';
-    postPatch = webuiThirdPartyCommon.postPatch + ''
-      substituteInPlace fetch_packages.py --replace \
-        "cmd = ['npm', 'install', ccfile, '--prefix', _PACKAGE_CACHE]" \
-        "cmd = ['npm', 'install', '--verbose', '--nodedir=${nodeHeaders}', ccfile, '--prefix', _PACKAGE_CACHE]"
-    '';
-    installPhase = "mkdir $out; cp -ra node_modules $out/";
-  });
-
-  webBuild = stdenv.mkDerivation {
-    name = "contrail-web-build";
-    version = "3.2";
-
-    srcs = [ webuiThirdParty sources.webCore sources.webController sources.controller sources.generateds ];
-
-    phases = [ "unpackPhase" "buildPhase" "installPhase" ];
-
-    buildInputs = [
-      python pythonPackages.lxml nodejs-4_x rsync
+    srcs = [
+      webui-thirdparty-deps
+      sources.webCore
+      sources.webController
+      sources.controller
+      sources.apiClient
     ];
 
-    sourceRoot = "./";
-
-    postUnpack = "
+    postUnpack = ''
       mkdir tools
-      mv ${sources.generateds.name} tools/generateds
+
       [[ ${sources.controller} != controller ]] && cp -r ${sources.controller} controller
       mv ${sources.webCore.name} contrail-web-core
       mv ${sources.webController.name} contrail-web-controller
-      rsync -a ${webuiThirdParty.name}/node_modules contrail-web-core
-      rsync -a ${webuiThirdParty.name}/node_modules contrail-web-controller
-    ";
+      mv ${sources.apiClient.name} contrail-api-client
 
-    buildPhase = ''
-      cp contrail-web-core/config/config.global.js contrail-web-core/config/config.global.js.orig
+      rsync -ra ${webui-thirdparty-deps}/node_modules contrail-web-core
+      rsync -ra ${webui-thirdparty-deps}/node_modules contrail-web-controller
+      rsync -ra ${webui-thirdparty-deps}/* contrail-webui-third-party
+
+      cp -a contrail-web-core/webroot/html/dashboard.tmpl contrail-web-core/webroot/html/dashboard.html
+      cp -a contrail-web-core/webroot/html/login.tmpl contrail-web-core/webroot/html/login.html
+      cp -a contrail-web-core/webroot/html/login-error.tmpl contrail-web-core/webroot/html/login-error.html
+    '';
+
+    postPatch = ''
+      patchShebangs ./contrail-web-core/generate-files.sh
+      patchShebangs ./contrail-web-core/build-files.sh
+      patchShebangs ./contrail-web-core/dev-install.sh
+      patchShebangs ./contrail-web-core/generate-keys.sh
+
       substituteInPlace contrail-web-core/config/config.global.js --replace \
         "/usr/src/contrail/contrail-web-controller" \
         "$(pwd)/contrail-web-controller"
 
-      # start build
+      substituteInPlace contrail-web-core/generate-files.sh --replace \
+        "if [ -a ../src/contrail-api-client/schema/all_cfg.xsd ]; then" \
+        "if [ -a ../contrail-api-client/schema/all_cfg.xsd ]; then"
+
+      #
+      # Fix for https://bugs.launchpad.net/opencontrail/+bug/1721039
+      #
+      substituteInPlace contrail-api-client/generateds/generateDS.py --replace \
+        "parser.parse(infile)" \
+        "parser.parse(StringIO.StringIO(infile.getvalue()))"
+
+      substituteInPlace contrail-web-core/generate-files.sh --replace \
+        "python ../src/contrail-api-client/generateds/generateDS.py -f -g json-schema -o configJsonSchemas ../src/contrail-api-client/schema/all_cfg.xsd" \
+        "python ../contrail-api-client/generateds/generateDS.py -f -g json-schema -o configJsonSchemas ../contrail-api-client/schema/all_cfg.xsd"
+
+      #
+      # The doPreStartServer() copies image files to a path in the nix store.
+      # We copy the files during the buildPhase instead
+      #
+      substituteInPlace contrail-web-core/webServerStart.js --replace \
+        "doPreStartServer(false);" \
+        "" \
+    '';
+
+    buildPhase = ''
       cd contrail-web-core
+
+      #
+      # Use the template files as they are
+      #
       cp -a webroot/html/dashboard.tmpl webroot/html/dashboard.html
       cp -a webroot/html/login.tmpl webroot/html/login.html
       cp -a webroot/html/login-error.tmpl webroot/html/login-error.html
+
+      #
+      # Generate json schema files in `src/serverroot/configJsonSchemas` from `apiClient/schema/all_cfg.xsd`
+      #
       ./generate-files.sh 'dev-env' webController
+
+      #
+      # Copy/generate js/css/asset files to/in `./webroot`
+      #
       ./dev-install.sh
       rm -f built_version
+
+      #
+      # Run reqquirejs/r.js ('prod-env' argument is unused)
+      #
       ./build-files.sh 'prod-env' webController
+
+      #
+      # Replace "prod_env" / "dev_env" and add time stamps (all in comments)
+      #
       ./prod-dev.sh webroot/html/dashboard.html prod_env dev_env true
       ./prod-dev.sh webroot/html/login.html prod_env dev_env true
       ./prod-dev.sh webroot/html/login-error.html prod_env dev_env true
-      # end build
 
-      # patch webserver so it doesn't try to write file in the package dir
+      #
+      # copy files which `doPreStartServer()` in webServerStart.js  would otherwise copy (see patchPhase)
+      #
       cp webroot/img/opencontrail-favicon.ico webroot/img/sdn-favicon.ico
       cp webroot/img/opencontrail-logo.png webroot/img/sdn-logo.png
-      substituteInPlace webServerStart.js --replace \
-        "doPreStartServer(false);" \
-        "" \
-      # files generated by the webserver
+
+      #
+      # symlink files to writeable paths outside of the store
+      #
       ln -s /tmp/contrail-web-core-regions.js webroot/common/api/regions.js
       ln -s /tmp/contrail-web-core-menu_wc.xml webroot/menu_wc.xml
-
-      # allow user to provide configuration in /tmp/contrail-web-core-config.js
-      rm -f config/config.global.js
+      rm -rf config/config.global.js
       ln -s /tmp/contrail-web-core-config.js config/config.global.js
+
+      #
+      # generate keys required by jobserver
+      #
+      chmod +x ./generate-keys.sh
+      ./generate-keys.sh
 
       cd ..
     '';
@@ -129,30 +143,30 @@ rec {
       mkdir -p $out
       cp -r * $out
     '';
-    };
+  };
 
-    webController = stdenv.mkDerivation {
-      name = "contrail-web-controller";
-      version = "3.2";
+  webController = stdenv.mkDerivation {
+    name = "contrail-web-controller";
+    version = "5.0";
+    src = webui-build;
+    installPhase = ''
+      mkdir $out
+      cp -r contrail-web-controller/* $out
+    '';
+  };
 
-      src = webBuild;
-      phases = [ "unpackPhase" "installPhase" ];
+  webCore = stdenv.mkDerivation {
+    name = "contrail-web-core";
+    version = "5.0";
+    src = webui-build;
+    installPhase = ''
+      mkdir $out
+      cp -r contrail-web-core/* $out
+    '';
+  };
 
-      installPhase = ''
-        mkdir $out; cp -r contrail-web-controller/* $out
-      '';
-    };
-    
-    webCore = stdenv.mkDerivation {
-      name = "contrail-web-core";
-      version = "3.2";
-
-      src = webBuild;
-      phases = [ "unpackPhase" "installPhase" ];
-
-      installPhase = ''
-        mkdir $out; cp -r contrail-web-core/* $out
-      '';
-    };
-
+in
+  {
+    webCore = webCore;
+    webController = webController;
   }

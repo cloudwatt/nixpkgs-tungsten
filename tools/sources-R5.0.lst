@@ -7,3 +7,6 @@ vrouter Juniper contrail-vrouter R5.0
 common Juniper contrail-common R5.0
 analytics Juniper contrail-analytics R5.0
 apiClient Juniper contrail-api-client R5.0
+webuiThirdParty Juniper contrail-webui-third-party R5.0
+webCore Juniper contrail-web-core R5.0
+webController Juniper contrail-web-controller R5.0
