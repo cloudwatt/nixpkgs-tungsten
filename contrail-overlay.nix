@@ -229,6 +229,7 @@ let
         '';
       };
       gremlinDump = callPackage ./test/gremlin-dump.nix { cassandraDumpPath = minimalDump; };
+      tungstenPrometheusExporter = callPackage ./test/tungsten-prometheus-exporter.nix { contrailPkgs = lself; };
     };
 
     tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = lself; };

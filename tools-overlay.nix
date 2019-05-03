@@ -8,4 +8,5 @@ in {
   gremlinConsole = callPackage ./tools/gremlin-console { };
   gremlinServer = callPackage ./tools/gremlin-server { };
   gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { };
+  tungstenPrometheusExporter = callPackage ./tools/tungsten-prometheus-exporter { };
 }

@@ -14,6 +14,10 @@ let
 
 in {
 
+  imports = [
+    ./cassandra.nix
+  ];
+
   options = {
     contrail.api = {
       enable = mkOption {
