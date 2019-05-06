@@ -1,4 +1,4 @@
-{ pkgs, contrailSources }:
+{ pkgs, lib, contrailSources }:
 
 # Hack: we create this derivation to split the downloading from
 # the autotool reconfiguration of thrift made by fetch_packages.
@@ -21,9 +21,9 @@ pkgs.stdenv.mkDerivation {
   outputHash = "0000000000000000000000000000000000000000000000000000";
 
   buildInputs = with pkgs; [
-    pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget
+    pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget lib.fetchPackages
   ];
 
-  buildPhase = "mkdir cache; python fetch_packages.py --cache-dir $PWD/cache";
+  buildPhase = "mkdir cache; fetch_packages.py --cache-dir $PWD/cache";
   installPhase = "mkdir $out; cp -ra cache/* $out/";
 }
