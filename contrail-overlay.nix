@@ -96,6 +96,7 @@ let
     lib = {
       fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
       buildWebuiDeps = callPackage ./pkgs/build-webui-deps.nix {};
+      fetchPackages = callPackage ./pkgs/contrail-fetch-pkgs.nix {};
 
       # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
