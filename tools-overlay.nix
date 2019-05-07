@@ -9,4 +9,5 @@ in {
   gremlinServer = callPackage ./tools/gremlin-server { };
   gremlinFsck = callPackage ./tools/contrail-gremlin/fsck.nix { };
   tungstenPrometheusExporter = callPackage ./tools/tungsten-prometheus-exporter { };
+  hydraEval = callPackage ./pkgs/hydra-eval-nixpkgs-tungsten-jobs.nix {};
 }
