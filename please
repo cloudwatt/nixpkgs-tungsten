@@ -44,6 +44,10 @@ _get_name() {
 # sanity check functions
 #
 
+_hasKvmSupport() {
+    test -c /dev/kvm && test -w /dev/kvm && test -r /dev/kvm
+}
+
 _isChannelInstalled() {
     nix-channel --list | grep contrail >/dev/null
 }
@@ -150,6 +154,7 @@ doctor() {
     OK="\e[32mOK\e[0m"
     X="\e[31mX\e[0m"
     FAIL=""
+
     log "Running sanity checks:\n"
 
     if _isNixInstalled
@@ -176,8 +181,15 @@ doctor() {
         FAIL="."
     fi
 
+    if _hasKvmSupport
+    then
+        echo -e "- kvm support: $OK"
+    else
+        echo -e "- kvm support: '/dev/kvm' either not found or you don't have r/w permissions. You probably won't be able to start VMs"
+    fi
+
     if [[ $FAIL = "" ]]; then
-        echo -e "\nAll tests passed."
+        echo -e "\nAll essential tests passed."
     else
         echo -e "\nSome tests failed. Try running the init command:\n"
         echo -e "  ./please init\n"
