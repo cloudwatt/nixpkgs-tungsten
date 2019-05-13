@@ -68,7 +68,7 @@ let
   stdenv_gcc6 = super.overrideCC self.stdenv self.gcc6;
 
   # list of supported versions
-  versions = [ "3.2" "4.1" "5.0" ];
+  versions = import ./contrail-versions.nix;
 
   contrail = super.lib.makeScope super.newScope (lself: let
 

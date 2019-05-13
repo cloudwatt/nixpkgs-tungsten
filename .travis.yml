@@ -1,0 +1,13 @@
+language: generic
+before_install:
+    - sudo install -d -m755 -o $(id -u) -g $(id -g) /nix
+script:
+    - ./please init
+    - ./please doctor
+    - ./please list
+    - ./please list | grep contrail
+    - ./please build contrail50.apiServer
+    - ./please install contrail50.apiServer
+    - ./please uninstall contrail50.apiServer
+    - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).all")
+    - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).tests")

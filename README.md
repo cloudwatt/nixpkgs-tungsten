@@ -1,171 +1,295 @@
-# nixpkgs-contrail
+# nixpkgs-tungsten
 
-**nixpkgs-contrail** provides tools and workflows that make developing and testing [OpenContrail](http://www.opencontrail.org/) _easy_, _efficient_, and _convenient_. 
+**nixpkgs-tungsten** provides tools and workflows that make developing and testing [OpenContrail](http://www.opencontrail.org/) _easy_, _efficient_, and _convenient_. 
 
-## Table of Contents
+## Table Of Contents
 
-* [Introduction](#Introduction)
-* [Installing Nix](#installing-nix)
-    * [Configuring Nix](#configuring-nix)
-* [Usage Scenarios](#usage-scenarios)
-    * [Running OpenContrail in a VM](#running-opencontrail-in-a-vm)
-    * [Building OpenContrail from sources](#building-opencontrail-from-sources)
-    * [Working on a single component](#working-on-a-single-component)
-    * [Start a Contrail VM with an existing configuration database](#running-a-vm-with-an-existing-configuration-database)
-    * [Installing OpenContrail related tools](#installing-opencontrail-related-tools)
-* [Testing](#testing)
-* [How to contribute](#how-to-contribute) <!-- hydra does PR testing, your test needs to pass.. -->
-* [Miscellaneous](#Miscellaneous)
-    * [Installing Nix shell completion](#installing-nix-shell-completion)
-    * [Contributing](#contributing)
+* [Introduction](#introduction)
+* [Using ./please for easy nixpkgs-tungsten interaction](#using-please-for-easy-nixpkgs-tungsten-interaction)
+* [Manual Configuration](#manual-configuration)
+  * [Installing Nix](#installing-nix)
+  * [Configuring the Nix channel](#configuring-the-nix-channel)
+  * [Configuring the binary cache](#configuring-the-binary-cache)
+* [Additional Usage Scenarios](#additional-usage-scenarios)
+   * [Running a VM with an existing configuration database](#running-a-vm-with-an-existing-configuration-database)
+   * [Installing OpenContrail related tools](#installing-opencontrail-related-tools)
+* [Miscellaneous](#miscellaneous)
+   * [Contributing](#contributing)
 
 ## Introduction
 
 OpenContrail is a widely adopted and powerful Open Source SDN solution. OpenContrail is 
 powerful but also complex and as such not trivial to build and test. 
 
-The goal of **nixpkgs-contrail** is to improve these workflows and make it much 
+The goal of **nixpkgs-tungsten** is to improve these workflows and make it much 
 easier to develop features and test them in virtual environments.
 
-The only prerequisite and hard dependency of **nixpkgs-contrail** is 
+The only prerequisite and hard dependency of **nixpkgs-tungsten** is 
 [Nix](https://nixos.org/nix). Nix provides all relevant features from provisioning 
 dependencies to the instrumentation of the [QEMU](https://www.qemu.org) based tests.
 
-_The rest of this README walks you through the required setup steps and presents the most
-typical usecase scenarios of **nixpkgs-contrail**_.
+Included with this project is `please`, a thin convenience layer on top of Nix which makes getting started
+with **nixpkgs-tungsten** much easier. Note that all `please` commands will always output the Nix command
+that is actually being executed. Experienced Nix users might want to use Nix commands directly for
+more advanced or specific usages.
 
-## Installing Nix
+## Using `./please` for easy nixpkgs-tungsten interaction
 
-The only prerequisite to building OpenContrail is is a working Nix installation.
-If you aren't already using Nix you can you install Nix using the following
-command:
+```
+$ ./please
+Usage: please <command> [args]
+
+ build [artifact]     -- build an artifact
+ completions          -- output completion script
+ doctor               -- perform sanity checks
+ init                 -- configure initial setup
+ install [artifact]   -- install an artifact
+ list                 -- list artifacts and tests
+ run-test [test]      -- run a test
+ run-vm [test]        -- run an interactive vm of a test
+ shell [artifact]     -- enter a dev shell for an artifact
+ uninstall [artifact] -- uninstall a previously installed artifact
+
+In order to enable context-sensitive completions (bash only!) run:
+
+  $ source <(./please completions)
+
+You should add this to your init scripts.
+```
+
+The `./please` script provides a convenience layer for performing the most typical actions such as building or installing packages provided through **nixpkgs-tungsten**.
+Experienced Nix users are more likely to use Nix tooling directly, for everyone 
+else this provides a good way to get started. 
+
+### `please init`
+
+Installing and configuring Nix can be performed automatically using `./please init`.
+The init command will:
+
+1. Install Nix if it isn't installed already
+1. Configure the contrail nix channel
+1. Configure the contrail binary cache
+
+Note that the binary cache will not be configured if there is a 
+`~/.config/nix/nix.conf` file already. In this case you will have to make the
+changes to your configuration by hand as described below.
+
+### `please doctor` 
+
+After the completing the initialization you can run `./please doctor` to verify that
+everything was installed and configured successfully. 
+
+```
+$ ./please doctor
+[please]: Running sanity checks:
+
+- Nix installed :  OK
+- contrail channel: OK
+- contrail cache: OK
+
+All tests passed.
+```
+
+If there are any errors you may
+want to refer to the description of the manual steps provided below.
+
+### `please completions`
+
+If you are using _bash_ , you are advised to make use of the shell completions:
+
+```
+$ source <(please completions)
+```
+
+The context sensitive completions make it easier to discover packages provided by **nixpkgs-tungsten**. 
+
+### `please list`
+
+In order to get an overview of the packages provided by **nixpkgs-tungsten** you can
+use the `list` command:
+
+```
+$ ./please list
+contrailApiCliWithExtra
+contrailGremlin
+contrailIntrospectCli
+gremlinChecks
+gremlinConsole
+gremlinFsck
+gremlinServer
+contrail32.analyticsApi
+[...]
+```
+
+### `please build`
+
+In order to build any **nixpkgs-tungsten** package you can use `./please build`:
+
+```
+$ ./please build contrail50.apiServer 
+[please]: Running "nix-build default.nix -A contrail50.apiServer"
+
+/nix/store/9v6bv14g19zwbix1d2xz7rkvw2palh46-contrail-api-server-5.0
+
+[please]: Your build result is symlinked in ./resul
+```
+
+**Note**: When no changes have been made to your working copy a `build` 
+command is likely to make use of the _binary cache_ and not actually build 
+anything locally at all.
+
+
+
+### `please install`
+
+In order to install any **nixpkgs-tungsten** package you can use `./please install`:
+
+```
+$ ./please install gremlinConsole
+[please]: Running "nix-env -f default.nix -iA gremlinConsole"
+
+installing 'gremlin-console-3.3.6'
+these paths will be fetched (29.04 MiB download, 210.92 MiB unpacked):
+  /nix/store/8xxcgy2dqnlm6zvlncrva30ilyz47vrq-openjdk-8u192b26
+  /nix/store/nr75pz171d2hf4liszqv70sr0k4k2cl0-gremlin-console-3.3.6
+
+[...]
+
+building '/nix/store/vi8i0syckhm55alj2v35p7rz2vs9ha30-user-environment.drv'...
+created 6366 symlinks in user environment
+```
+
+### `please uninstall`
+
+In order to uninstall any previously installed **nixpkgs-tungsten** package you can use `./please uninstall`:
+
+```
+$ ./please uninstall gremlinConsole
+[please]: Running "nix-env -e gremlin-console-3.3.6"
+
+uninstalling 'gremlin-console-3.3.6
+```
+
+**Note**: While the completions provided via `please completions` are generally context-sensitive,
+the completions provided for `uninstall` are for _all_ available packages and not only the ones currently
+installed. Uninstalling a package that is not currently installed will not yield an error.
+
+### `please run-vm`
+
+The tests provided by **nixpkgs-tungsten** are all executed in virtual machines.
+Instead of only executing the tests and shutting down the virtual machine again the
+machines can also be run in an interactive mode using the `run-vm` command:
+
+```
+$ ./please run-vm contrail50.test.allInOne
+```
+
+Once the VM is up and running you can access the machine via ssh on port 2222 of
+your localhost:
+
+```
+$ ssh -p 2222 root@localhost
+Password: <ENTER>
+```
+
+Furthermore ports `8080` and `8143` are both also forwarded. If you are running a VM
+where the webui is enabled you can access it via https://localhost:8143
+
+### `please shell`
+
+If you want to work on a single package provided by **nixpkgs-tungsten**, make
+changes and try to build it you can do so using the `shell` command:
+
+```
+$ ./please shell contrail50.control        
+
+[please]: Running "nix-shell default.nix -A contrail50.control"
+these paths will be fetched (89.48 MiB download, 588.27 MiB unpacked): 
+  /nix/store/1iih7pgc7krhis13zaq8ajdcb2hd10d9-bzip2-1.0.6.0.1-bin
+  /nix/store/1mfd0aahjy42pr1kkcns2qhkw4idf39x-hook
+  /nix/store/20nzjbfa0j2r4jc92x7nr33yclsk2wg1-hook
+  /nix/store/26lgqf0ja6rx8dnz972a3f56vfxmmmv5-xz-5.2.4-bin
+
+  [...]
+
+[nix-shell:~/]$
+```
+
+This will drop you into a terminal where all build-time dependencies (tools and
+libraries) required by the package you specified are available. In order to get 
+the sources of the package you are interested in you have to evaluate the 
+_unpackPhase_:
+
+```
+$ unpackPhase && cd $sourceRoot
+unpacking source archive /nix/store/alac0s10.../contrail-workspace
+source root is contrail-workspace
+```
+
+Now you can build the respective package. In this case `contrail-control` which is built using `scons`:
+
+```
+$ scons contrail-control
+```
+
+### `please run-test`
+
+**nixpkgs-contril** provides system tests to validate the correct behavior of several
+of the packaged components:
+
+- [`allInOne`](./test/all-in-one.nix): Starts OpenContrail services, creates networks and ports and performs a simple traffic test.
+- [`tcpFlow`](./test/flows.nix): Generates TCP traffic and checks if the traffic is behaving according to the configured security groups.
+- [`udpFlow`](./test/flows.nix): Generates UDP traffic and checks if the traffic is behaving according to the configured security groups.
+
+These tests are executed in virtual machines running in QEMU and can be executed
+using the `run-test` command.
+
+```
+$ ./please run-test contrail50.test.tcpFlows
+[please]: Running "nix-build default.nix -A contrail50.test.tcpFlows"
+```
+Apart from generating a lot of output on the terminal, each test execution will also
+create a `result` output link containing a `log.html` file which contains a pretty-printed 
+overview of the test.
+
+Please refer to the [NixOS manual](https://nixos.org/nixos/manual/index.html#sec-nixos-tests) for more details.
+
+## Manual Configuration
+
+Usually `please init` will create a fully working setup requiring no further manual configuration. As a fallback and also for more
+experienced users who want to do the configuration on their own the following steps can be followed.
+
+**Note**: If `please init` was successful you don't have to run any of the commands described below.
+
+#### 1. Installing Nix
+
+Nix can be installed with the following on-liner:
 
 ```
 $ curl https://nixos.org/nix/install | sh
 ```
 
-For more detailed information about Nix please refer to [https://nixos.org/nix](https://nixos.org/nix/).
+More detailed information about the installation can be found at https://nixos.org/nix/
 
-### Configuring Nix
-
-While not strictly necessary to build OpenContrail, below are some suggested 
-configurations for making your workflow more convenient.
-
-#### Using the OpenContrail Nix channel
-
-The [Hydra CI](https://hydra.nix.corp.cloudwatt.com) server provides binaries of this project and its
-dependencies through a [nix channel](https://nixos.org/nix/manual/#sec-channels). If you configure your
-local nix setup to use this channel you won't have to build binaries that have previously been generated
-by the CI server. Follow the instructions below to make use of the CI server:
-
-**1. Adding the contrail channel**
+#### 2. Configuring the Nix channel
 
 ```
 $ nix-channel --add https://hydra.nix.corp.cloudwatt.com/jobset/nixpkgs-tungsten/trunk/channel/latest contrail
 $ nix-channel --update
 ```
 
-You should now be able to find contrail nix expressions using the the [query](https://nixos.org/nix/manual/#operation-query)
-command of `nix-env`:
+#### 3. Configuring the binary cache
+
+If there already is a `~/.config/nix/nix.conf` file the `init` command will not try to alter it. In that case
+the following needs to be added accordingly:
 
 ```
-$ nix-env -qa '.*contrail.*'
-```
-
-**2. Updating ~/.config/nix/nix.conf**
-
-While the instructions of the previous step made the nix expressions (~= the build instructions) for
-OpenContrail available, the following configuration changes are necessary to tell nix where
-to obtain the binaries that these expressions create. Edit (or create if it doesn't already exist)
-`~/.config/nix/nix.conf` and add the following contents:
-
-```
-# ~/.config/nix/nix.conf
 substituters = https://cache.nixos.org https://cache.nix.corp.cloudwatt.com
 trusted-substituters = https://cache.nix.corp.cloudwatt.com
 trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.nix.cloudwatt.com:ApPt6XtZeOQ3hNRTSBQx+m6rd8p04G0DQwz0bZfVPL8=
 ```
 
-## Usage Scenarios
-
-**nixpkgs-contrail** is _not_ meant to be a replacement of the upstream OpenContrail distribution. Instead it
-provides several use-cases that make working with OpenContrail very convenient. Below is a description of the most
-prominent use-cases.
-
-### Running OpenContrail in a VM
-
-Starting a VM with one of the supported versions of OpenContrail and all currently available components is done as follows:
-
-```
-$ nix-build -A contrail32.test.allInOne # builds the VM image
-$ ./result/bin/nixos-run-vms            # starts the VM in qemu
-```
-
-The example above starts a VM with OpenContrail 3.2, the same will
-also work with `contrail41` or `contrail50`. It is also possible to 
-start the VM with ssh access enabled:
-
-```
-$ nix-build -A contrail32.test.allInOne.driver
-$ QEMU_NET_OPTS="hostfwd=tcp::2222-:22" result/bin/nixos-run-vms
-$ ssh -p 2222 root@localhost
-Password: <ENTER>
-```
-
-### Building OpenContrail from sources
-
-All OpenContrail components packaged in **nixpkgs-contrail** can be built using [nix-build](https://nixos.org/nix/manual/#sec-nix-build) by 
-specifying the attribute path of the component. All components are grouped by the OpenContrail version, which is currently one of the following:
-
-- `contrail32`
-- `contrail41`
-- `contrail50`
-
-A query command like the one below can be used to find out which components belong to a given OpenContrail 
-version:
-
-```
-$ nix-env -f default.nix -qaP -A contrail50
-contrail32.analyticsApi             contrail-analytics-api-3.2
-contrail32.apiServer                contrail-api-server-3.2
-contrail32.collector                contrail-collector-3.2
-contrail32.configUtils              contrail-config-utils-3.2
-...
-```
-
-You can then build any of those individually by passing the attribute path (the first column
-in the example output above) to `nix-build`:
-
-```
-$ nix-build -A contrail32.configUtils
-```
-
-### Working on a single component
-
-The [`nix-shell`](https://nixos.org/nix/manual/#sec-nix-shell) command can be used to provide
-a shell in which all dependencies of a specified package are available. The following command
-creates an environment for working on the `control` component:
-
-```
-$ nix-shell -A contrail32.control
-```
-
-This command will spawn an interactive shell in which the sources and all build-time dependencies
-of `control` have been fetched by nix. In order to start working on the sources some shell scripts
-have to be used to obtain the sources
-
-After `nix-shell` has fetched all packages required to build `contrail32.control`, you will be
-placed in an interactive shell. In order to start working on the `control` package you need
-to use some of the shell functions provided by the `nix-shell` environment:
-
-```
-$ unpackPhase && cd $sourceRoot
-unpacking source archive /nix/store/9jswqjmq6q4ijrmac5qbw2z5b63cl1x0-contrail-workspace
-source root is contrail-workspace
-$ scons contrail-control
-```				 
-
-This approach also makes it easy to test patches or upstream to single components locally.
+## Additional Usage Scenarios
 
 ### Running a VM with an existing configuration database
 
@@ -198,8 +322,11 @@ Execute `./result` again after following the given instructions.
 - [gremlinServer](https://tinkerpop.apache.org/)
 - [gremlinFsck](https://github.com/eonpatapon/contrail-gremlin/tree/master/gremlin-fsck)
 
-All tools can be installed using `nix-env`:
+All tools can be installed using either `please` or `nix-env` directly:
 
+```
+$ ./please install contrailIntrospectCli
+```
 ```
 $ nix-env -iA contrailIntrospectCli -f default.nix
 ```
@@ -211,43 +338,10 @@ install them permanently. The shell can be entered from the root of the project 
 $ nix-shell
 ```
 
-## Testing
-
-The tests are implemented using the [NixOS testing framework](https://nixos.org/nixos/manual/index.html#sec-nixos-tests). 
-Essentially the tests will boot a server inside QEMU, deploy and start OpenContrail and execute a sequence of commands and
-assertions to test if the setup is working as expected. The following test cases are available:
-
-- [`allInOne`](./test/all-in-one.nix): Starts OpenContrail services, creates networks and ports and performs a simple traffic test.
-- [`tcpFlow`](./test/flows.nix): Generates TCP traffic and checks if the traffic is behaving according to the configured security groups.
-- [`udpFlow`](./test/flows.nix): Generates UDP traffic and checks if the traffic is behaving according to the configured security groups.
-
-All of the tests above can be executed as follows for any of the supported OpenContrail versions:
-
-```
-$ nix-build -A contrail32.test.allInOne
-$ nix-build -A contrail41.test.udpFlow
-$ nix-build -A contrail50.test.tcpFlow
-```
-
-Apart from generating a lot of output on the terminal, each test execution will also
-ceate a `result` output link containing a `log.html` file which contains a pretty-printed 
-overview of the test.
-
-Please refer to the [NixOS manual](https://nixos.org/nixos/manual/index.html#sec-nixos-tests) for more details.
 
 ## Miscellaneous
 
-### Installing Nix shell completion
-
-With nix completion support for your shell you can get `<TAB>` triggered completions
-for nix commands and attributes of nix files like those contained in this project.
-
-- **bash**: Nix Completion for Bash is provided by [nix-bash-completions](https://github.com/hedning/nix-bash-completions). 
-For installation and usage instructions please refer to the project website.
-- **zsh**: Nix Completion for ZSH is provided by [nix-zsh-completions](https://github.com/spwhitt/nix-zsh-completions).
-For installation and usage instructions please refer to the projet website.
-
 ### Contributing
 
-Contributions to **nixpkgs-contrail** through PRs are always welcome. All PRs will be automatically tested by the
+Contributions to **nixpkgs-tungsten** through PRs are always welcome. All PRs will be automatically tested by the
 [Hydra CI](https://hydra.nix.corp.cloudwatt.com) server.
