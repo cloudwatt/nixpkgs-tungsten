@@ -4,6 +4,7 @@
 JOBSET=./jobset.nix
 GET_ATTRS=./scripts/get-attrs.nix
 BASH_COMPL_SCRIPT=./scripts/please.complete.bash.sh
+NIX_INSTALL_URL="${NIX_INSTALL_URL:-https://nixos.org/nix/install}"
 
 
 log() {
@@ -127,7 +128,7 @@ init() {
     else
         log "Looks like nix is not installed yet"
         log "Running 'curl https://nixos.org/nix/install | sh'"
-        curl https://nixos.org/nix/install | sh
+        curl "$NIX_INSTALL_URL" | sh
         _sourceNix
     fi
 
