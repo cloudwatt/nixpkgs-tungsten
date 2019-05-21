@@ -20,6 +20,12 @@ _please_completions()
         return
     fi
 
+    # Without nix-instantiate we cannot retrieve any
+    # suggestions
+    if ! type nix-instantiate >/dev/null 2>&1; then
+        return
+    fi
+
     case "$prev" in
         uninstall|install|build|shell)
             COMPREPLY=($(compgen -W "$(_get_attrs)" "$cur"))
