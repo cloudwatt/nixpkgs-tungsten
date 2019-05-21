@@ -45,6 +45,10 @@ _get_name() {
 # sanity check functions
 #
 
+_isRegularUser() {
+    test $(id -u) -ne 0
+}
+
 _hasKvmSupport() {
     test -c /dev/kvm && test -w /dev/kvm && test -r /dev/kvm
 }
@@ -242,6 +246,11 @@ In order to enable context-sensitive completions (bash only!) run:
 You should add this to your init scripts.
 EOM
 }
+
+if ! _isRegularUser; then
+    log-error "root user detected. Run ./please as non-root user!"
+    exit 1
+fi
 
 
 if [ -z "$1" ]; then
