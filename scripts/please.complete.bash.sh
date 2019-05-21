@@ -1,4 +1,7 @@
 GET_ATTRS=./scripts/get-attrs.nix
+NIX_SH="$HOME/.nix-profile/etc/profile.d/nix.sh"
+
+test -f "$NIX_SH" && source "$NIX_SH"
 
 _get_attrs()
 {
