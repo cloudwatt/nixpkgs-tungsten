@@ -32,6 +32,23 @@ in {
     fromImage = tungstenApi;
     contents = toUsrBin contrail50.apiServer;
     config = {
+      Env = [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            "PS1=\\033[1m($(printenv NODE_TYPE)-$(printenv SERVICE_NAME))\\033[m\\017[$(id -un)@$(hostname -s) $(pwd)]$ "
+            "NODE_TYPE=config"
+            "SERVICE_NAME=api"
+      ];
+      Cmd = [
+            "/usr/bin/python"
+            "/usr/bin/contrail-api"
+            "--conf_file"
+            "/etc/contrail/contrail-api.conf"
+            "--conf_file"
+            "/etc/contrail/contrail-keystone-auth.conf"
+            "--worker_id"
+            "0"
+      ];
+      ArgsEscaped = true,
       Entrypoint = [ "/entrypoint.sh" ];
     };
   };
