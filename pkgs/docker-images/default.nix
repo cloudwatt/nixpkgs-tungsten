@@ -48,7 +48,7 @@ in {
             "--worker_id"
             "0"
       ];
-      ArgsEscaped = true,
+      ArgsEscaped = true;
       Entrypoint = [ "/entrypoint.sh" ];
     };
   };
