@@ -26,31 +26,30 @@ let
   '';
 
 in {
-
-  contrailApi = 
-  let
-    contrail-api-start = pkgs.writeScriptBin "contrail-api-start" 
-    ''
-      #!/usr/bin/sh
-      sh /entrypoint.sh
-      contrail-api --conf_file /etc/contrail/contrail-api.conf --conf_file /etc/contrail-keystone-auth.conf --worker_id 0
-    '';
-  in
-  dockerTools.buildImage {
+  contrailApi = dockerTools.buildImage {
     name = "contrail-api";
     tag = "r5.0";
     fromImage = tungstenApi;
-    contents = [ contrail-api-start (toUsrBin contrail50.apiServer) ];
+    contents = toUsrBin contrail50.apiServer;
     config = {
       Env = [
-        "NODE_TYPE=config"
-        "SERVICE_NAME=api"
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            "PS1=\\033[1m($(printenv NODE_TYPE)-$(printenv SERVICE_NAME))\\033[m\\017[$(id -un)@$(hostname -s) $(pwd)]$ "
+            "NODE_TYPE=config"
+            "SERVICE_NAME=api"
       ];
-      ArgsEscaped = true;
-      Entrypoint = [ "/bin/contrail-api-start" ];
+      Cmd = [
+            "/usr/bin/contrail-api"
+            "--conf_file"
+            "/etc/contrail/contrail-api.conf"
+            "--conf_file"
+            "/etc/contrail/contrail-keystone-auth.conf"
+            "--worker_id"
+            "0"
+      ];
+      Entrypoint = [ "/entrypoint.sh" ];
     };
   };
-
   contrailSchema = dockerTools.buildImage {
     name = "contrail-schema";
     tag = "r5.0";
