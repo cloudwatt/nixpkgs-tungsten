@@ -9,5 +9,6 @@ pkgs.mkShell {
     gremlinConsole
     gremlinServer
     gremlinFsck
+    hydraEval
   ];
 }
