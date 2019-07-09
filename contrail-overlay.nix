@@ -95,6 +95,7 @@ let
 
     lib = {
       fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
+      ubuntuKernelHeaders = callPackage ./pkgs/fetch-ubuntu-kernel {};
       buildWebuiDeps = callPackage ./pkgs/build-webui-deps.nix {};
 
       # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
@@ -190,6 +191,28 @@ let
         sha256 = "0j75sd0m9jq4bq6h58kia1ibwyrbh65vdsijfgy6ifl9qxifzq9l";
       };
     in lself.lib.buildVrouter kernel;
+
+    vrouterModuleUbuntu_4_4_0_137_generic = let 
+      kernel = lself.lib.ubuntuKernelHeaders {  
+        version = "4.4.0-137-generic";
+        amd64File = "linux-headers-4.4.0-137-generic_4.4.0-137.163_amd64.deb";
+        amd64Sha256 = "02c7m10a967kd2l84grzksyqdfzkvac0y5m3bd51cpw4wir6rz8s";
+        allFile = "linux-headers-4.4.0-137_4.4.0-137.163_all.deb";
+        allSha256 = "18qv1bkwciqynj5v7w1l46w0adypcafbhqwkfggkgbp629xm3y2s";
+      };
+    in lself.lib.buildVrouter kernel;
+
+    vrouterModuleUbuntu_4_4_0_119_generic = let
+      kernel = lself.lib.ubuntuKernelHeaders {
+        version = "4.4.0-119-generic";
+        amd64File = "linux-headers-4.4.0-119-generic_4.4.0-119.143_amd64.deb";
+        amd64Sha256 = "2e4729f8473014c6072b10ab98d5ca4973e03839cf77d94376f80d35c6465c2f";
+        allFile = "linux-headers-4.4.0-119_4.4.0-119.143_all.deb";
+        allSha256 = "cf9370237c6e8e4e8a9514cc389761658f3df19be9832cc3141e371907152866";
+      };
+    in lself.lib.buildVrouter kernel;
+
+
 
     # config
     apiServer = callPackage ./pkgs/api-server.nix { };
