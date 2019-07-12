@@ -1,6 +1,6 @@
 { pkgs, stdenv, cassandraDumpPath }:
 
-with import (pkgs.path + /nixos/lib/testing.nix) { system = builtins.currentSystem; };
+with import (pkgs.path + /nixos/lib/testing.nix) { inherit pkgs; system = builtins.currentSystem; };
 
 let
 

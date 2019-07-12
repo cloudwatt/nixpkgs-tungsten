@@ -7,7 +7,7 @@ let
 
   webui-deps-rev = "${sources.webuiThirdParty.rev}";
   webui-deps-file = "webui-deps-${webui-deps-rev}.tar.xz";
-  webui-deps-url = "https://storage.fr1.cloudwatt.com/v1/AUTH_e1cd9b90abb840798055d37b29f1a7d2/nixpkgs-tungsten-webui/${webui-deps-file}";
+  webui-deps-url = "https://storage.fr1.cloudwatt.com/v1/AUTH_71d599f49405486e8bbb672e52a1d4d1/nixpkgs-tungsten-webui/${webui-deps-file}";
 
   pythonWithXml = pkgs.python.withPackages (ps: with ps; [ lxml ]);
 
@@ -15,7 +15,7 @@ let
   # how to build these dependencies.
   webui-thirdparty-deps = pkgs.fetchzip {
       url = webui-deps-url;
-      sha256 = "1rw5q085y2g0zs9fzywjafa38d1ga662hf7fvdaw7ajz02v0yh43";
+      sha256 = "16vrk7yijvinqsij911mxcz5cqllix1209j499rjcf9vl91hqzlf";
   };
 
   webui-build = stdenv.mkDerivation {
