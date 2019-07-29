@@ -212,7 +212,15 @@ let
       };
     in lself.lib.buildVrouter kernel;
 
-
+    vrouterModuleUbuntu_4_15_0_38_generic = let
+      kernel = lself.lib.ubuntuKernelHeaders {
+        version = "4.15.0-38-generic";
+        amd64File = "linux-headers-4.15.0-38-generic_4.15.0-38.41_amd64.deb";
+        amd64Sha256 = "ffe339d17082ad317a834845c9e63badecd820ccfb4b0482e9cb1048a9b8cda4";
+        allFile = "linux-headers-4.15.0-38_4.15.0-38.41_all.deb";
+        allSha256 = "c70a74fc34271bbd8409ba709680b99336a17ad4eccd08095f0082768664a2dd";
+      };
+    in lself.lib.buildVrouter kernel;
 
     # config
     apiServer = callPackage ./pkgs/api-server.nix { };
