@@ -207,7 +207,7 @@ let
         version = "4.4.0-157-generic";
         amd64File = "linux-headers-4.4.0-157-generic_4.4.0-157.185_amd64.deb";
         amd64Sha256 = "823648bc2e90449b6cfe3d6bb560cdcd60a6713ed09be6d6922dab1828800e5f";
-        allFile = "linux-headers-4.4.0-185_4.4.0-157.185_all.deb";
+        allFile = "linux-headers-4.4.0-157_4.4.0-157.185_all.deb";
         allSha256 = "9cad21dff2ba739b1467283b8f3b7e4062f1b958da0da64d3d16d0d948dfaf04";
       };
     in lself.lib.buildVrouter kernel;
