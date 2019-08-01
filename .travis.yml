@@ -1,13 +1,25 @@
-language: generic
-before_install:
-    - sudo install -d -m755 -o $(id -u) -g $(id -g) /nix
-script:
-    - NIX_INSTALL_URL=https://nixos.org/releases/nix/nix-2.2.1/install ./please init
-    - ./please doctor
-    - ./please list
-    - ./please list | grep contrail
-    - ./please build contrail50.apiServer
-    - ./please install contrail50.apiServer
-    - ./please uninstall contrail50.apiServer
-    - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).all")
-    - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).tests")
+jobs:
+  include:
+    - stage: test
+      language: generic
+      before_install:
+          - sudo install -d -m755 -o $(id -u) -g $(id -g) /nix
+      script:
+          - NIX_INSTALL_URL=https://nixos.org/releases/nix/nix-2.2.1/install ./please init
+          - ./please doctor
+          - ./please list
+          - ./please list | grep contrail
+          - ./please build contrail50.apiServer
+          - ./please install contrail50.apiServer
+          - ./please uninstall contrail50.apiServer
+          - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).all")
+          - (source ~/.nix-profile/etc/profile.d/nix.sh && nix-instantiate --strict --eval --expr "(import ./scripts/get-attrs.nix {}).tests")
+    - 
+      language: nix
+      if: type = pull_request
+      script:
+      - echo $TRAVIS_PULL_REQUEST
+      - nix-channel --add https://hydra.nix.corp.cloudwatt.com/project/hydra-cli/channel/latest
+      - nix-channel --update
+      - nix-env -i rust_hydra-cli-0.1.0 --option binary-caches https://cache.nix.corp.cloudwatt.com --option trusted-public-keys 'cache.nix.cloudwatt.com:ApPt6XtZeOQ3hNRTSBQx+m6rd8p04G0DQwz0bZfVPL8='
+      - hydra-cli -H https://hydra.nix.corp.cloudwatt.com jobset-wait nixpkgs-tungsten $TRAVIS_PULL_REQUEST
