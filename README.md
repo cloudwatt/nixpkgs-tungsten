@@ -1,6 +1,6 @@
 # nixpkgs-tungsten
 
-**nixpkgs-tungsten** provides tools and workflows that make developing and testing [OpenContrail](http://www.opencontrail.org/) _easy_, _efficient_, and _convenient_. 
+**nixpkgs-tungsten** provides tools and workflows that make developing and testing [OpenContrail](http://www.opencontrail.org/) _easy_, _efficient_, and _convenient_.
 
 ## Table Of Contents
 
@@ -18,14 +18,14 @@
 
 ## Introduction
 
-OpenContrail is a widely adopted and powerful Open Source SDN solution. OpenContrail is 
-powerful but also complex and as such not trivial to build and test. 
+OpenContrail is a widely adopted and powerful Open Source SDN solution. OpenContrail is
+powerful but also complex and as such not trivial to build and test.
 
-The goal of **nixpkgs-tungsten** is to improve these workflows and make it much 
+The goal of **nixpkgs-tungsten** is to improve these workflows and make it much
 easier to develop features and test them in virtual environments.
 
-The only prerequisite and hard dependency of **nixpkgs-tungsten** is 
-[Nix](https://nixos.org/nix). Nix provides all relevant features from provisioning 
+The only prerequisite and hard dependency of **nixpkgs-tungsten** is
+[Nix](https://nixos.org/nix). Nix provides all relevant features from provisioning
 dependencies to the instrumentation of the [QEMU](https://www.qemu.org) based tests.
 
 Included with this project is `please`, a thin convenience layer on top of Nix which makes getting started
@@ -58,8 +58,8 @@ You should add this to your init scripts.
 ```
 
 The `./please` script provides a convenience layer for performing the most typical actions such as building or installing packages provided through **nixpkgs-tungsten**.
-Experienced Nix users are more likely to use Nix tooling directly, for everyone 
-else this provides a good way to get started. 
+Experienced Nix users are more likely to use Nix tooling directly, for everyone
+else this provides a good way to get started.
 
 ### `please init`
 
@@ -70,14 +70,14 @@ The init command will:
 1. Configure the contrail nix channel
 1. Configure the contrail binary cache
 
-Note that the binary cache will not be configured if there is a 
+Note that the binary cache will not be configured if there is a
 `~/.config/nix/nix.conf` file already. In this case you will have to make the
 changes to your configuration by hand as described below.
 
-### `please doctor` 
+### `please doctor`
 
 After the completing the initialization you can run `./please doctor` to verify that
-everything was installed and configured successfully. 
+everything was installed and configured successfully.
 
 ```
 $ ./please doctor
@@ -101,7 +101,7 @@ If you are using _bash_ , you are advised to make use of the shell completions:
 $ source <(please completions)
 ```
 
-The context sensitive completions make it easier to discover packages provided by **nixpkgs-tungsten**. 
+The context sensitive completions make it easier to discover packages provided by **nixpkgs-tungsten**.
 
 ### `please list`
 
@@ -126,7 +126,7 @@ contrail32.analyticsApi
 In order to build any **nixpkgs-tungsten** package you can use `./please build`:
 
 ```
-$ ./please build contrail50.apiServer 
+$ ./please build contrail50.apiServer
 [please]: Running "nix-build default.nix -A contrail50.apiServer"
 
 /nix/store/9v6bv14g19zwbix1d2xz7rkvw2palh46-contrail-api-server-5.0
@@ -134,8 +134,8 @@ $ ./please build contrail50.apiServer
 [please]: Your build result is symlinked in ./resul
 ```
 
-**Note**: When no changes have been made to your working copy a `build` 
-command is likely to make use of the _binary cache_ and not actually build 
+**Note**: When no changes have been made to your working copy a `build`
+command is likely to make use of the _binary cache_ and not actually build
 anything locally at all.
 
 
@@ -201,10 +201,10 @@ If you want to work on a single package provided by **nixpkgs-tungsten**, make
 changes and try to build it you can do so using the `shell` command:
 
 ```
-$ ./please shell contrail50.control        
+$ ./please shell contrail50.control
 
 [please]: Running "nix-shell default.nix -A contrail50.control"
-these paths will be fetched (89.48 MiB download, 588.27 MiB unpacked): 
+these paths will be fetched (89.48 MiB download, 588.27 MiB unpacked):
   /nix/store/1iih7pgc7krhis13zaq8ajdcb2hd10d9-bzip2-1.0.6.0.1-bin
   /nix/store/1mfd0aahjy42pr1kkcns2qhkw4idf39x-hook
   /nix/store/20nzjbfa0j2r4jc92x7nr33yclsk2wg1-hook
@@ -216,8 +216,8 @@ these paths will be fetched (89.48 MiB download, 588.27 MiB unpacked):
 ```
 
 This will drop you into a terminal where all build-time dependencies (tools and
-libraries) required by the package you specified are available. In order to get 
-the sources of the package you are interested in you have to evaluate the 
+libraries) required by the package you specified are available. In order to get
+the sources of the package you are interested in you have to evaluate the
 _unpackPhase_:
 
 ```
@@ -231,6 +231,18 @@ Now you can build the respective package. In this case `contrail-control` which 
 ```
 $ scons contrail-control
 ```
+
+#### Build cache
+
+Building C++ dependencies can be quite time consuming. Instead of running a
+shell for `contrail50.control` you can use the `contrail50.dev.control` attribute
+which will add the build cache for the current commit in the build environment.
+
+In this case the build will be much faster because `.o` files from the cache
+will be reused when possible.
+
+This can be really usefull if you need to quickly rebuild a component with few
+patches.
 
 ### `please run-test`
 
@@ -249,7 +261,7 @@ $ ./please run-test contrail50.test.tcpFlows
 [please]: Running "nix-build default.nix -A contrail50.test.tcpFlows"
 ```
 Apart from generating a lot of output on the terminal, each test execution will also
-create a `result` output link containing a `log.html` file which contains a pretty-printed 
+create a `result` output link containing a `log.html` file which contains a pretty-printed
 overview of the test.
 
 Please refer to the [NixOS manual](https://nixos.org/nixos/manual/index.html#sec-nixos-tests) for more details.
@@ -306,7 +318,7 @@ $ ./result
 
 Running the program for the first time it will produce some information
 with details on the files that need to be created, how to create them,
-and where they need to be placed. 
+and where they need to be placed.
 
 Execute `./result` again after following the given instructions.
 
