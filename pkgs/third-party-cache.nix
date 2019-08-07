@@ -1,4 +1,8 @@
-{ pkgs, contrailSources }:
+{ pkgs
+, lib
+, contrailVersion
+, contrailSources
+}:
 
 # Hack: we create this derivation to split the downloading from
 # the autotool reconfiguration of thrift made by fetch_packages.
@@ -8,7 +12,7 @@
 # from nixpkgs).
 pkgs.stdenv.mkDerivation {
   name = "contrail-third-party-cache";
-  version = "3.2";
+  version = contrailVersion;
 
   src = contrailSources.thirdParty;
   phases = [ "unpackPhase" "buildPhase" "installPhase" ];
@@ -20,9 +24,11 @@ pkgs.stdenv.mkDerivation {
   outputHashAlgo = "sha256";
   outputHash = "0000000000000000000000000000000000000000000000000000";
 
+  # Starting with contrail 5.0 fetch_packages.py uses python3 and native python
+  # implementation to download packages
   buildInputs = with pkgs; [
-    pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget
-  ];
+    pkgconfig autoconf automake libtool unzip
+  ] ++ (if lib.versionAtLeast50 then [ python3Packages.lxml cacert ] else [ wget pythonPackages.lxml ]);
 
   buildPhase = "mkdir cache; python fetch_packages.py --cache-dir $PWD/cache";
   installPhase = "mkdir $out; cp -ra cache/* $out/";

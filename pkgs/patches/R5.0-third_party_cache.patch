@@ -1,0 +1,19 @@
+diff --git a/fetch_packages.py b/fetch_packages.py
+index 7df4773..399fbb6 100755
+--- a/fetch_packages.py
++++ b/fetch_packages.py
+@@ -90,6 +90,14 @@ def ApplyPatches(pkg):
+                 raise PatchError('Failed to apply patch %s' % patch.text)
+ 
+ def DownloadPackage(urls, pkg, md5):
++    # Check if the package already exists
++    if os.path.isfile(pkg):
++        md5sum = FindMd5sum(pkg)
++        if md5sum == md5:
++            return
++        else:
++            os.remove(pkg)
++
+     retry_count = 0
+     while retry_count <= _RETRIES:
+         for url in urls:

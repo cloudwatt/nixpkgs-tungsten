@@ -1,15 +1,22 @@
-{ pkgs, contrailVersion, contrailSources, contrailThirdPartyCache }:
+{ pkgs
+, lib
+, contrailVersion
+, contrailSources
+, contrailThirdPartyCache
+}:
 
-pkgs.stdenv.mkDerivation {
+with pkgs.lib;
+
+pkgs.stdenv.mkDerivation ({
   name = "contrail-third-party";
   version = contrailVersion;
 
   src = contrailSources.thirdParty;
-  phases = [ "unpackPhase" "buildPhase" "installPhase" ];
+  phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" ];
 
   buildInputs = with pkgs; [
-    pythonPackages.lxml pkgconfig autoconf automake libtool unzip wget contrailThirdPartyCache
-  ];
+    pkgconfig autoconf automake libtool unzip contrailThirdPartyCache
+  ] ++ (if lib.versionAtLeast50 then [ python3Packages.lxml cacert ] else [ pythonPackages.lxml wget ]);
 
   buildPhase = "python fetch_packages.py --cache-dir ${contrailThirdPartyCache}";
 
@@ -20,4 +27,8 @@ pkgs.stdenv.mkDerivation {
     mkdir $out
     cp -ra * $out/
   '';
-}
+} // optionalAttrs lib.versionAtLeast50 {
+
+  patches = [ ./patches/R5.0-third_party_cache.patch ];
+
+})

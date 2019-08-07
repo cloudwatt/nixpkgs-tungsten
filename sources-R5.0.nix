@@ -4,7 +4,7 @@
 
 {pkgs}:
 {
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-build at 2019-04-09 09:33:07
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-build at 2019-08-05 14:18:27
   build = pkgs.fetchFromGitHub {
     name = "build";
     owner = "Juniper";
@@ -12,23 +12,23 @@
     rev = "ae7a389b70b18ffdc29c559c0b23f6a9e1c3f8f3";
     sha256 = "0gv6zi630vw3s56ix0n99v6i4ag1r9djcs6g3rkaxfnl3s46mh6k";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-controller at 2019-04-09 09:33:09
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-controller at 2019-08-05 14:18:28
   controller = pkgs.fetchFromGitHub {
     name = "controller";
     owner = "Juniper";
     repo = "contrail-controller";
-    rev = "559fb8e81ba8703bbafc191b2326d2d535de1846";
-    sha256 = "0wvbxf724y12zk8h9syai7yy1b6d5x9660rh3phbi4m35v7v1fy7";
+    rev = "20b369e2fdb454bea992d5067973465cb5fa1c6e";
+    sha256 = "1ac16sgibikcw7lg58d4nv7xp2wk6xnsg61glp9q571676j5plj2";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-neutron-plugin at 2019-04-09 09:33:17
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-neutron-plugin at 2019-08-05 14:18:34
   neutronPlugin = pkgs.fetchFromGitHub {
     name = "neutronPlugin";
     owner = "Juniper";
     repo = "contrail-neutron-plugin";
-    rev = "7a6086975df0ded5b315c4ed89d010c4ec49b528";
-    sha256 = "1pc2xmvifgfdjy1q52rj1p67yvszx52jaigb5r019y0llsmi0ghm";
+    rev = "f2da2d75ce32a6bbd01a28b957b58902b796209a";
+    sha256 = "03qls32ycb1w9a5k7zgzvzffzp7sw9hnirp85v9p9npsd4m7awy2";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-sandesh at 2019-04-09 09:33:19
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-sandesh at 2019-08-05 14:18:35
   sandesh = pkgs.fetchFromGitHub {
     name = "sandesh";
     owner = "Juniper";
@@ -36,23 +36,23 @@
     rev = "cd779c577b814882ae688a5a9c0854cfaa851f27";
     sha256 = "0qwd6ad1xb0rysz03jxzvrakkzs4lpkk7qljp1wykh3i3w4vk811";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-third-party at 2019-04-09 09:33:20
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-third-party at 2019-08-05 14:18:37
   thirdParty = pkgs.fetchFromGitHub {
     name = "thirdParty";
     owner = "Juniper";
     repo = "contrail-third-party";
-    rev = "92489e37bb67d48fe8eaa07b1d689672e144e0db";
-    sha256 = "0z8bx1hbxflzx65c8lvgvn0kjyr9h9fqfbzc7abnyfvygc5kp5mh";
+    rev = "dd708cc2975cc6f2b839da0c3cb8634676d05dbe";
+    sha256 = "1x8cdhfv7jpn3gp7xijq9hk1gfaphgz8799n1rakhhf5jv2yycdh";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-vrouter at 2019-04-09 09:33:22
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-vrouter at 2019-08-05 14:18:38
   vrouter = pkgs.fetchFromGitHub {
     name = "vrouter";
     owner = "Juniper";
     repo = "contrail-vrouter";
-    rev = "b02c0ac574e2602046b42e2e2036ad4519f76ac6";
-    sha256 = "1cizkgdfd047x37mhkq75cmh58jqcsy8hj2yq3m03v6w111l0ckf";
+    rev = "88465026015fb3cb85d460ed28098debf1d611da";
+    sha256 = "0m0m420fgpiby4ljih0wnwchxsgaxpswbfcpsli9gj3wl0578j52";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-common at 2019-04-09 09:33:31
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-common at 2019-08-05 14:18:46
   common = pkgs.fetchFromGitHub {
     name = "common";
     owner = "Juniper";
@@ -60,23 +60,23 @@
     rev = "a9e70ecec0bda81ee16b4bd156a3d091620a329f";
     sha256 = "0rm52y7x4bynzhv43qa194ggimz5ggdw30fdxs2w84fvvi6yv4bz";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-analytics at 2019-04-09 09:33:33
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-analytics at 2019-08-05 14:18:48
   analytics = pkgs.fetchFromGitHub {
     name = "analytics";
     owner = "Juniper";
     repo = "contrail-analytics";
-    rev = "574ee3fd9232fcbe5c08cf3d998ac8d76ad0026a";
-    sha256 = "1hrz8dvxkrlmd0hl4qd9v7799mxqj9m6jgag7xchy90zx4wmrzms";
+    rev = "0ae0de6d832a830499acdc8abed1d1c518d55843";
+    sha256 = "1hbivwvnc7ssy2vd1k1zj3zpy4h4gn43wjyfaya5786qryv0whgf";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-api-client at 2019-04-09 09:33:49
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-api-client at 2019-08-05 14:18:59
   apiClient = pkgs.fetchFromGitHub {
     name = "apiClient";
     owner = "Juniper";
     repo = "contrail-api-client";
-    rev = "a0ed6e3bcbf80826a6bc64dd2158d5a2c2f7c75f";
-    sha256 = "15d03snx1iv1r4r2zk8zcyq15gw4mq3w5dy1ja12z0gwrbhpyid7";
+    rev = "c6035dc045e093fe74b04d7af42a4a68bc41fe64";
+    sha256 = "178cb0p6mdlbs9czg0rih6gshdv1s9f1mzw3lk79shjlmx9x1pfw";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-webui-third-party at 2019-03-25 16:23:49
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-webui-third-party at 2019-08-05 14:19:01
   webuiThirdParty = pkgs.fetchFromGitHub {
     name = "webuiThirdParty";
     owner = "Juniper";
@@ -84,20 +84,20 @@
     rev = "10d5493cc093e0b67e80af7e5b16b69f63e600ab";
     sha256 = "06abxqlgcix9z1wisy323g7nq49faz0m82k61j7345ml543xp0n2";
   };
-  # Head of branch R5.0 of repository github.com/Juniper/contrail-web-core at 2019-03-27 15:20:45
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-web-core at 2019-08-05 14:19:02
   webCore = pkgs.fetchFromGitHub {
     name = "webCore";
     owner = "Juniper";
     repo = "contrail-web-core";
-    rev = "5d88c9b5cd6460b6814222d40cded3d5b8115c9c";
-    sha256 = "100sl2jjvxa5p92qhhh5ysk7820p08nc1xczwwgm5nl7rdm2gi9p";
+    rev = "70e14673624d7d582431fa5d8b9c100e3cd38390";
+    sha256 = "1pn2m2ivfmbfddvqsziag6dpjkl64rz3lgpf4fplqvnppis7jiij";
   };
-   # Head of branch R5.0 of repository github.com/Juniper/contrail-web-controller at 2019-03-27 15:30:02
+  # Head of branch R5.0 of repository github.com/Juniper/contrail-web-controller at 2019-08-05 14:19:07
   webController = pkgs.fetchFromGitHub {
     name = "webController";
     owner = "Juniper";
     repo = "contrail-web-controller";
-    rev = "020de4532c0059f2c32ead4aa58db374cc761c97";
-    sha256 = "0z1na6pm7jbwvkmixlx4x2qig2z8qzw00zpcp3182nfj8wgy5lq1";
+    rev = "539ade65ada852806ce8562e1c811af55eee8d78";
+    sha256 = "1qc4f8g75g0cwlc7ckb4dgv5831d9hp7cmh814y4hyqqc3iix6lw";
   };
 }
