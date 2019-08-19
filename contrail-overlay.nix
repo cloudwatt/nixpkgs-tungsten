@@ -95,6 +95,7 @@ let
 
     lib = {
       fetchCentosKernel = callPackage ./pkgs/fetch-centos-kernel {};
+      ubuntuKernelHeaders = callPackage ./pkgs/fetch-ubuntu-kernel {};
       buildWebuiDeps = callPackage ./pkgs/build-webui-deps.nix {};
 
       # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
@@ -188,6 +189,53 @@ let
         centosVersion = "7";
         kernelVersion = "3.10.0-957.el7.x86_64";
         sha256 = "0j75sd0m9jq4bq6h58kia1ibwyrbh65vdsijfgy6ifl9qxifzq9l";
+      };
+    in lself.lib.buildVrouter kernel;
+
+    vrouterModuleUbuntu_4_4_0_137_generic = let 
+      kernel = lself.lib.ubuntuKernelHeaders {  
+        version = "4.4.0-137-generic";
+        amd64File = "linux-headers-4.4.0-137-generic_4.4.0-137.163_amd64.deb";
+        amd64Sha256 = "02c7m10a967kd2l84grzksyqdfzkvac0y5m3bd51cpw4wir6rz8s";
+        allFile = "linux-headers-4.4.0-137_4.4.0-137.163_all.deb";
+        allSha256 = "18qv1bkwciqynj5v7w1l46w0adypcafbhqwkfggkgbp629xm3y2s";
+      };
+    in lself.lib.buildVrouter kernel;
+
+    vrouterModuleUbuntu_4_4_0_157_generic = let
+      kernel = lself.lib.ubuntuKernelHeaders {
+        version = "4.4.0-157-generic";
+        amd64File = "linux-headers-4.4.0-157-generic_4.4.0-157.185_amd64.deb";
+        amd64Sha256 = "823648bc2e90449b6cfe3d6bb560cdcd60a6713ed09be6d6922dab1828800e5f";
+        allFile = "linux-headers-4.4.0-157_4.4.0-157.185_all.deb";
+        allSha256 = "9cad21dff2ba739b1467283b8f3b7e4062f1b958da0da64d3d16d0d948dfaf04";
+      };
+    in lself.lib.buildVrouter kernel;
+
+
+    vrouterModuleUbuntu_4_4_0_119_generic = let
+      kernel = lself.lib.ubuntuKernelHeaders {
+        version = "4.4.0-119-generic";
+        amd64File = "linux-headers-4.4.0-119-generic_4.4.0-119.143_amd64.deb";
+        amd64Sha256 = "2e4729f8473014c6072b10ab98d5ca4973e03839cf77d94376f80d35c6465c2f";
+        allFile = "linux-headers-4.4.0-119_4.4.0-119.143_all.deb";
+        allSha256 = "cf9370237c6e8e4e8a9514cc389761658f3df19be9832cc3141e371907152866";
+      };
+    in lself.lib.buildVrouter kernel;
+
+
+
+
+
+
+
+    vrouterModuleUbuntu_4_15_0_38_generic = let
+      kernel = lself.lib.ubuntuKernelHeaders {
+        version = "4.15.0-38-generic";
+        amd64File = "linux-headers-4.15.0-38-generic_4.15.0-38.41_amd64.deb";
+        amd64Sha256 = "ffe339d17082ad317a834845c9e63badecd820ccfb4b0482e9cb1048a9b8cda4";
+        allFile = "linux-headers-4.15.0-38_4.15.0-38.41_all.deb";
+        allSha256 = "c70a74fc34271bbd8409ba709680b99336a17ad4eccd08095f0082768664a2dd";
       };
     in lself.lib.buildVrouter kernel;
 
