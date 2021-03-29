@@ -32,7 +32,7 @@ prettytable==0.7.2
 prompt-toolkit==1.0.15
 pycassa==1.11.2
 pydotplus==2.0.2
-Pygments==2.3.1
+Pygments==2.7.4
 pyparsing==2.3.1
 python-keystoneclient==3.19.0
 pytz==2018.9
